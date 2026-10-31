@@ -1,0 +1,613 @@
+[
+  {
+    "slug": "SIMICO-MICO-2026-VALTELLINA-SS38",
+    "cup": "B39H21000120001",
+    "titolo": "S.S. 38 Variante di Tirano e Nodo di Bormio - Adeguamento e svincoli Olimpiadi 2026",
+    "ente": "SIMICO S.p.A. / ANAS Lombardia",
+    "regione": "Lombardia",
+    "provincia": "SO",
+    "comune": "Tirano, Villa di Tirano",
+    "importo_eur": 184500000,
+    "data_pubblicazione": "2026-10-18",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "maturity_score": 5,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Pre-acquisizione proprietari su deposito provvisorio",
+      "priorita": "alta",
+      "giorni_residui": 18,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri SIMICO - Sede operativa Sondrio, previo appuntamento pec@simico.it"
+    },
+    "geo": {
+      "lat": 46.2155,
+      "lng": 10.1742
+    },
+    "fonte_url": "https://simico.it/atti-pubblicati-espropri-2026",
+    "ditte": []
+  },
+  {
+    "slug": "REGIONE-LOMBARDIA-DERVIO-IDRAULICA-LC",
+    "cup": "C12C24000100002",
+    "titolo": "Interventi di mitigazione idraulica e viabilità di accesso — Comune di Dervio (LC)",
+    "ente": "Regione Lombardia / Comune di Dervio",
+    "regione": "Lombardia",
+    "provincia": "LC",
+    "comune": "Dervio",
+    "importo_eur": 4800000,
+    "data_pubblicazione": "2026-10-29",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Assistenza tecnica stima provvisoria e perizie D.P.R. 327/2001",
+      "priorita": "alta",
+      "giorni_residui": 29,
+      "elenco_non_pubblico": false
+    },
+    "geo": {
+      "lat": 46.0772,
+      "lng": 9.3061
+    },
+    "fonte_url": "https://www.comune.dervio.lc.it",
+    "ditte": [
+      {
+        "intestatario": "CARROCCIO BENEDETTA ELISABETTA nata a MILANO ",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1254",
+        "sup_mq": 670,
+        "indennita": 60300,
+        "delta": true
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1260",
+        "sup_mq": 60,
+        "indennita": 360,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1261",
+        "sup_mq": 20,
+        "indennita": 120,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI ERMINIO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1224",
+        "sup_mq": 40,
+        "indennita": 240,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI ERMINIO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1225",
+        "sup_mq": 60,
+        "indennita": 360,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI ERMINIO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1262",
+        "sup_mq": 440,
+        "indennita": 2640,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "1135",
+        "sup_mq": 2600,
+        "indennita": 25480,
+        "delta": true
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "1137",
+        "sup_mq": 600,
+        "indennita": 3600,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "298",
+        "sup_mq": 810,
+        "indennita": 4860,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "604",
+        "sup_mq": 140,
+        "indennita": 938,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "616",
+        "sup_mq": 535,
+        "indennita": 2033,
+        "delta": false
+      },
+      {
+        "intestatario": "BIANCHI BAZZI WALTER",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "847",
+        "sup_mq": 290,
+        "indennita": 1740,
+        "delta": false
+      },
+      {
+        "intestatario": "BOMBAGLIO ARNALDO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "301",
+        "sup_mq": 225,
+        "indennita": 20250,
+        "delta": true
+      },
+      {
+        "intestatario": "BONAZZOLA PEPINO S.R.L.",
+        "comune": "Dervio",
+        "foglio": "904",
+        "mappali": "3411",
+        "sup_mq": 10,
+        "indennita": 67,
+        "delta": false
+      },
+      {
+        "intestatario": "BONAZZOLA PEPINO S.R.L.",
+        "comune": "Dervio",
+        "foglio": "904",
+        "mappali": "5052",
+        "sup_mq": 10,
+        "indennita": 60,
+        "delta": false
+      },
+      {
+        "intestatario": "BONAZZOLA PEPINO S.R.L.",
+        "comune": "Dervio",
+        "foglio": "904",
+        "mappali": "5079",
+        "sup_mq": 20,
+        "indennita": 120,
+        "delta": false
+      },
+      {
+        "intestatario": "BORRIERO CHRISTIAN",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "250",
+        "sup_mq": 250,
+        "indennita": 500,
+        "delta": false
+      },
+      {
+        "intestatario": "BUZZI RICCARDO",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "5066",
+        "sup_mq": 380,
+        "indennita": 3724,
+        "delta": false
+      },
+      {
+        "intestatario": "BUZZI RICCARDO",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "5068",
+        "sup_mq": 330,
+        "indennita": 3234,
+        "delta": false
+      },
+      {
+        "intestatario": "BUZZI RICCARDO",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "5062",
+        "sup_mq": 330,
+        "indennita": 3234,
+        "delta": false
+      },
+      {
+        "intestatario": "CALCINATI MAURIZIO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1009",
+        "sup_mq": 270,
+        "indennita": 1080,
+        "delta": false
+      },
+      {
+        "intestatario": "RIVA ANNA NATA A MILANO (MI) IL 02/033/1966 R",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1180",
+        "sup_mq": 9837,
+        "indennita": 885330,
+        "delta": true
+      },
+      {
+        "intestatario": "CARIBONI ANNA nata a COMO (CO) il 11/03/1942 ",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "716",
+        "sup_mq": 650,
+        "indennita": 104000,
+        "delta": true
+      },
+      {
+        "intestatario": "CARIBONI ANNA nata a COMO (CO) il 11/03/1942 ",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "770",
+        "sup_mq": 490,
+        "indennita": 39200,
+        "delta": true
+      },
+      {
+        "intestatario": "CARIBONI ANNA nata a COMO (CO) il 11/03/1942 ",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "782",
+        "sup_mq": 1150,
+        "indennita": 2300,
+        "delta": false
+      },
+      {
+        "intestatario": "CARIBONI ANNA nata a COMO (CO) il 11/03/1942 ",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "783",
+        "sup_mq": 390,
+        "indennita": 3822,
+        "delta": false
+      },
+      {
+        "intestatario": "CARIBONI ANNA nata a COMO (CO) il 11/03/1942 ",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1231",
+        "sup_mq": 1620,
+        "indennita": 40500,
+        "delta": true
+      },
+      {
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "309",
+        "sup_mq": 680,
+        "indennita": 108800,
+        "delta": true
+      },
+      {
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "760",
+        "sup_mq": 35,
+        "indennita": 140,
+        "delta": false
+      },
+      {
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1479 EX 761",
+        "sup_mq": 15,
+        "indennita": 2400,
+        "delta": false
+      }
+    ]
+  },
+  {
+    "slug": "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA",
+    "cup": "F81B18000450009",
+    "titolo": "Linea AV/AC Verona-Padova: Tratta 2° Lotto Costruttivo attraversamento Vicenza e opere connesse",
+    "ente": "RFI / Italferr S.p.A.",
+    "regione": "Veneto",
+    "provincia": "VI",
+    "comune": "Vicenza, Altavilla Vicentina",
+    "importo_eur": 890000000,
+    "data_pubblicazione": "2026-10-12",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima provvisoria e perizie tecniche concordate",
+      "priorita": "alta",
+      "giorni_residui": 24,
+      "elenco_non_pubblico": false
+    },
+    "geo": {
+      "lat": 45.5455,
+      "lng": 11.5354
+    },
+    "fonte_url": "https://www.rfi.it/it/progetti-e-interventi/espropri.html",
+    "ditte": [
+      {
+        "intestatario": "Zanella S.r.l. Costruzioni",
+        "comune": "Vicenza",
+        "foglio": "34",
+        "mappali": "128, 129 sub 2",
+        "sup_mq": 4850,
+        "indennita": 145000,
+        "delta": true
+      },
+      {
+        "intestatario": "Rossi Mario & Rossi Giuseppe",
+        "comune": "Vicenza",
+        "foglio": "34",
+        "mappali": "140",
+        "sup_mq": 1200,
+        "indennita": 34000,
+        "delta": false
+      },
+      {
+        "intestatario": "Agricola Berica di Benetti F.lli",
+        "comune": "Altavilla Vic.",
+        "foglio": "12",
+        "mappali": "88, 91, 95",
+        "sup_mq": 18400,
+        "indennita": 198000,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare San Felice S.a.s.",
+        "comune": "Vicenza",
+        "foglio": "35",
+        "mappali": "210, 212",
+        "sup_mq": 3100,
+        "indennita": 89000,
+        "delta": false
+      }
+    ]
+  },
+  {
+    "slug": "AUTOVIE-A4-TERZA-CORSIA-SAN-DONA-PORTOGRUARO",
+    "cup": "C21B20000150003",
+    "titolo": "Autostrada A4 Venezia-Trieste: Realizzazione Terza Corsia tratta San Donà - Portogruaro",
+    "ente": "Autostrade Alto Adriatico S.p.A.",
+    "regione": "Veneto",
+    "provincia": "VE",
+    "comune": "San Donà di Piave, Cessalto, Portogruaro",
+    "importo_eur": 420000000,
+    "data_pubblicazione": "2026-09-28",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": false,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione: monitorare pubblicazione piano particellare",
+      "priorita": "alta",
+      "giorni_residui": null,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio del Commissario Delegato A4 c/o Palmanova"
+    },
+    "geo": {
+      "lat": 45.6322,
+      "lng": 12.5644
+    },
+    "fonte_url": "https://www.autostradealtoadriatico.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "ANAS-LOMBARDIA-VARIANTE-PALADINA-SEDRINA-SS470",
+    "cup": "E81B23000670002",
+    "titolo": "S.S. 470 della Valle Brembana: Variante di Paladina e sistemazione viabilità all'incrocio di Almè",
+    "ente": "ANAS Lombardia / Provincia di Bergamo",
+    "regione": "Lombardia",
+    "provincia": "BG",
+    "comune": "Paladina, Almè, Villa d'Almè",
+    "importo_eur": 65000000,
+    "data_pubblicazione": "2026-10-25",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Ingaggio preventivo proprietari terreni adiacenti sedime",
+      "priorita": "alta",
+      "giorni_residui": 28,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Uff. Tecnico Comune di Paladina e sede ANAS Milano Via Filzi"
+    },
+    "geo": {
+      "lat": 45.7289,
+      "lng": 9.6133
+    },
+    "fonte_url": "https://stradeanas.it/it/lombardia-espropri-paladina",
+    "ditte": []
+  },
+  {
+    "slug": "EMILIA-CISPADANA-AUTOSTRADA-REGIONALE",
+    "cup": "D41B19000220007",
+    "titolo": "Autostrada Regionale Cispadana: Collegamento casello A22 Rolo-Reggiolo con A13 Ferrara Sud",
+    "ente": "Autostrada del Brennero / ARC S.p.A.",
+    "regione": "Emilia-Romagna",
+    "provincia": "RE",
+    "comune": "Guastalla, Rolo, Cento, Mirandola",
+    "importo_eur": 1300000000,
+    "data_pubblicazione": "2026-08-14",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Perizie espropriative stima VAM / Valore di Mercato",
+      "priorita": "media",
+      "giorni_residui": 0,
+      "elenco_non_pubblico": false
+    },
+    "geo": {
+      "lat": 44.8872,
+      "lng": 11.0667
+    },
+    "fonte_url": "https://bur.regione.emilia-romagna.it",
+    "ditte": [
+      {
+        "intestatario": "Società Agricola Mirandolese S.s.",
+        "comune": "Mirandola",
+        "foglio": "45",
+        "mappali": "12, 14, 15",
+        "sup_mq": 32400,
+        "indennita": 310000,
+        "delta": true
+      },
+      {
+        "intestatario": "Golinelli Sergio & Andrea",
+        "comune": "Cento",
+        "foglio": "18",
+        "mappali": "202, 204",
+        "sup_mq": 8700,
+        "indennita": 74000,
+        "delta": false
+      },
+      {
+        "intestatario": "Manifattura Tessile Emiliana S.p.A.",
+        "comune": "Reggiolo",
+        "foglio": "9",
+        "mappali": "55",
+        "sup_mq": 4100,
+        "indennita": 165000,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "PIEMONTE-TANGENZIALE-EST-TORINO-CONCESSIONE",
+    "cup": "G11B22000550001",
+    "titolo": "Tangenziale Est di Torino: Connessione tra A4 Torino-Milano e A21 Torino-Piacenza",
+    "ente": "Regione Piemonte / Città Metropolitana Torino",
+    "regione": "Piemonte",
+    "provincia": "TO",
+    "comune": "Chivasso, San Mauro Torinese, Moncalieri",
+    "importo_eur": 780000000,
+    "data_pubblicazione": "2026-09-02",
+    "stato_opera": "PRELIMINARE",
+    "maturity_score": 2,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": false,
+      "progetto_def_esec_approvato": false,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Watchlist - In attesa di conclusione Conferenza Servizi",
+      "priorita": "bassa",
+      "giorni_residui": null,
+      "elenco_non_pubblico": false
+    },
+    "geo": {
+      "lat": 45.1033,
+      "lng": 7.785
+    },
+    "fonte_url": "https://www.regione.piemonte.it/bandi",
+    "ditte": []
+  },
+  {
+    "slug": "LIGURIA-NODODE-GENOVA-POTENZIAMENTO-VOLTRI-BRIGNOLE",
+    "cup": "J31B15000210008",
+    "titolo": "Potenziamento infrastrutturale nodo ferroviario di Genova: Tratta Voltri - Sampierdarena - Brignole",
+    "ente": "RFI S.p.A. / Italferr",
+    "regione": "Liguria",
+    "provincia": "GE",
+    "comune": "Genova",
+    "importo_eur": 540000000,
+    "data_pubblicazione": "2026-07-21",
+    "stato_opera": "CHIUSA",
+    "maturity_score": 7,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": true
+    },
+    "azione": {
+      "verbo": "Assistenza per svincolo indennità depositate presso Cassa Depositi e Prestiti",
+      "priorita": "media",
+      "giorni_residui": 0,
+      "elenco_non_pubblico": false
+    },
+    "geo": {
+      "lat": 44.4142,
+      "lng": 8.9132
+    },
+    "fonte_url": "https://www.commissari.mit.gov.it/nodo-genova",
+    "ditte": []
+  }
+]
