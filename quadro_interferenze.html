@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Motore Espropri — Quadro Territoriale delle Interferenze DPR 327/2001</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0f172a; color: #f8fafc; overflow: hidden; }
+    
+    #app { display: flex; height: 100vh; width: 100vw; }
+    #map { flex: 1; height: 100%; position: relative; }
+
+    /* Top bar rapida di navigazione */
+    .top-nav {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid #334155;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    .top-nav a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .top-nav a:hover {
+      text-decoration: underline;
+    }
+
+    /* Sidebar di ispezione particellare */
+    #sidebar {
+      width: 420px;
+      background: #1e293b;
+      border-left: 1px solid #334155;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.4);
+      z-index: 10;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+    }
+    .sidebar-header h1 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; }
+    .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+    .sidebar-content { padding: 20px; overflow-y: auto; flex: 1; }
+
+    /* Componenti Card e Metriche */
+    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .metric-card { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 12px; }
+    .metric-card span { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; }
+    .metric-card strong { display: block; font-size: 17px; margin-top: 4px; color: #f8fafc; font-family: monospace; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .badge-danger { background: rgba(230, 57, 70, 0.2); color: #ff6b6b; border: 1px solid #e63946; }
+    .badge-warning { background: rgba(244, 162, 97, 0.2); color: #f4a261; border: 1px solid #f4a261; }
+
+    .alert-box {
+      background: rgba(220, 38, 38, 0.15);
+      border-left: 4px solid #ef4444;
+      padding: 12px;
+      border-radius: 0 4px 4px 0;
+      margin-bottom: 16px;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
+    .breakdown-table td { padding: 8px 4px; border-bottom: 1px solid #334155; }
+    .breakdown-table td:last-child { text-align: right; font-family: monospace; font-weight: 600; }
+
+    /* Legenda flottante sulla mappa */
+    .legend-control {
+      position: absolute;
+      bottom: 24px;
+      left: 24px;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      font-size: 12px;
+      z-index: 5;
+    }
+    .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .legend-item:last-child { margin-bottom: 0; }
+    .legend-color { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <div id="map">
+    <!-- Top nav -->
+    <div class="top-nav">
+      <a href="./">← Dashboard Principale</a>
+      <span style="color:#64748b;">|</span>
+      <span>Autore: <b>Nicola Valigi (Houdinick)</b></span>
+      <span style="color:#64748b;">|</span>
+      <span style="color:#10b981;">D.P.R. 327/2001</span>
+    </div>
+
+    <!-- Legenda tematismi -->
+    <div class="legend-control">
+      <div class="legend-item">
+        <div class="legend-color" style="background: #e63946;"></div>
+        <span>Esproprio Permanente (Sede Opera)</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #f4a261;"></div>
+        <span>Fascia Asservimento / Rispetto</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background: #457b9d;"></div>
+        <span>Occupazione Cantiere</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="border: 2px solid #ef4444; background: transparent;"></div>
+        <span>Allarme Relitto Inutilizzabile (Art. 33)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pannello di ispezione particellare -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <h1>Piano Particellare Grafico</h1>
+      <p>D.P.R. 327/2001 - Analisi Interferenze Dirette</p>
+    </div>
+    
+    <div class="sidebar-content" id="sidebar-detail">
+      <p style="color: #64748b; font-size: 13px; margin-top: 40px; text-align: center;">
+        Seleziona un mappale catastale sulla mappa per esaminare i parametri di occupazione e le indennità stimate.
+      </p>
+    </div>
+  </aside>
+</div>
+
+<script>
+  // Inizializzazione MapLibre GL
+  const map = new maplibregl.Map({
+    container: 'map',
+    style: {
+      version: 8,
+      sources: {
+        'osm-tiles': {
+          type: 'raster',
+          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+          tileSize: 256,
+          attribution: '&copy; OpenStreetMap contributors'
+        }
+      },
+      layers: [
+        {
+          id: 'base-osm',
+          type: 'raster',
+          source: 'osm-tiles',
+          paint: { 'raster-saturation': -0.7, 'raster-brightness-max': 0.8 }
+        }
+      ]
+    },
+    center: [11.535, 45.545], // Coordinate Vicenza / TAV
+    zoom: 15
+  });
+
+  map.addControl(new maplibregl.NavigationControl(), 'top-right');
+
+  // Generatore di FeatureCollection particelle se endpoint locale o statico
+  function generateSampleParticellare() {
+    const centerLng = 11.535;
+    const centerLat = 45.545;
+    const features = [];
+    
+    const sampleDitte = [
+      { f: "34", m: "128", int: "Zanella S.r.l. Costruzioni", esp: 4850, ass: 0, cant: 500, des: "Edificabile", relitto: true, mot: "Superficie residua < 450 mq" },
+      { f: "34", m: "129", int: "Rossi Mario & C. S.a.s.", esp: 2400, ass: 600, cant: 400, des: "Agricola", relitto: false, mot: "" },
+      { f: "34", m: "130", int: "Società Agricola Berica", esp: 0, ass: 3100, cant: 800, des: "Agricola", relitto: false, mot: "" },
+      { f: "34", m: "131", int: "Immobiliare Veneta S.p.A.", esp: 5200, ass: 1200, cant: 600, des: "Edificabile", relitto: true, mot: "Esproprio > 75% della superficie catastale", fabb: true, num_fabb: 1 },
+      { f: "34", m: "132", int: "Bortolamei Giancarlo", esp: 1800, ass: 0, cant: 300, des: "Agricola", relitto: false, mot: "" },
+      { f: "34", m: "133", int: "Consorzio Bonifica Alta Pianura", esp: 0, ass: 2400, cant: 400, des: "Agricola", relitto: false, mot: "" }
+    ];
+
+    sampleDitte.forEach((d, idx) => {
+      const col = idx % 3;
+      const row = Math.floor(idx / 3);
+      const pLng = centerLng + (col - 1) * 0.0022;
+      const pLat = centerLat + (row - 0.5) * 0.0016;
+      const w = 0.0019;
+      const h = 0.0013;
+
+      const v_unit = d.des === "Edificabile" ? 90.0 : 5.0;
+      const ind_esp = d.esp * v_unit;
+      const ind_ass = d.ass * (v_unit * 0.35);
+      const ind_cant = d.cant * (v_unit * (1/12) * 2);
+      const tot_ind = ind_esp + ind_ass + ind_cant;
+
+      features.push({
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [[
+            [pLng, pLat],
+            [pLng + w, pLat],
+            [pLng + w, pLat + h],
+            [pLng, pLat + h],
+            [pLng, pLat]
+          ]]
+        },
+        properties: {
+          comune: "Vicenza",
+          foglio: d.f,
+          mappale: d.m,
+          intestatario: d.int,
+          destinazione: d.des,
+          sup_totale_mq: d.esp + d.ass + d.cant + 1500,
+          sup_esproprio_mq: d.esp,
+          sup_asservimento_mq: d.ass,
+          sup_cantiere_mq: d.cant,
+          pct_esproprio: Math.round((d.esp / (d.esp + d.ass + d.cant + 1500)) * 100),
+          relitto_critico: d.relitto,
+          motivo_relitto: d.mot,
+          has_fabbricato: Boolean(d.fabb),
+          num_fabbricati: d.num_fabb || 0,
+          indennita_esp_eur: ind_esp,
+          indennita_ass_eur: ind_ass,
+          indennita_cant_eur: ind_cant,
+          totale_indennita_eur: tot_ind
+        }
+      });
+    });
+
+    return { type: "FeatureCollection", features: features };
+  }
+
+  map.on('load', () => {
+    // 1. Layer WMS Ufficiale Catasto Agenzia delle Entrate (Sfondo particellare integrativo)
+    map.addSource('wms-ade-source', {
+      type: 'raster',
+      tiles: [
+        'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?' +
+        'service=WMS&request=GetMap&version=1.3.0' +
+        '&layers=CP.CadastralParcel,BU.Building' +
+        '&styles=&format=image/png&transparent=true' +
+        '&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}'
+      ],
+      tileSize: 256
+    });
+
+    map.addLayer({
+      id: 'wms-ade-layer',
+      type: 'raster',
+      source: 'wms-ade-source',
+      minzoom: 14,
+      paint: { 'raster-opacity': 0.6 }
+    });
+
+    // 2. Sorgente GeoJSON: Particelle interferite
+    map.addSource('particelle-progetto-source', {
+      type: 'geojson',
+      data: generateSampleParticellare()
+    });
+
+    // Fill tematico in base al grado di interferenza
+    map.addLayer({
+      id: 'particelle-fill',
+      type: 'fill',
+      source: 'particelle-progetto-source',
+      paint: {
+        'fill-color': [
+          'case',
+          ['>', ['get', 'sup_esproprio_mq'], 0], '#e63946',
+          ['>', ['get', 'sup_asservimento_mq'], 0], '#f4a261',
+          '#457b9d'
+        ],
+        'fill-opacity': 0.45
+      }
+    });
+
+    // Contorno particellare con alert rosso per relitti critici (Art. 33)
+    map.addLayer({
+      id: 'particelle-line',
+      type: 'line',
+      source: 'particelle-progetto-source',
+      paint: {
+        'line-color': [
+          'case',
+          ['get', 'relitto_critico'], '#ff0033',
+          '#1e293b'
+        ],
+        'line-width': [
+          'case',
+          ['get', 'relitto_critico'], 3.0,
+          1.0
+        ]
+      }
+    });
+
+    // 3. Tracciato Asse Opera (LineString)
+    map.addSource('tracciato-line-source', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: [{
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [11.530, 45.542],
+              [11.534, 45.544],
+              [11.537, 45.546],
+              [11.541, 45.548]
+            ]
+          },
+          properties: { nome: "Asse Tracciato Alta Velocità Vicenza" }
+        }]
+      }
+    });
+
+    map.addLayer({
+      id: 'tracciato-linea',
+      type: 'line',
+      source: 'tracciato-line-source',
+      paint: {
+        'line-color': '#000000',
+        'line-width': 3,
+        'line-dasharray': [2, 1]
+      }
+    });
+
+    // Eventi di selezione e popolamento sidebar
+    map.on('click', 'particelle-fill', (e) => {
+      const prop = e.features[0].properties;
+      renderSidebarDetail(prop);
+    });
+
+    map.on('mouseenter', 'particelle-fill', () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'particelle-fill', () => { map.getCanvas().style.cursor = ''; });
+
+    // Render automatico primo dettaglio di esempio
+    const firstProps = generateSampleParticellare().features[0].properties;
+    renderSidebarDetail(firstProps);
+  });
+
+  function renderSidebarDetail(p) {
+    const formatMq = (val) => Number(val).toLocaleString('it-IT') + ' mq';
+    const formatEur = (val) => '€ ' + Number(val).toLocaleString('it-IT', { minimumFractionDigits: 2 });
+
+    const relittoHtml = p.relitto_critico 
+      ? `<div class="alert-box">
+           <strong>ATTENZIONE: Relitto Critico (Art. 33 D.P.R. 327/2001)</strong><br>
+           ${p.motivo_relitto || "Frazionamento antieconomico"}. L'area residua perde la capacità ordinaria di utilizzo; richiedere indennità per deprezzamento totale o esproprio integrale.
+         </div>` 
+      : '';
+
+    const fabbricatiHtml = p.has_fabbricato
+      ? `<span class="status-badge badge-danger">Interferenza con Fabbricati (${p.num_fabbricati})</span>`
+      : `<span class="status-badge badge-warning">Terreno ${p.destinazione}</span>`;
+
+    const container = document.getElementById('sidebar-detail');
+    container.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+        <h2 style="font-size: 20px; font-weight: 700;">Foglio ${p.foglio} - Mapp.${p.mappale}</h2>
+        <span style="font-size: 13px; color: #94a3b8;">${p.comune}</span>
+      </div>
+
+      <div style="margin-bottom: 12px; font-size: 12px; color: #cbd5e1;">
+        <span style="color: #64748b;">Intestatario:</span> <b>${p.intestatario || 'Proprietario privato'}</b>
+      </div>
+
+      ${fabbricatiHtml}${relittoHtml}
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <span>Superficie Totale</span>
+          <strong>${formatMq(p.sup_totale_mq)}</strong>
+        </div>
+        <div class="metric-card">
+          <span>Incidenza Esproprio</span>
+          <strong style="color: ${p.pct_esproprio > 50 ? '#ff6b6b' : '#f8fafc'};">${p.pct_esproprio}%</strong>
+        </div>
+      </div>
+
+      <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #94a3b8;">
+        Quadro Estimativo Indennità (DPR 327/2001)
+      </h3>
+      <table class="breakdown-table">
+        <tr>
+          <td>Esproprio Permanente (${formatMq(p.sup_esproprio_mq)})</td>
+          <td>${formatEur(p.indennita_esp_eur)}</td>
+        </tr>
+        <tr>
+          <td>Asservimento Fascia Rispetto (${formatMq(p.sup_asservimento_mq)})</td>
+          <td>${formatEur(p.indennita_ass_eur)}</td>
+        </tr>
+        <tr>
+          <td>Occupazione Cantiere Art. 50 (${formatMq(p.sup_cantiere_mq)})</td>
+          <td>${formatEur(p.indennita_cant_eur)}</td>
+        </tr>
+        <tr style="border-top: 2px solid #475569; font-weight: 700; color: #38bdf8;">
+          <td>TOTALE LIQUIDABILE ESTIMATO</td>
+          <td>${formatEur(p.totale_indennita_eur)}</td>
+        </tr>
+      </table>
+    `;
+  }
+</script>
+</body>
+</html>

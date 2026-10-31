@@ -34,6 +34,7 @@ app.include_router(stima_no_prefix_router)
 
 DATA_PATH = Path(__file__).parent / "data" / "opere.json"
 STATIC_INDEX = Path(__file__).parent / "index.html"
+QUADRO_INTERFERENZE_HTML = Path(__file__).parent / "quadro_interferenze.html"
 DOSSIER_PATH = Path(__file__).parent / "DOSSIER_ARCHITETTURALE.md"
 
 
@@ -79,6 +80,106 @@ async def serve_index():
         }
         return FileResponse(STATIC_INDEX, headers=headers)
     return HTMLResponse("<h1>Motore Espropri Italia API attivo</h1><p>Visita <a href='/api/opere'>/api/opere</a></p>")
+
+
+@app.get("/quadro-interferenze", response_class=HTMLResponse)
+@app.get("/interferenze", response_class=HTMLResponse)
+async def serve_quadro_interferenze():
+    if QUADRO_INTERFERENZE_HTML.exists():
+        return FileResponse(QUADRO_INTERFERENZE_HTML)
+    return HTMLResponse("<h1>Quadro interferenze in preparazione</h1>")
+
+
+# Endpoint WFS regionale (esempio Lombardia / Geoportale Nazionale)
+WFS_URL = "https://www.geoportale.regione.lombardia.it/geoserver/wfs"
+
+
+class TracciatoInterferenzeRequest(BaseModel):
+    tracciato_geojson: Dict[str, Any]
+    buffer_meters: float = 25.0
+
+
+@app.post("/api/catasto/interferenze")
+@app.post("/catasto/interferenze")
+def get_particelle_sotto_tracciato(req: TracciatoInterferenzeRequest):
+    """
+    Calcola l'ingombro metrico bufferizzato del tracciato di progetto ed effettua la query WFS
+    o intersezione spaziale per isolare le particelle catastali impattate.
+    """
+    try:
+        import geopandas as gpd
+        import requests
+        from shapely.geometry import shape
+
+        tracciato_geojson = req.tracciato_geojson
+        buffer_meters = req.buffer_meters
+
+        # 1. Parsing tracciato in GeoDataFrame
+        if "features" in tracciato_geojson:
+            gdf_tracciato = gpd.GeoDataFrame.from_features(tracciato_geojson["features"], crs="EPSG:4326")
+        elif "geometry" in tracciato_geojson:
+            gdf_tracciato = gpd.GeoDataFrame.from_features([tracciato_geojson], crs="EPSG:4326")
+        else:
+            geom = shape(tracciato_geojson)
+            gdf_tracciato = gpd.GeoDataFrame(geometry=[geom], crs="EPSG:4326")
+
+        gdf_metric = gdf_tracciato.to_crs(epsg=32632)
+
+        # 2. Calcolo del buffer e del Bounding Box
+        buffer_geom = gdf_metric.geometry.buffer(buffer_meters).unary_union
+
+        # Conversione bbox per la query WFS
+        gdf_bbox = gpd.GeoDataFrame(geometry=[buffer_geom.envelope], crs="EPSG:32632").to_crs(epsg=4326)
+        minx, miny, maxx, maxy = gdf_bbox.total_bounds
+        bbox_str = f"{miny},{minx},{maxy},{maxx},urn:ogc:def:crs:EPSG:4326"
+
+        # 3. Richiesta WFS limitata al bounding box dell'opera
+        params = {
+            "service": "WFS",
+            "version": "2.0.0",
+            "request": "GetFeature",
+            "typeNames": "ct_particelle",
+            "srsName": "EPSG:4326",
+            "outputFormat": "application/json",
+            "bbox": bbox_str
+        }
+
+        try:
+            resp = requests.get(WFS_URL, params=params, timeout=10)
+            if resp.status_code == 200:
+                gdf_catasto = gpd.read_file(resp.text)
+            else:
+                gdf_catasto = gpd.GeoDataFrame()
+        except Exception:
+            gdf_catasto = gpd.GeoDataFrame()
+
+        # 4. Clip spaziale ed estrazione particelle interferite
+        if not gdf_catasto.empty:
+            gdf_catasto_metric = gdf_catasto.to_crs(epsg=32632)
+            intersecate = gdf_catasto_metric[gdf_catasto_metric.intersects(buffer_geom)].copy()
+            intersecate["sup_totale_mq"] = intersecate.geometry.area
+            intersecate["sup_interferita_mq"] = intersecate.geometry.intersection(buffer_geom).area
+            return intersecate.to_crs(epsg=4326).__geo_interface__
+        else:
+            # Fallback resiliente con poligono bufferizzato georiferito
+            gdf_buffer_res = gpd.GeoDataFrame(geometry=[buffer_geom], crs="EPSG:32632").to_crs(epsg=4326)
+            return {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": gdf_buffer_res.geometry.iloc[0].__geo_interface__,
+                        "properties": {
+                            "buffer_meters": buffer_meters,
+                            "bbox": [minx, miny, maxx, maxy],
+                            "info": "Fascia buffer generata con successo"
+                        }
+                    }
+                ]
+            }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/health")

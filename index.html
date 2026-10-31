@@ -561,6 +561,10 @@
         <span class="font-bold text-emerald-400">⚖ Stima perizia</span> <span class="text-slate-500">→</span>
       </button>
 
+      <a href="./quadro_interferenze.html" class="px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-cyan-500/50 text-slate-300 hover:text-cyan-300 transition-colors flex items-center gap-1 text-[11px]" title="Apri Quadro Territoriale delle Interferenze DPR 327/2001">
+        <span class="font-bold text-cyan-400">📐 Quadro interferenze</span> <span class="text-slate-500">↗</span>
+      </a>
+
       <button onclick="openGuidaModal()" class="hidden lg:flex px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-indigo-500/50 text-slate-300 hover:text-indigo-300 transition-colors items-center gap-1 text-[11px]" title="Guida procedurale e strategia pre-decreto">
         <span class="font-bold text-indigo-400">Esempio guidato</span> <span class="text-slate-500">→</span>
       </button>
@@ -1374,6 +1378,25 @@
             });
           }
 
+          // 1. Aggiunta della sorgente WMS Agenzia delle Entrate (Catasto Ufficiale AdE)
+          if (!state.map.getSource('wms-catasto-ade')) {
+            state.map.addSource('wms-catasto-ade', {
+              type: 'raster',
+              tiles: [
+                'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?' +
+                'service=WMS&request=GetMap&version=1.3.0' +
+                '&layers=CP.CadastralParcel,BU.Building' +
+                '&styles=' +
+                '&format=image/png' +
+                '&transparent=true' +
+                '&crs=EPSG:3857' +
+                '&width=256&height=256' +
+                '&bbox={bbox-epsg-3857}'
+              ],
+              tileSize: 256
+            });
+          }
+
           // Tracciato asse opera lineare (in primo piano)
           if (!state.map.getLayer('opera-tracciato-line')) {
             state.map.addLayer({
@@ -1386,6 +1409,24 @@
                 'line-dasharray': [2, 1]
               }
             });
+          }
+
+          // 2. Layer raster del catasto AdE (posizionato sotto il tracciato dell'opera)
+          if (!state.map.getLayer('catasto-ade-layer')) {
+            state.map.addLayer(
+              {
+                id: 'catasto-ade-layer',
+                type: 'raster',
+                source: 'wms-catasto-ade',
+                minzoom: 14, // Visibile solo a scale di dettaglio (richiesta AdE)
+                maxzoom: 22,
+                layout: { visibility: state.catastoVisible ? 'visible' : 'none' },
+                paint: {
+                  'raster-opacity': 0.85
+                }
+              },
+              'opera-tracciato-line' // ID del layer del tracciato per mantenerlo sopra
+            );
           }
 
           // Popup interattivo al click sulle particelle catastali
@@ -1440,6 +1481,10 @@
       const alertEl = document.getElementById('catasto-zoom-alert');
       state.catastoVisible = !state.catastoVisible;
 
+      if (state.map.getLayer('catasto-ade-layer')) {
+        state.map.setLayoutProperty('catasto-ade-layer', 'visibility', state.catastoVisible ? 'visible' : 'none');
+      }
+
       if (state.catastoVisible) {
         btn.className = 'px-2.5 py-1 rounded bg-sky-950 text-sky-400 font-bold border border-sky-400 text-[10px] flex items-center gap-1.5 transition-all shadow-sm shadow-sky-500/20';
         if (state.map.getZoom() < 14 && alertEl) {
@@ -1454,8 +1499,8 @@
 
     function updateCatastoOpacity(val) {
       const op = parseFloat(val);
-      if (state.map && state.map.getLayer('layer-catasto')) {
-        state.map.setPaintProperty('layer-catasto', 'raster-opacity', op);
+      if (state.map && state.map.getLayer('catasto-ade-layer')) {
+        state.map.setPaintProperty('catasto-ade-layer', 'raster-opacity', op);
       }
     }
 
