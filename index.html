@@ -1246,24 +1246,12 @@
       fetch('http://127.0.0.1:8000/api/opere')
         .then(res => res.json())
         .then(data => {
-          if (Array.isArray(data) && data.length > 0) {
-            state.opere = data;
-          }
-          const badge = document.getElementById('api-status-badge');
-          if (badge) {
-            badge.textContent = `Online (${state.opere.length} opere)`;
-            badge.className = "text-emerald-400 font-bold";
-          }
+          state.opere = data;
           initMap();
           applyFilters();
         })
         .catch(err => {
           console.warn("API locale non raggiungibile, uso fallback locale:", err);
-          const badge = document.getElementById('api-status-badge');
-          if (badge) {
-            badge.textContent = "Offline (Mock)";
-            badge.className = "text-amber-400 font-bold";
-          }
           initMap();
           applyFilters();
         });
