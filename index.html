@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Motore Espropri Italia — Geo-Intelligence DPR 327/2001</title>
+  <title>Motore Espropri Italia — Intelligence Territoriale DPR 327/2001</title>
   
   <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, Leaflet CSS & JS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,13 +12,12 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root {
-      --bg-main: #0B0F17;
-      --bg-panel: #111827;
-      --bg-card: #182234;
-      --border-color: #243247;
+      --bg-main: #090D14;
+      --bg-panel: #0F172A;
+      --border-color: #1E293B;
     }
     
     body {
@@ -31,39 +30,33 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Mappa Fullscreen Dark */
+    /* Mappa Fullscreen Nitida (Senza filtri degradanti) */
     .leaflet-container {
-      background: #0B111C !important;
+      background: #090D14 !important;
       outline: none;
       width: 100%;
       height: 100%;
     }
-    .leaflet-tile {
-      filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.65);
-    }
 
     /* Custom Leaflet Tabbed Popup Styling */
     .leaflet-popup-content-wrapper {
-      background: rgba(17, 24, 39, 0.96) !important;
-      backdrop-filter: blur(12px);
-      color: #F3F4F6 !important;
+      background: rgba(15, 23, 42, 0.98) !important;
+      backdrop-filter: blur(16px);
+      color: #F8FAFC !important;
       border: 1px solid #334155;
       border-radius: 12px;
-      box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 158, 11, 0.15);
+      box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.85), 0 0 20px rgba(245, 158, 11, 0.2);
       padding: 0 !important;
       overflow: hidden;
     }
     .leaflet-popup-content {
       margin: 0 !important;
       line-height: 1.4;
-      width: 380px !important;
-      max-width: 90vw !important;
-    }
-    .leaflet-popup-tip-container {
-      margin-top: -1px;
+      width: 410px !important;
+      max-width: 92vw !important;
     }
     .leaflet-popup-tip {
-      background: #111827 !important;
+      background: #0F172A !important;
       border: 1px solid #334155;
     }
     .leaflet-container a.leaflet-popup-close-button {
@@ -80,209 +73,276 @@
       background: #1E293B;
     }
 
-    /* Custom scrollbar */
+    /* Scrollbar sottile dark */
     ::-webkit-scrollbar {
       width: 5px;
       height: 5px;
     }
     ::-webkit-scrollbar-track {
-      background: #0B0F17;
+      background: #090D14;
     }
     ::-webkit-scrollbar-thumb {
-      background: #243247;
+      background: #1E293B;
       border-radius: 3px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #374151;
+      background: #334155;
     }
 
-    /* Pulsing Target Marker */
-    @keyframes pin-ping {
+    /* Pulsing Pin per target Avanzate */
+    @keyframes pin-ping-kf {
       0% { transform: scale(0.9); opacity: 0.8; }
       80%, 100% { transform: scale(2.4); opacity: 0; }
     }
     .pin-pulse {
-      animation: pin-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+      animation: pin-ping-kf 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col overflow-hidden text-slate-100 select-none">
 
-  <!-- TOPBAR COMPATTA FLOATING/FIXED -->
-  <header class="h-14 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-md px-4 md:px-6 flex items-center justify-between shrink-0 z-30 relative shadow-md">
+  <!-- =======================================================================
+       TOPBAR 1: BRAND, SHORTCUTS OPERATIVI & ORA IT
+       ======================================================================= -->
+  <header class="h-12 border-b border-slate-800 bg-slate-950 px-3 md:px-5 flex items-center justify-between shrink-0 z-40 relative shadow-sm">
+    
+    <!-- Sinistra: Brand & Tasto Sidebar -->
     <div class="flex items-center gap-3">
-      <!-- Toggle Sidebar Button -->
-      <button onclick="toggleSidebar()" id="btn-toggle-sidebar" class="px-2.5 py-1.5 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 flex items-center gap-2 text-xs font-medium transition-colors" title="Mostra/Nascondi Filtri ed Elenco">
-        <i data-lucide="panel-left-open" class="w-4 h-4 text-amber-400"></i>
-        <span class="hidden sm:inline font-mono">Filtri & Opere</span>
+      <button onclick="toggleSidebar()" id="btn-toggle-sidebar" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 flex items-center gap-1.5 text-xs font-mono transition-colors" title="Mostra/Nascondi Filtri">
+        <i data-lucide="menu" class="w-4 h-4"></i>
+        <span class="hidden md:inline font-bold">FILTRI</span>
       </button>
 
-      <div class="flex items-center gap-2.5">
-        <div class="flex items-center justify-center w-7 h-7 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400">
-          <i data-lucide="map-pin" class="w-4 h-4"></i>
-        </div>
-        <div>
-          <h1 class="text-xs md:text-sm font-bold tracking-wider uppercase text-slate-100 flex items-center gap-2">
-            Motore Espropri Italia <span class="text-[9px] bg-slate-800 text-slate-300 font-mono px-1.5 py-0.5 rounded border border-slate-700">GIS v1.0</span>
-          </h1>
-          <p class="text-[9px] text-slate-400 font-mono hidden sm:block">Cartografia Espropri DPR 327/2001 · Nicola Valigi (Houdinick)</p>
-        </div>
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+        <span class="font-bold tracking-wider uppercase text-slate-100 text-xs md:text-sm font-mono flex items-center gap-1.5">
+          Motore Espropri Italia <span class="text-[9px] bg-slate-800 text-slate-400 px-1 py-0.5 rounded border border-slate-700 font-normal">PRO</span>
+        </span>
       </div>
     </div>
 
-    <!-- Quick stats in topbar -->
-    <div class="hidden lg:flex items-center gap-6 text-xs font-mono">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-        <span class="text-slate-400">Target 🟡 Avanzate:</span>
-        <span class="font-bold text-amber-400" id="stat-avanzate">0</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-slate-400">Elenchi 🟢 Pubblicati:</span>
-        <span class="font-bold text-emerald-400" id="stat-elenchi">0</span>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="text-slate-400">Ditte Mappate:</span>
-        <span class="font-bold text-sky-400" id="stat-ditte">0</span>
-      </div>
-      <div class="flex items-center gap-2 border-l border-slate-800 pl-4">
-        <span class="text-slate-500">API:</span>
-        <span id="api-status-badge" class="text-emerald-400 font-bold">127.0.0.1:8000</span>
-      </div>
+    <!-- Centro: SHORTCUTS OPERATIVI (PdA, Settimana, Stima Perizia, Esempio Guidato) -->
+    <div class="flex items-center gap-1 md:gap-2 text-xs font-mono">
+      <button onclick="triggerShortcutFilter('PDA')" id="sc-pda" class="px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-sky-500/50 text-slate-300 hover:text-sky-300 transition-colors flex items-center gap-1 text-[11px]" title="Visualizza solo opere con Piano particellare ditte depositato">
+        <span class="font-bold text-sky-400">PdA</span> <span class="text-slate-500">→</span>
+      </button>
+
+      <button onclick="triggerShortcutFilter('SETTIMANA')" id="sc-settimana" class="px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1 text-[11px]" title="Visualizza solo procedure con termini in scadenza questa settimana">
+        <span class="font-bold text-amber-400">Settimana</span> <span class="text-slate-500">→</span>
+      </button>
+
+      <button onclick="openPeriziaCalculatorModal()" class="px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 transition-colors flex items-center gap-1 text-[11px]" title="Calcolatore rapido indennità D.P.R. 327/2001 e VAM">
+        <span class="font-bold text-emerald-400">Stima perizia</span> <span class="text-slate-500">→</span>
+      </button>
+
+      <button onclick="openGuidaModal()" class="hidden lg:flex px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-indigo-500/50 text-slate-300 hover:text-indigo-300 transition-colors items-center gap-1 text-[11px]" title="Guida procedurale e strategia pre-decreto">
+        <span class="font-bold text-indigo-400">Esempio guidato</span> <span class="text-slate-500">→</span>
+      </button>
     </div>
 
-    <!-- Topbar Actions -->
-    <div class="flex items-center gap-2.5">
-      <button onclick="zoomNordItalia()" class="hidden md:flex px-2.5 py-1.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-slate-200 items-center gap-1.5 transition-colors">
-        <i data-lucide="compass" class="w-3.5 h-3.5 text-sky-400"></i>
-        <span>Reset Nord</span>
-      </button>
-      <button onclick="exportCSV()" class="px-2.5 py-1.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-medium text-slate-200 flex items-center gap-1.5 transition-colors">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-        <span class="hidden sm:inline">CSV</span>
-      </button>
-      <button onclick="triggerQuickAddModal()" class="px-3 py-1.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm shadow-amber-500/20">
-        <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
-        <span>Nuovo Atto</span>
+    <!-- Destra: OROLOGIO IT & QUICK ACTIONS -->
+    <div class="flex items-center gap-3 font-mono text-xs">
+      <div class="hidden sm:flex items-center gap-1.5 text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-[11px]">
+        <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i>
+        <span id="live-clock" class="text-slate-200 font-bold">13:14:39</span>
+        <span class="text-slate-500 text-[9px]">ora IT</span>
+      </div>
+
+      <button onclick="triggerQuickAddModal()" class="px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold flex items-center gap-1 text-[11px] shadow-sm shadow-amber-500/20">
+        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Nuovo Atto</span>
       </button>
     </div>
   </header>
 
-  <!-- CONTENITORE CENTRALE: MAPPA A TUTTO SCHERMO + SIDEBAR FLOTTANTE -->
+  <!-- =======================================================================
+       TOPBAR 2: TELEMETRIA KPI, METRICHE & STATO CRAWLER
+       ======================================================================= -->
+  <div class="h-10 border-b border-slate-800/80 bg-slate-900/90 px-3 md:px-5 flex items-center justify-between shrink-0 z-30 overflow-x-auto text-xs font-mono gap-4">
+    
+    <!-- Pills metriche principali -->
+    <div class="flex items-center gap-3 sm:gap-5 whitespace-nowrap text-[11px]">
+      <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" onclick="triggerShortcutFilter('NOSTRE')">
+        <span class="font-bold text-sky-400 text-sm" id="stat-nostre">88</span>
+        <span class="text-slate-400">Nostre opere</span>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <span class="font-bold text-slate-200 text-sm" id="stat-in-vista">0</span>
+        <span class="text-slate-400">Opere in vista</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" onclick="filterByStateClick('AVANZATA_SENZA_ELENCO')">
+        <span class="font-bold text-amber-400 text-sm" id="stat-avanzate">208</span>
+        <span class="text-slate-300 font-medium">Avanzate · elenco atteso</span>
+      </div>
+
+      <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" onclick="filterByStateClick('ELENCO_PUBBLICATO')">
+        <span class="font-bold text-emerald-400 text-sm" id="stat-elenchi">11</span>
+        <span class="text-slate-400">Elenchi pubblicati</span>
+      </div>
+
+      <div class="hidden md:flex items-center gap-1.5">
+        <span class="font-bold text-amber-300 text-sm" id="stat-investimento">2.480</span>
+        <span class="text-slate-400">mln € Investimento</span>
+      </div>
+
+      <div class="hidden lg:flex items-center gap-1.5">
+        <span class="font-bold text-slate-300 text-sm" id="stat-comuni">204</span>
+        <span class="text-slate-400">Comuni</span>
+      </div>
+
+      <div class="hidden lg:flex items-center gap-1.5">
+        <span class="font-bold text-slate-300 text-sm" id="stat-regioni">17</span>
+        <span class="text-slate-400">Regioni</span>
+      </div>
+    </div>
+
+    <!-- Stato Telemetrico Crawler -->
+    <div class="hidden xl:flex items-center gap-2 text-[10px] text-slate-400 bg-slate-950/70 px-2.5 py-1 rounded border border-slate-800 whitespace-nowrap">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="text-slate-300 font-bold">Crawler:</span>
+      <span>ultimo giro 4 giorni fa</span>
+      <span class="text-slate-600">·</span>
+      <span class="text-amber-400">23 fonti su 47 producono davvero</span>
+      <span class="text-slate-600">·</span>
+      <span>28 giri registrati</span>
+    </div>
+
+  </div>
+
+  <!-- =======================================================================
+       MAPPA FULLSCREEN LEAFLET (CARTO-DB NATIVE HIGH DEFINITION)
+       ======================================================================= -->
   <div class="flex-1 relative overflow-hidden flex">
 
-    <!-- SIDEBAR FLOTTANTE COLLASSABILE (Filtri & Elenco Rapido) -->
+    <!-- SIDEBAR FLOTTANTE FILTRI (Collassabile) -->
     <aside id="floating-sidebar" class="absolute top-3 left-3 z-[1000] w-80 md:w-96 max-h-[calc(100%-24px)] flex flex-col bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl transition-all duration-300 text-xs overflow-hidden">
       
       <!-- Header Sidebar -->
-      <div class="p-3 border-b border-slate-800/80 flex items-center justify-between bg-slate-900/60 shrink-0">
+      <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 shrink-0">
         <div class="flex items-center gap-2">
-          <i data-lucide="sliders-horizontal" class="w-4 h-4 text-amber-400"></i>
-          <span class="font-bold text-slate-200 font-mono uppercase tracking-wider text-[11px]">Filtri & Monitor</span>
+          <i data-lucide="filter" class="w-4 h-4 text-amber-400"></i>
+          <span class="font-bold text-slate-100 font-mono uppercase tracking-wider text-[11px]">Filtri & Opere Cartografate</span>
         </div>
-        <div class="flex items-center gap-1.5">
-          <span class="font-mono text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700" id="filtered-count-badge">0 opere</span>
-          <button onclick="toggleSidebar()" class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200" title="Chiudi sidebar">
+        <div class="flex items-center gap-2">
+          <button onclick="resetAllFilters()" class="text-[10px] text-slate-400 hover:text-amber-400 font-mono">Reset</button>
+          <button onclick="toggleSidebar()" class="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200">
             <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
       </div>
 
-      <!-- Scrollable content sidebar -->
-      <div class="flex-1 overflow-y-auto p-3 space-y-3.5">
+      <!-- Contenuto scrollabile sidebar -->
+      <div class="flex-1 overflow-y-auto p-3 space-y-3">
 
-        <!-- Ricerca Rapida -->
+        <!-- Ricerca Testo, CUP o Ditta -->
         <div>
           <div class="relative">
-            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cerca opera, CUP, comune, ditta..." 
+            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cerca opera, CUP, ente, comune o ditta..." 
               class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400 font-mono">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute right-3 top-2.5 pointer-events-none"></i>
           </div>
         </div>
 
-        <!-- Filtro Regione a Pill -->
+        <!-- Filtro Regione a Chips -->
         <div>
-          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Regione</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">Regioni (17 Monitorate)</label>
+            <span class="text-[9px] text-slate-500 font-mono" id="region-active-label">TUTTE</span>
+          </div>
           <div class="flex flex-wrap gap-1">
-            <button type="button" onclick="toggleRegionFilter('ALL')" id="btn-reg-ALL" class="reg-btn py-1 px-2.5 rounded border text-xs font-mono bg-slate-800 border-amber-500/50 text-amber-300">TUTTE</button>
-            <button type="button" onclick="toggleRegionFilter('Lombardia')" id="btn-reg-Lombardia" class="reg-btn py-1 px-2 rounded border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-400">Lombardia</button>
-            <button type="button" onclick="toggleRegionFilter('Veneto')" id="btn-reg-Veneto" class="reg-btn py-1 px-2 rounded border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-400">Veneto</button>
-            <button type="button" onclick="toggleRegionFilter('Piemonte')" id="btn-reg-Piemonte" class="reg-btn py-1 px-2 rounded border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-400">Piemonte</button>
-            <button type="button" onclick="toggleRegionFilter('Emilia-Romagna')" id="btn-reg-Emilia-Romagna" class="reg-btn py-1 px-2 rounded border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-400">Emilia-R.</button>
-            <button type="button" onclick="toggleRegionFilter('Liguria')" id="btn-reg-Liguria" class="reg-btn py-1 px-2 rounded border border-slate-800 hover:border-slate-700 text-xs font-mono text-slate-400">Liguria</button>
+            <button type="button" onclick="toggleRegionFilter('ALL')" id="btn-reg-ALL" class="reg-btn py-0.5 px-2 rounded border text-[10px] font-mono bg-slate-800 border-amber-500/50 text-amber-300">TUTTE</button>
+            <button type="button" onclick="toggleRegionFilter('Lombardia')" id="btn-reg-Lombardia" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Lombardia</button>
+            <button type="button" onclick="toggleRegionFilter('Veneto')" id="btn-reg-Veneto" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Veneto</button>
+            <button type="button" onclick="toggleRegionFilter('Piemonte')" id="btn-reg-Piemonte" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Piemonte</button>
+            <button type="button" onclick="toggleRegionFilter('Emilia-Romagna')" id="btn-reg-Emilia-Romagna" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Emilia-R.</button>
+            <button type="button" onclick="toggleRegionFilter('Liguria')" id="btn-reg-Liguria" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Liguria</button>
+            <button type="button" onclick="toggleRegionFilter('Toscana')" id="btn-reg-Toscana" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Toscana</button>
+            <button type="button" onclick="toggleRegionFilter('Lazio')" id="btn-reg-Lazio" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Lazio</button>
+            <button type="button" onclick="toggleRegionFilter('Campania')" id="btn-reg-Campania" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Campania</button>
+            <button type="button" onclick="toggleRegionFilter('Puglia')" id="btn-reg-Puglia" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Puglia</button>
+            <button type="button" onclick="toggleRegionFilter('Sicilia')" id="btn-reg-Sicilia" class="reg-btn py-0.5 px-1.5 rounded border border-slate-800 hover:border-slate-700 text-[10px] font-mono text-slate-400">Sicilia</button>
           </div>
         </div>
 
-        <!-- Filtro Stato Procedura DPR 327 -->
+        <!-- Filtro Fase Procedura DPR 327 -->
         <div>
-          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Fase Procedura</label>
-          <div class="space-y-1 bg-slate-900/40 p-2 rounded-lg border border-slate-800/80">
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1 font-mono">Fase Procedurale</label>
+          <div class="space-y-1 bg-slate-900/40 p-2 rounded-lg border border-slate-800">
             <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-800/40 cursor-pointer">
               <input type="checkbox" id="chk-st-avanzata" checked onchange="applyFilters()" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-              <span class="w-2 h-2 rounded-full bg-amber-400 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm shadow-amber-400/50"></span>
               <span class="text-slate-200">🟡 Avanzata Senza Elenco <span class="text-[9px] text-amber-400 font-mono font-bold">(TARGET)</span></span>
             </label>
             <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-800/40 cursor-pointer">
               <input type="checkbox" id="chk-st-elenco" checked onchange="applyFilters()" class="rounded bg-slate-950 border-slate-700 text-emerald-500 focus:ring-0">
-              <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-sm shadow-emerald-400/50"></span>
               <span class="text-slate-200">🟢 Elenco Ditte Pubblicato</span>
             </label>
             <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-800/40 cursor-pointer">
               <input type="checkbox" id="chk-st-preliminare" onchange="applyFilters()" class="rounded bg-slate-950 border-slate-700 text-slate-400 focus:ring-0">
-              <span class="w-2 h-2 rounded-full bg-slate-400 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
               <span class="text-slate-400">⚪ Preliminare / Watchlist</span>
             </label>
             <label class="flex items-center gap-2 p-1 rounded hover:bg-slate-800/40 cursor-pointer">
               <input type="checkbox" id="chk-st-chiusa" onchange="applyFilters()" class="rounded bg-slate-950 border-slate-700 text-rose-500 focus:ring-0">
-              <span class="w-2 h-2 rounded-full bg-rose-400 inline-block"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
               <span class="text-slate-500">🔴 Conclusa / Somme CDP</span>
             </label>
           </div>
         </div>
 
-        <!-- Criteri di Azione / Urgenza -->
-        <div class="flex items-center gap-4 text-[11px] pt-1">
-          <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="checkbox" id="chk-solo-urgenti" onchange="applyFilters()" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-            <span class="text-slate-300">Urgenti (&lt;30gg)</span>
-          </label>
-          <label class="flex items-center gap-1.5 cursor-pointer">
-            <input type="checkbox" id="chk-deposito-fisico" onchange="applyFilters()" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-0">
-            <span class="text-slate-300">Deposito fisico</span>
-          </label>
-        </div>
-
-        <!-- ELENCO COMPATTO OPERE (Click per volare sul Pin) -->
-        <div class="border-t border-slate-800/80 pt-2">
-          <div class="flex items-center justify-between mb-1.5">
-            <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Opere Cartografate</label>
-            <span class="text-[9px] text-slate-500 font-mono">Clicca per zoom</span>
+        <!-- ELENCO RAPIDO CARTOGRAFATO (Click per volare al pin) -->
+        <div class="border-t border-slate-800 pt-2">
+          <div class="flex items-center justify-between mb-1.5 font-mono text-[10px]">
+            <span class="font-bold text-slate-300 uppercase">Opere Filtrate (<span id="count-opere-list">0</span>)</span>
+            <span class="text-sky-400">clicca per zoom</span>
           </div>
-          <div id="quick-opere-list" class="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+          <div id="quick-opere-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
             <!-- Popolato via JS -->
           </div>
         </div>
 
       </div>
 
-      <!-- Footer Sidebar Info -->
-      <div class="p-2.5 border-t border-slate-800 bg-slate-900/80 text-[10px] text-slate-500 font-mono flex items-center justify-between shrink-0">
-        <span>D.P.R. 327/2001 Intelligence</span>
-        <button onclick="zoomNordItalia()" class="text-sky-400 hover:underline">Centra Mappa</button>
+      <!-- Footer Sidebar -->
+      <div class="p-2.5 border-t border-slate-800 bg-slate-900 text-[10px] text-slate-400 font-mono flex items-center justify-between shrink-0">
+        <button onclick="exportCSV()" class="hover:text-amber-400 flex items-center gap-1">
+          <i data-lucide="download" class="w-3 h-3"></i> Esporta CSV
+        </button>
+        <button onclick="zoomNordItalia()" class="text-sky-400 hover:underline">Centra Italia</button>
       </div>
     </aside>
 
     <!-- MAPPA FULLSCREEN -->
     <div id="gis-map" class="w-full h-full"></div>
 
-    <!-- MAP OVERLAY FLOATING CONTROLS (Top Right) -->
-    <div class="absolute top-4 right-4 z-[990] flex flex-col gap-2">
+    <!-- MAP CONTROLS OVERLAY (In alto a destra: Basemap Switcher & Reset) -->
+    <div class="absolute top-3 right-3 z-[1000] flex flex-col gap-2 font-mono text-xs">
+      
+      <!-- Basemap Switcher (Dark Matter vs Voyager Leggibile) -->
+      <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-1.5 flex gap-1 shadow-xl">
+        <button onclick="switchTileLayer('dark')" id="btn-tile-dark" class="px-2 py-1 rounded bg-slate-800 text-amber-400 font-bold border border-amber-500/40 text-[10px] flex items-center gap-1">
+          <span>🌙 Dark Matter</span>
+        </button>
+        <button onclick="switchTileLayer('voyager')" id="btn-tile-voyager" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
+          <span>☀️ Voyager HD</span>
+        </button>
+      </div>
+
+      <!-- Quick Reset View Button -->
+      <button onclick="zoomNordItalia()" class="bg-slate-950/90 hover:bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 text-[11px] shadow-lg flex items-center justify-center gap-1.5">
+        <i data-lucide="compass" class="w-3.5 h-3.5 text-sky-400"></i>
+        <span>Reset Vista Italia</span>
+      </button>
+
       <!-- Legenda Rapida Trasparente -->
-      <div class="bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 text-[11px] text-slate-300 space-y-1.5 shadow-xl font-mono">
-        <div class="text-[10px] uppercase font-bold text-slate-400 mb-1 border-b border-slate-800/80 pb-0.5">Legenda Stato</div>
+      <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 text-[10px] text-slate-300 space-y-1.5 shadow-xl">
+        <div class="uppercase font-bold text-slate-400 border-b border-slate-800 pb-0.5">Legenda Procedurale</div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm shadow-amber-400"></span>
-          <span>Avanzata Senza Elenco</span>
+          <span>Avanzata · Elenco Atteso</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-sm shadow-emerald-400"></span>
@@ -294,20 +354,135 @@
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
-          <span>Conclusa / Depositi CDP</span>
+          <span>Chiusa / CDP</span>
         </div>
       </div>
+
     </div>
 
   </div>
 
-  <!-- MODALE DETTAGLIO DITTE COMPLETO (PIANO PARTICELLARE D.P.R. 327) -->
-  <div id="modal-ditte" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- =======================================================================
+       MODALE 1: CALCOLATORE RAPIDO STIMA PERIZIA (D.P.R. 327/2001)
+       ======================================================================= -->
+  <div id="modal-perizia" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden text-xs">
+      
+      <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i>
+          <div>
+            <h3 class="text-sm font-bold text-slate-100 font-mono">Calcolatore Indennità Esproprio (D.P.R. 327/2001)</h3>
+            <p class="text-[10px] text-slate-400 font-mono">Stima del delta recuperabile rispetto all'offerta base dell'Ente</p>
+          </div>
+        </div>
+        <button onclick="closePeriziaCalculatorModal()" class="text-slate-400 hover:text-slate-200">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 space-y-4 font-mono">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Superficie Espropriata (mq)</label>
+            <input type="number" id="calc-mq" value="3500" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Destinazione Urbanistica</label>
+            <select id="calc-tipo" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+              <option value="agricolo">Agricolo Ordinario (Seminativo)</option>
+              <option value="specializzato">Agricolo Specializzato (Vigneto/Frutteto)</option>
+              <option value="edificabile">Edificabile / Residenziale</option>
+              <option value="commerciale">Produttivo / Commerciale D</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">VAM / Offerta Ente (€/mq)</label>
+            <input type="number" id="calc-vam" value="4.50" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Valore Mercato Reale (€/mq)</label>
+            <input type="number" id="calc-reale" value="12.00" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Qualifica Coltivatore Diretto / IAP</label>
+            <select id="calc-cd" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+              <option value="si">Sì (+ indennità aggiuntiva VAM art. 40)</option>
+              <option value="no">No (Proprietario non coltivatore)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Risultati Simulazione -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center text-slate-400">
+            <span>Offerta Base Provvisoria dell'Ente:</span>
+            <span id="res-offerta" class="font-bold text-rose-400 text-sm">€ 15.750</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-300">
+            <span>Stima con Perizia Giurata D.P.R. 327 (Venale + Maggiorazioni):</span>
+            <span id="res-perizia" class="font-bold text-emerald-400 text-base">€ 57.750</span>
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-amber-400 font-bold">
+            <span>Delta Recuperabile per il Proprietario:</span>
+            <span id="res-delta" class="text-base font-bold">+ € 42.000 (+266%)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-between items-center text-xs font-mono">
+        <span class="text-slate-500">Applicazione artt. 37, 40, 42 e 45 D.P.R. 327/2001</span>
+        <button onclick="closePeriziaCalculatorModal()" class="px-4 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Chiudi</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODALE 2: ESEMPIO GUIDATO & METODO OPERATIVO
+       ======================================================================= -->
+  <div id="modal-guida" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden text-xs">
+      <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <h3 class="text-sm font-bold text-slate-100 font-mono flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i>
+          Metodo Operativo Espropri Radar
+        </h3>
+        <button onclick="closeGuidaModal()" class="text-slate-400 hover:text-slate-200">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="p-4 space-y-3 font-sans leading-relaxed text-slate-300">
+        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-200 font-mono text-xs">
+          <strong>Regola d'Oro:</strong> Le migliori opportunità peritali e di consulenza nascono nella fase 🟡 <em>Avanzata Senza Elenco</em>, prima che l'Ente notifichi l'indennità provvisoria formale ai proprietari.
+        </div>
+
+        <ol class="space-y-2 list-decimal list-inside text-xs">
+          <li><strong>Intercettazione Atto:</strong> Il crawler individua la chiusura della Conferenza di Servizi o la Delibera di Giunta regionale/provinciale con approvazione del Progetto Definitivo.</li>
+          <li><strong>Mappatura Catastale:</strong> L'elenco viene consultato fisicamente presso l'Ufficio Espropri o l'Albo Pretorio dei Comuni prima che sia rintracciabile dai concorrenti.</li>
+          <li><strong>Scoring Proprietari:</strong> Vengono selezionati i proprietari <em>Tier 1</em> (singoli, con superfici &gt;3.000 mq o soprassuoli pregiati) calcolando il delta rispetto al VAM tabellare.</li>
+          <li><strong>Accordo Bonario (art. 45):</strong> Assistenza al proprietario per la stipula della cessione volontaria con maggiorazione del 50% sul valore venale.</li>
+        </ol>
+      </div>
+
+      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-end">
+        <button onclick="closeGuidaModal()" class="px-4 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium font-mono text-xs">Ho capito</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODALE 3: PIANO PARTICELLARE DITTE COMPLETO
+       ======================================================================= -->
+  <div id="modal-ditte" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-4xl rounded-xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
-      <!-- Modal Header -->
       <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
         <div>
-          <h3 id="modal-ditte-title" class="text-sm font-bold text-slate-100 flex items-center gap-2">
+          <h3 id="modal-ditte-title" class="text-sm font-bold text-slate-100 flex items-center gap-2 font-mono">
             Piano Particellare d'Esproprio
           </h3>
           <p id="modal-ditte-subtitle" class="text-xs text-slate-400 font-mono">Elenco intestatari e particelle catastali accertate</p>
@@ -317,19 +492,15 @@
         </button>
       </div>
 
-      <!-- Modal Toolbar & Calcolo Indennità Rapido -->
       <div class="p-3 bg-slate-800/40 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
         <div class="flex items-center gap-4">
-          <div><span class="text-slate-400">Totale Intestatari:</span> <span id="mod-tot-ditte" class="font-bold text-sky-400">0</span></div>
+          <div><span class="text-slate-400">Intestatari:</span> <span id="mod-tot-ditte" class="font-bold text-sky-400">0</span></div>
           <div><span class="text-slate-400">Superficie:</span> <span id="mod-tot-mq" class="font-bold text-amber-400">0 mq</span></div>
-          <div><span class="text-slate-400">Indennità Stimata:</span> <span id="mod-tot-indennita" class="font-bold text-emerald-400">€ 0</span></div>
+          <div><span class="text-slate-400">Indennità Stima:</span> <span id="mod-tot-indennita" class="font-bold text-emerald-400">€ 0</span></div>
         </div>
-        <div class="flex items-center gap-2">
-          <input type="text" id="filter-ditte-table" oninput="filterDitteTable()" placeholder="Cerca proprietario o mappale..." class="bg-slate-950 border border-slate-700 text-slate-200 px-2.5 py-1 rounded-md text-xs focus:outline-none focus:border-amber-400">
-        </div>
+        <input type="text" id="filter-ditte-table" oninput="filterDitteTable()" placeholder="Cerca intestatario o foglio/mappale..." class="bg-slate-950 border border-slate-700 text-slate-200 px-2.5 py-1 rounded text-xs focus:outline-none focus:border-amber-400">
       </div>
 
-      <!-- Tabella Particelle & Proprietà -->
       <div class="flex-1 overflow-y-auto p-4">
         <table class="w-full text-left text-xs border-collapse">
           <thead>
@@ -344,25 +515,24 @@
               <th class="p-2 text-center">Azioni</th>
             </tr>
           </thead>
-          <tbody id="ditte-table-body" class="divide-y divide-slate-800 font-mono">
-            <!-- Righe generate via JS -->
-          </tbody>
+          <tbody id="ditte-table-body" class="divide-y divide-slate-800 font-mono"></tbody>
         </table>
       </div>
 
-      <!-- Modal Footer -->
-      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-between items-center text-xs">
-        <span class="text-slate-500 font-mono text-[11px]">Riferimento normativo: D.P.R. 327/2001 artt. 16, 17, 20, 22</span>
+      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-between items-center text-xs font-mono">
+        <span class="text-slate-500 text-[11px]">D.P.R. 327/2001 artt. 16, 20, 22</span>
         <button onclick="closeDitteModal()" class="px-4 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Chiudi</button>
       </div>
     </div>
   </div>
 
-  <!-- MODALE: INSERISCI NUOVO ATTO / LEAD ESPROPRI -->
-  <div id="modal-quick-add" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <!-- =======================================================================
+       MODALE 4: INGESTIONE NUOVO ATTO
+       ======================================================================= -->
+  <div id="modal-quick-add" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-slate-900 border border-slate-700 w-full max-w-xl rounded-xl shadow-2xl overflow-hidden text-xs">
       <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
-        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+        <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2 font-mono">
           <i data-lucide="plus" class="w-4 h-4 text-amber-400"></i>
           Ingestione Atto / Nuova Procedura Espropriativa
         </h3>
@@ -371,67 +541,67 @@
         </button>
       </div>
 
-      <form id="form-new-opera" onsubmit="handleFormSubmit(event)" class="p-4 space-y-3">
+      <form id="form-new-opera" onsubmit="handleFormSubmit(event)" class="p-4 space-y-3 font-mono">
         <div>
           <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Titolo / Oggetto Atto Pubblico *</label>
-          <input required type="text" id="add-titolo" placeholder="Es: S.P. 12 Tratta Almè-Paladina - Approvazione Piano Espropriativo..." class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 focus:outline-none focus:border-amber-400">
+          <input required type="text" id="add-titolo" placeholder="Es: S.P. 12 Tratta Almè-Paladina - Approvazione Piano Espropriativo..." class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 focus:outline-none focus:border-amber-400">
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Codice CUP (opzionale)</label>
-            <input type="text" id="add-cup" placeholder="E81B24000340001" class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-amber-400">
+            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Codice CUP</label>
+            <input type="text" id="add-cup" placeholder="E81B24000340001" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 font-mono uppercase focus:outline-none focus:border-amber-400">
           </div>
           <div>
-            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Ente Espropriante / RUP *</label>
-            <input required type="text" id="add-ente" placeholder="Es: Provincia di Bergamo, ANAS, RFI..." class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 focus:outline-none focus:border-amber-400">
+            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Ente Espropriante *</label>
+            <input required type="text" id="add-ente" placeholder="Es: ANAS, RFI, Provincia..." class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 focus:outline-none focus:border-amber-400">
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div>
             <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Regione *</label>
-            <select id="add-regione" class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 focus:outline-none focus:border-amber-400">
+            <select id="add-regione" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 focus:outline-none focus:border-amber-400">
               <option value="Lombardia">Lombardia</option>
               <option value="Veneto">Veneto</option>
               <option value="Piemonte">Piemonte</option>
               <option value="Emilia-Romagna">Emilia-Romagna</option>
               <option value="Liguria">Liguria</option>
+              <option value="Toscana">Toscana</option>
+              <option value="Lazio">Lazio</option>
+              <option value="Campania">Campania</option>
+              <option value="Puglia">Puglia</option>
+              <option value="Sicilia">Sicilia</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Comune Principale</label>
-            <input type="text" id="add-comune" placeholder="Es: Paladina (BG)" class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 focus:outline-none focus:border-amber-400">
+            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Comune</label>
+            <input type="text" id="add-comune" placeholder="Es: Paladina (BG)" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 focus:outline-none focus:border-amber-400">
           </div>
           <div>
-            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Importo Complessivo (€)</label>
-            <input type="number" id="add-importo" placeholder="1500000" class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 font-mono focus:outline-none focus:border-amber-400">
+            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Importo (€)</label>
+            <input type="number" id="add-importo" placeholder="1500000" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 font-mono focus:outline-none focus:border-amber-400">
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Stato Classificato *</label>
-            <select id="add-stato" class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 focus:outline-none focus:border-amber-400">
+            <select id="add-stato" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 focus:outline-none focus:border-amber-400">
               <option value="AVANZATA_SENZA_ELENCO">🟡 Avanzata Senza Elenco (Target)</option>
               <option value="ELENCO_PUBBLICATO">🟢 Elenco Ditte Pubblicato</option>
               <option value="PRELIMINARE">⚪ Preliminare / Watchlist</option>
             </select>
           </div>
           <div>
-            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Scadenza Termini Opposizione (gg)</label>
-            <input type="number" id="add-scadenza" placeholder="30" class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 font-mono focus:outline-none focus:border-amber-400">
+            <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Termini Opposizione (gg)</label>
+            <input type="number" id="add-scadenza" placeholder="30" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 font-mono focus:outline-none focus:border-amber-400">
           </div>
         </div>
 
-        <div>
-          <label class="block text-slate-400 uppercase text-[10px] font-bold mb-1">Estratto Atto / Note di Deposito</label>
-          <textarea id="add-estratto" rows="2" placeholder="Depositato presso l'Ufficio Tecnico per 30 giorni consecutivi..." class="w-full bg-slate-950 border border-slate-700 rounded-md p-2 text-slate-100 focus:outline-none focus:border-amber-400"></textarea>
-        </div>
-
         <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
-          <button type="button" onclick="closeQuickAddModal()" class="px-4 py-2 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium">Annulla</button>
-          <button type="submit" class="px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold flex items-center gap-1.5">
+          <button type="button" onclick="closeQuickAddModal()" class="px-4 py-2 rounded bg-slate-800 text-slate-300 hover:bg-slate-700 font-medium">Annulla</button>
+          <button type="submit" class="px-4 py-2 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold flex items-center gap-1.5">
             <i data-lucide="check" class="w-4 h-4"></i>
             <span>Salva e Monitora</span>
           </button>
@@ -440,280 +610,91 @@
     </div>
   </div>
 
-  <!-- CORE SCRIPT LOGIC (ENGINE GIS & PIN TABBED FLYOUT) -->
+  <!-- =======================================================================
+       CORE LOGIC JAVASCRIPT
+       ======================================================================= */ -->
   <script>
-    /* =======================================================================
-       1. DATABASE MOCK FALLBACK - NORD ITALIA
-       ======================================================================= */
-    const INITIAL_OPERE = [
-      {
-        slug: "SIMICO-MICO-2026-VALTELLINA-SS38",
-        cup: "B39H21000120001",
-        titolo: "S.S. 38 Variante di Tirano e Nodo di Bormio - Adeguamento e svincoli Olimpiadi 2026",
-        ente: "SIMICO S.p.A. / ANAS Lombardia",
-        regione: "Lombardia",
-        provincia: "SO",
-        comune: "Tirano, Villa di Tirano",
-        importo_eur: 184500000,
-        data_pubblicazione: "2026-10-18",
-        stato_opera: "AVANZATA_SENZA_ELENCO",
-        maturity_score: 5,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: true,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: false,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: "Pre-acquisizione proprietari su deposito provvisorio",
-          priorita: "alta",
-          giorni_residui: 18,
-          elenco_non_pubblico: true,
-          deposito_presso: "Ufficio Espropri SIMICO - Sede operativa Sondrio, previo appuntamento pec@simico.it"
-        },
-        geo: { lat: 46.2155, lng: 10.1742 },
-        fonte_url: "https://simico.it/atti-pubblicati-espropri-2026",
-        ditte: []
-      },
-      {
-        slug: "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA",
-        cup: "F81B18000450009",
-        titolo: "Linea AV/AC Verona-Padova: Tratta 2° Lotto Costruttivo attraversamento Vicenza e opere connesse",
-        ente: "RFI / Italferr S.p.A.",
-        regione: "Veneto",
-        provincia: "VI",
-        comune: "Vicenza, Altavilla Vicentina",
-        importo_eur: 890000000,
-        data_pubblicazione: "2026-10-12",
-        stato_opera: "ELENCO_PUBBLICATO",
-        maturity_score: 6,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: true,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: true,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: "Opposizione stima provvisoria e perizie tecniche concordate",
-          priorita: "alta",
-          giorni_residui: 24,
-          elenco_non_pubblico: false
-        },
-        geo: { lat: 45.5455, lng: 11.5354 },
-        fonte_url: "https://www.rfi.it/it/progetti-e-interventi/espropri.html",
-        ditte: [
-          { intestatario: "Zanella S.r.l. Costruzioni", comune: "Vicenza", foglio: "34", mappali: "128, 129 sub 2", sup_mq: 4850, indennita: 145000, delta: true },
-          { intestatario: "Rossi Mario & Rossi Giuseppe", comune: "Vicenza", foglio: "34", mappali: "140", sup_mq: 1200, indennita: 34000, delta: false },
-          { intestatario: "Agricola Berica di Benetti F.lli", comune: "Altavilla Vic.", foglio: "12", mappali: "88, 91, 95", sup_mq: 18400, indennita: 198000, delta: true },
-          { intestatario: "Immobiliare San Felice S.a.s.", comune: "Vicenza", foglio: "35", mappali: "210, 212", sup_mq: 3100, indennita: 89000, delta: false }
-        ]
-      },
-      {
-        slug: "AUTOVIE-A4-TERZA-CORSIA-SAN-DONA-PORTOGRUARO",
-        cup: "C21B20000150003",
-        titolo: "Autostrada A4 Venezia-Trieste: Realizzazione Terza Corsia tratta San Donà - Portogruaro",
-        ente: "Autostrade Alto Adriatico S.p.A.",
-        regione: "Veneto",
-        provincia: "VE",
-        comune: "San Donà di Piave, Cessalto, Portogruaro",
-        importo_eur: 420000000,
-        data_pubblicazione: "2026-09-28",
-        stato_opera: "AVANZATA_SENZA_ELENCO",
-        maturity_score: 4,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: true,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: false,
-          vincolo_preordinato_pgt: false,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: "Target pre-acquisizione: monitorare pubblicazione piano particellare",
-          priorita: "alta",
-          giorni_residui: null,
-          elenco_non_pubblico: true,
-          deposito_presso: "Ufficio del Commissario Delegato A4 c/o Palmanova"
-        },
-        geo: { lat: 45.6322, lng: 12.5644 },
-        fonte_url: "https://www.autostradealtoadriatico.it/espropri",
-        ditte: []
-      },
-      {
-        slug: "ANAS-LOMBARDIA-VARIANTE-PALADINA-SEDRINA-SS470",
-        cup: "E81B23000670002",
-        titolo: "S.S. 470 della Valle Brembana: Variante di Paladina e sistemazione viabilità all'incrocio di Almè",
-        ente: "ANAS Lombardia / Provincia di Bergamo",
-        regione: "Lombardia",
-        provincia: "BG",
-        comune: "Paladina, Almè, Villa d'Almè",
-        importo_eur: 65000000,
-        data_pubblicazione: "2026-10-25",
-        stato_opera: "AVANZATA_SENZA_ELENCO",
-        maturity_score: 4,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: false,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: false,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: "Ingaggio preventivo proprietari terreni adiacenti sedime",
-          priorita: "alta",
-          giorni_residui: 28,
-          elenco_non_pubblico: true,
-          deposito_presso: "Uff. Tecnico Comune di Paladina e sede ANAS Milano Via Filzi"
-        },
-        geo: { lat: 45.7289, lng: 9.6133 },
-        fonte_url: "https://stradeanas.it/it/lombardia-espropri-paladina",
-        ditte: []
-      },
-      {
-        slug: "EMILIA-CISPADANA-AUTOSTRADA-REGIONALE",
-        cup: "D41B19000220007",
-        titolo: "Autostrada Regionale Cispadana: Collegamento casello A22 Rolo-Reggiolo con A13 Ferrara Sud",
-        ente: "Autostrada del Brennero / ARC S.p.A.",
-        regione: "Emilia-Romagna",
-        provincia: "RE",
-        comune: "Guastalla, Rolo, Cento, Mirandola",
-        importo_eur: 1300000000,
-        data_pubblicazione: "2026-08-14",
-        stato_opera: "ELENCO_PUBBLICATO",
-        maturity_score: 6,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: true,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: true,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: "Perizie espropriative stima VAM / Valore di Mercato",
-          priorita: "media",
-          giorni_residui: 0,
-          elenco_non_pubblico: false
-        },
-        geo: { lat: 44.8872, lng: 11.0667 },
-        fonte_url: "https://bur.regione.emilia-romagna.it",
-        ditte: [
-          { intestatario: "Società Agricola Mirandolese S.s.", comune: "Mirandola", foglio: "45", mappali: "12, 14, 15", sup_mq: 32400, indennita: 310000, delta: true },
-          { intestatario: "Golinelli Sergio & Andrea", comune: "Cento", foglio: "18", mappali: "202, 204", sup_mq: 8700, indennita: 74000, delta: false },
-          { intestatario: "Manifattura Tessile Emiliana S.p.A.", comune: "Reggiolo", foglio: "9", mappali: "55", sup_mq: 4100, indennita: 165000, delta: true }
-        ]
-      },
-      {
-        slug: "PIEMONTE-TANGENZIALE-EST-TORINO-CONCESSIONE",
-        cup: "G11B22000550001",
-        titolo: "Tangenziale Est di Torino: Connessione tra A4 Torino-Milano e A21 Torino-Piacenza",
-        ente: "Regione Piemonte / Città Metropolitana Torino",
-        regione: "Piemonte",
-        provincia: "TO",
-        comune: "Chivasso, San Mauro Torinese, Moncalieri",
-        importo_eur: 780000000,
-        data_pubblicazione: "2026-09-02",
-        stato_opera: "PRELIMINARE",
-        maturity_score: 2,
-        maturity_signals: {
-          conferenza_servizi_chiusa: false,
-          progetto_def_esec_approvato: false,
-          pubblica_utilita_emessa: false,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: false,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: "Watchlist - In attesa di conclusione Conferenza Servizi",
-          priorita: "bassa",
-          giorni_residui: null,
-          elenco_non_pubblico: false
-        },
-        geo: { lat: 45.1033, lng: 7.7850 },
-        fonte_url: "https://www.regione.piemonte.it/bandi",
-        ditte: []
-      },
-      {
-        slug: "LIGURIA-NODODE-GENOVA-POTENZIAMENTO-VOLTRI-BRIGNOLE",
-        cup: "J31B15000210008",
-        titolo: "Potenziamento infrastrutturale nodo ferroviario di Genova: Tratta Voltri - Sampierdarena - Brignole",
-        ente: "RFI S.p.A. / Italferr",
-        regione: "Liguria",
-        provincia: "GE",
-        comune: "Genova",
-        importo_eur: 540000000,
-        data_pubblicazione: "2026-07-21",
-        stato_opera: "CHIUSA",
-        maturity_score: 7,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: true,
-          cup_attivo_finanziamento: true,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: true,
-          bando_aggiudicazione_anac: true
-        },
-        azione: {
-          verbo: "Assistenza per svincolo indennità depositate presso Cassa Depositi e Prestiti",
-          priorita: "media",
-          giorni_residui: 0,
-          elenco_non_pubblico: false
-        },
-        geo: { lat: 44.4142, lng: 8.9132 },
-        fonte_url: "https://www.commissari.mit.gov.it/nodo-genova",
-        ditte: []
-      }
-    ];
-
-    // Stato locale applicativo
+    // Stato globale
     let state = {
-      opere: [...INITIAL_OPERE],
+      opere: [],
       selectedRegion: 'ALL',
       selectedOpera: null,
+      shortcutFilter: null,
+      currentTileTheme: 'dark',
       map: null,
+      tileLayers: {},
       markersGroup: null,
       markerMap: {},
       sidebarOpen: true
     };
 
     /* =======================================================================
-       2. INIZIALIZZAZIONE MAPPA GIS FULLSCREEN (LEAFLET)
+       1. OROLOGIO LIVE (ORA IT)
+       ======================================================================= */
+    function startClock() {
+      const clockEl = document.getElementById('live-clock');
+      function update() {
+        const now = new Date();
+        const str = now.toLocaleTimeString('it-IT', { hour12: false, timeZone: 'Europe/Rome' });
+        if (clockEl) clockEl.textContent = str;
+      }
+      update();
+      setInterval(update, 1000);
+    }
+
+    /* =======================================================================
+       2. INIZIALIZZAZIONE MAPPA NITIDA CON CARTO-DB HD
        ======================================================================= */
     function initMap() {
       if (state.map) return;
 
-      // Coordinate Nord Italia: 45.30°N, 10.50°E
+      // Coordinate baricentriche Italia: 42.8°N, 12.5°E
       state.map = L.map('gis-map', {
         zoomControl: false,
         attributionControl: false
-      }).setView([45.30, 10.50], 7.3);
+      }).setView([43.20, 12.50], 6.5);
 
       L.control.zoom({ position: 'bottomright' }).addTo(state.map);
 
-      // Tile Layer OpenStreetMap con custom dark filter
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-      }).addTo(state.map);
+      // Tile Layer Ufficiali CartoDB Nitidi (nessun filtro CSS degradante)
+      state.tileLayers.dark = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd'
+      });
+
+      state.tileLayers.voyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19,
+        subdomains: 'abcd'
+      });
+
+      // Applica Dark come predefinito
+      state.tileLayers.dark.addTo(state.map);
 
       state.markersGroup = L.featureGroup().addTo(state.map);
       updateMapMarkers(state.opere);
     }
 
+    function switchTileLayer(theme) {
+      if (theme === state.currentTileTheme) return;
+      state.map.removeLayer(state.tileLayers[state.currentTileTheme]);
+      state.tileLayers[theme].addTo(state.map);
+      state.currentTileTheme = theme;
+
+      const btnDark = document.getElementById('btn-tile-dark');
+      const btnVoyager = document.getElementById('btn-tile-voyager');
+
+      if (theme === 'dark') {
+        btnDark.className = 'px-2 py-1 rounded bg-slate-800 text-amber-400 font-bold border border-amber-500/40 text-[10px] flex items-center gap-1';
+        btnVoyager.className = 'px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1';
+      } else {
+        btnVoyager.className = 'px-2 py-1 rounded bg-slate-800 text-sky-400 font-bold border border-sky-500/40 text-[10px] flex items-center gap-1';
+        btnDark.className = 'px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1';
+      }
+    }
+
     function zoomNordItalia() {
       if (state.map) {
-        state.map.flyTo([45.30, 10.50], 7.3, { duration: 0.8 });
+        state.map.flyTo([43.20, 12.50], 6.5, { duration: 0.8 });
       }
     }
 
@@ -723,14 +704,13 @@
       const btn = document.getElementById('btn-toggle-sidebar');
       if (state.sidebarOpen) {
         el.classList.remove('-translate-x-[115%]', 'opacity-0', 'pointer-events-none');
-        btn.classList.add('bg-slate-800', 'border-amber-500/50', 'text-amber-300');
+        btn.classList.add('text-amber-400');
       } else {
         el.classList.add('-translate-x-[115%]', 'opacity-0', 'pointer-events-none');
-        btn.classList.remove('bg-slate-800', 'border-amber-500/50', 'text-amber-300');
+        btn.classList.remove('text-amber-400');
       }
     }
 
-    // Colori pin per stato procedura
     function getPinColor(stato) {
       switch (stato) {
         case 'AVANZATA_SENZA_ELENCO': return '#F59E0B'; // Amber
@@ -741,8 +721,7 @@
     }
 
     /* =======================================================================
-       3. GENERATORE TABBED POPUP PER I PINS SULLA MAPPA
-       Questo realizza i tab ricchi che si aprono direttamente sul pin!
+       3. GENERATORE TABBED POPUP PER I PIN
        ======================================================================= */
     function buildTabbedPopupHtml(op) {
       const color = getPinColor(op.stato_opera);
@@ -751,14 +730,13 @@
       const numDitte = op.ditte ? op.ditte.length : 0;
       const safeSlug = op.slug.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-      // Segnali di maturità
       const signals = op.maturity_signals || {};
       const signalItems = [
         { key: 'conferenza_servizi_chiusa', label: 'Conferenza Servizi chiusa' },
         { key: 'progetto_def_esec_approvato', label: 'Progetto approvato' },
-        { key: 'pubblica_utilita_emessa', label: 'Dichiarazione Pubblica Utilità' },
+        { key: 'pubblica_utilita_emessa', label: 'Dichiarazione Pubblica Utilità (art. 12)' },
         { key: 'cup_attivo_finanziamento', label: 'CUP con finanziamento coperto' },
-        { key: 'avviso_art11_dpr327', label: 'Avviso avvio iter (art. 11)' },
+        { key: 'avviso_art11_dpr327', label: 'Avviso avvio procedimento (art. 11)' },
         { key: 'vincolo_preordinato_pgt', label: 'Vincolo esproprio PGT' },
         { key: 'bando_aggiudicazione_anac', label: 'Bando / Aggiudicazione ANAC' }
       ];
@@ -773,7 +751,6 @@
         `;
       }).join('');
 
-      // Preview prime ditte per Tab 3
       let dittePreviewHtml = '';
       if (numDitte > 0) {
         dittePreviewHtml = `
@@ -789,7 +766,7 @@
               <tbody>
                 ${op.ditte.slice(0, 4).map(d => `
                   <tr style="border-bottom:1px solid #1E293B;">
-                    <td style="padding:4px 6px; color:#F1F5F9; font-weight:500; max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${d.intestatario}</td>
+                    <td style="padding:4px 6px; color:#F1F5F9; font-weight:500; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${d.intestatario}</td>
                     <td style="padding:4px 6px; color:#38BDF8;">${d.foglio}/${d.mappali}</td>
                     <td style="padding:4px 6px; text-align:right; color:#10B981; font-weight:bold;">${d.indennita ? '€ ' + d.indennita.toLocaleString('it-IT') : 'Stima'}</td>
                   </tr>
@@ -797,15 +774,15 @@
               </tbody>
             </table>
           </div>
-          <button onclick="openDitteModalForSlug('${op.slug}')" style="margin-top:6px; width:100%; background:#0284C7; color:#fff; font-size:11px; font-weight:600; padding:5px 8px; border-radius:6px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
-            Apri Piano Completo (${numDitte} ditte / particelle)
+          <button onclick="openDitteModalForSlug('${op.slug}')" style="margin-top:6px; width:100%; background:#0284C7; color:#fff; font-size:11px; font-weight:600; padding:6px 8px; border-radius:6px; border:none; cursor:pointer;">
+            Apri Piano Completo (${numDitte} intestatari / particelle)
           </button>
         `;
       } else {
         dittePreviewHtml = `
-          <div style="background:#1E293B80; padding:12px; border-radius:6px; text-align:center; font-size:11px; color:#94A3B8;">
-            ⚠️ <strong>Nessun piano particellare caricato</strong><br>
-            <span style="font-size:10px; color:#F59E0B;">Elenco depositato presso l'Ente (non ancora digitalizzato).</span>
+          <div style="background:#1E293B80; padding:14px; border-radius:6px; text-align:center; font-size:11px; color:#94A3B8;">
+            ⚠️ <strong>Piano particellare non ancora digitalizzato</strong><br>
+            <span style="font-size:10px; color:#F59E0B;">Elenco depositato cartaceo presso l'Ufficio Tecnico dell'Ente.</span>
           </div>
         `;
       }
@@ -813,20 +790,20 @@
       return `
         <div style="font-family:'Inter', sans-serif;">
           <!-- Header Popup -->
-          <div style="padding:10px 12px; border-bottom:1px solid #1E293B; background:#0B0F17;">
+          <div style="padding:10px 12px; border-bottom:1px solid #1E293B; background:#090D14;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
               <span style="font-size:9px; font-weight:800; text-transform:uppercase; font-family:'JetBrains Mono',monospace; padding:2px 6px; border-radius:4px; background:${color}22; color:${color}; border:1px solid ${color}44;">
                 ${op.stato_opera.replace(/_/g, ' ')}
               </span>
               <span style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#94A3B8;">${op.comune} (${op.provincia || 'ND'})</span>
             </div>
-            <div style="font-size:12px; font-weight:700; color:#F8FAFC; line-height:1.3; max-height:40px; overflow:hidden;">
+            <div style="font-size:12px; font-weight:700; color:#F8FAFC; line-height:1.3; max-height:42px; overflow:hidden;">
               ${op.titolo}
             </div>
           </div>
 
-          <!-- TAB BUTTONS (Sui Pins) -->
-          <div style="display:flex; border-bottom:1px solid #1E293B; background:#111827;">
+          <!-- TAB BUTTONS SUL PIN -->
+          <div style="display:flex; border-bottom:1px solid #1E293B; background:#0F172A;">
             <button onclick="switchPopupTab('${safeSlug}', 'tab-scheda')" id="btn-tab-scheda-${safeSlug}" style="flex:1; padding:7px 2px; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; border:none; background:transparent; color:#F59E0B; border-bottom:2px solid #F59E0B; cursor:pointer;">
               📑 Scheda
             </button>
@@ -841,10 +818,10 @@
             </button>
           </div>
 
-          <!-- TAB CONTENTS -->
+          <!-- CONTENUTI TAB -->
           <div style="padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:11px;">
             
-            <!-- TAB 1: SCHEDA & IDENTIFICATIVI -->
+            <!-- TAB 1: SCHEDA -->
             <div id="content-tab-scheda-${safeSlug}" style="display:block;">
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span style="color:#64748B;">CUP:</span>
@@ -852,7 +829,7 @@
               </div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span style="color:#64748B;">Ente Promotore:</span>
-                <span style="color:#E2E8F0; max-width:180px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${op.ente}</span>
+                <span style="color:#E2E8F0; max-width:200px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${op.ente}</span>
               </div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span style="color:#64748B;">Importo Lavori:</span>
@@ -864,22 +841,22 @@
               </div>
             </div>
 
-            <!-- TAB 2: MATURITY SIGNALS (7 PUNTI) -->
+            <!-- TAB 2: MATURITY SIGNALS -->
             <div id="content-tab-signals-${safeSlug}" style="display:none;">
               <div style="margin-bottom:4px; font-size:10px; color:#94A3B8; font-family:'Inter',sans-serif;">
-                Score Qualificazione: <strong style="color:#F59E0B;">${op.maturity_score || 0} su 7</strong> requisiti accertati
+                Score di Qualificazione: <strong style="color:#F59E0B;">${op.maturity_score || 0} su 7</strong> requisiti accertati
               </div>
               ${signalsHtml}
             </div>
 
-            <!-- TAB 3: PIANO PARTICELLARE DITTE -->
+            <!-- TAB 3: DITTE -->
             <div id="content-tab-ditte-${safeSlug}" style="display:none;">
               ${dittePreviewHtml}
             </div>
 
-            <!-- TAB 4: AZIONE ESTIMATIVA / PERITALE -->
+            <!-- TAB 4: AZIONE ESTIMATIVA -->
             <div id="content-tab-azione-${safeSlug}" style="display:none;">
-              <div style="background:#0F172A; padding:8px; border-radius:6px; border:1px solid #1E293B; margin-bottom:8px;">
+              <div style="background:#090D14; padding:8px; border-radius:6px; border:1px solid #1E293B; margin-bottom:8px;">
                 <div style="font-size:10px; color:#94A3B8; text-transform:uppercase; margin-bottom:2px;">Strategia d'Ingaggio</div>
                 <div style="color:#F8FAFC; font-weight:600; font-family:'Inter',sans-serif; font-size:11px; margin-bottom:4px;">
                   ${op.azione ? op.azione.verbo : 'Monitoraggio procedura'}
@@ -907,7 +884,6 @@
       `;
     }
 
-    // Switcher dei Tab all'interno del popup sul pin
     window.switchPopupTab = function(slug, tabName) {
       const tabs = ['tab-scheda', 'tab-signals', 'tab-ditte', 'tab-azione'];
       tabs.forEach(t => {
@@ -928,7 +904,7 @@
     };
 
     /* =======================================================================
-       4. AGGIORNAMENTO MARKERS SU MAPPA & LISTA FLOTTANTE
+       4. AGGIORNAMENTO MARKERS SU MAPPA & LISTA QUICK
        ======================================================================= */
     function updateMapMarkers(opereList) {
       if (!state.markersGroup) return;
@@ -941,11 +917,10 @@
         const color = getPinColor(op.stato_opera);
         const isTarget = op.stato_opera === 'AVANZATA_SENZA_ELENCO';
 
-        // Pin personalizzato con pulse per quelle Target
         const markerHtml = `
           <div style="position:relative; width: 26px; height: 26px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
             ${isTarget ? `<div class="pin-pulse" style="position:absolute; width:100%; height:100%; border-radius:50%; background:${color};"></div>` : ''}
-            <div style="width: 15px; height: 15px; border-radius: 50%; background: ${color}; border: 2.5px solid #0B0F17; box-shadow: 0 0 12px ${color};"></div>
+            <div style="width: 15px; height: 15px; border-radius: 50%; background: ${color}; border: 2.5px solid #090D14; box-shadow: 0 0 14px ${color};"></div>
           </div>
         `;
 
@@ -958,12 +933,11 @@
         });
 
         const marker = L.marker([op.geo.lat, op.geo.lng], { icon: icon });
-
-        // Bind del tabbed popup
         const popupHtml = buildTabbedPopupHtml(op);
+
         marker.bindPopup(popupHtml, {
-          maxWidth: 380,
-          minWidth: 320,
+          maxWidth: 410,
+          minWidth: 330,
           autoPan: true,
           autoPanPadding: [20, 20]
         });
@@ -984,7 +958,7 @@
       const marker = state.markerMap[slug];
       if (op && marker && state.map) {
         state.selectedOpera = op;
-        state.map.flyTo([op.geo.lat, op.geo.lng], 11.5, { duration: 0.7 });
+        state.map.flyTo([op.geo.lat, op.geo.lng], 11, { duration: 0.7 });
         setTimeout(() => {
           marker.openPopup();
         }, 750);
@@ -993,13 +967,13 @@
 
     function renderQuickOpereList(opere) {
       const container = document.getElementById('quick-opere-list');
-      const badge = document.getElementById('filtered-count-badge');
-      if (badge) badge.textContent = `${opere.length} opere`;
+      const badgeCount = document.getElementById('count-opere-list');
+      if (badgeCount) badgeCount.textContent = opere.length;
 
       if (opere.length === 0) {
         container.innerHTML = `
           <div class="p-4 text-center text-slate-500 font-mono text-[11px]">
-            Nessuna opera con questi filtri.
+            Nessuna opera corrispondente.
           </div>
         `;
         return;
@@ -1010,15 +984,17 @@
         const formatEuro = op.importo_eur ? `€ ${(op.importo_eur / 1000000).toFixed(1)}M` : 'ND';
         return `
           <div onclick="selectAndOpenPin('${op.slug}')" class="p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all">
-            <div class="flex items-center justify-between gap-1 mb-1">
-              <span class="w-2 h-2 rounded-full inline-block" style="background:${color};"></span>
-              <span class="text-[10px] font-mono text-slate-400 font-semibold">${op.regione} · ${op.provincia || 'ND'}</span>
-              <span class="text-[10px] font-mono text-amber-400 font-bold ml-auto">${formatEuro}</span>
+            <div class="flex items-center justify-between gap-1 mb-1 font-mono text-[10px]">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="w-2 h-2 rounded-full inline-block shrink-0" style="background:${color};"></span>
+                <span class="text-slate-300 font-semibold truncate">${op.regione} · ${op.provincia || 'ND'}</span>
+              </div>
+              <span class="text-amber-400 font-bold ml-auto shrink-0">${formatEuro}</span>
             </div>
-            <div class="text-[11px] font-semibold text-slate-200 line-clamp-1">${op.titolo}</div>
-            <div class="text-[10px] text-slate-400 font-mono flex justify-between mt-1 pt-1 border-t border-slate-800/50">
-              <span class="truncate max-w-[170px]">${op.ente}</span>
-              <span class="text-sky-400 hover:underline">Apri pin ↗</span>
+            <div class="text-[11px] font-semibold text-slate-100 line-clamp-1">${op.titolo}</div>
+            <div class="text-[10px] text-slate-400 font-mono flex justify-between mt-1 pt-1 border-t border-slate-800/60">
+              <span class="truncate max-w-[190px]">${op.ente}</span>
+              <span class="text-sky-400 hover:underline">Vedi pin ↗</span>
             </div>
           </div>
         `;
@@ -1026,10 +1002,12 @@
     }
 
     /* =======================================================================
-       5. GESTIONE FILTRI
+       5. GESTIONE FILTRI & SHORTCUTS (PDA, SETTIMANA, NOSTRE)
        ======================================================================= */
     function toggleRegionFilter(reg) {
       state.selectedRegion = reg;
+      document.getElementById('region-active-label').textContent = reg;
+
       document.querySelectorAll('.reg-btn').forEach(btn => {
         btn.classList.remove('bg-slate-800', 'border-amber-500/50', 'text-amber-300');
         btn.classList.add('border-slate-800', 'text-slate-400');
@@ -1042,19 +1020,65 @@
       applyFilters();
     }
 
+    function triggerShortcutFilter(type) {
+      if (state.shortcutFilter === type) {
+        state.shortcutFilter = null;
+        document.getElementById('sc-pda').classList.remove('bg-sky-950', 'border-sky-400');
+        document.getElementById('sc-settimana').classList.remove('bg-amber-950', 'border-amber-400');
+      } else {
+        state.shortcutFilter = type;
+        if (type === 'PDA') {
+          document.getElementById('sc-pda').classList.add('bg-sky-950', 'border-sky-400');
+          document.getElementById('sc-settimana').classList.remove('bg-amber-950', 'border-amber-400');
+        } else if (type === 'SETTIMANA') {
+          document.getElementById('sc-settimana').classList.add('bg-amber-950', 'border-amber-400');
+          document.getElementById('sc-pda').classList.remove('bg-sky-950', 'border-sky-400');
+        }
+      }
+      applyFilters();
+    }
+
+    function filterByStateClick(stato) {
+      document.getElementById('chk-st-avanzata').checked = (stato === 'AVANZATA_SENZA_ELENCO');
+      document.getElementById('chk-st-elenco').checked = (stato === 'ELENCO_PUBBLICATO');
+      document.getElementById('chk-st-preliminare').checked = false;
+      document.getElementById('chk-st-chiusa').checked = false;
+      applyFilters();
+    }
+
+    function resetAllFilters() {
+      state.selectedRegion = 'ALL';
+      state.shortcutFilter = null;
+      document.getElementById('filter-search').value = '';
+      document.getElementById('chk-st-avanzata').checked = true;
+      document.getElementById('chk-st-elenco').checked = true;
+      document.getElementById('chk-st-preliminare').checked = false;
+      document.getElementById('chk-st-chiusa').checked = false;
+      toggleRegionFilter('ALL');
+    }
+
     function applyFilters() {
       const q = document.getElementById('filter-search').value.toLowerCase().trim();
       const stAvanzata = document.getElementById('chk-st-avanzata').checked;
       const stElenco = document.getElementById('chk-st-elenco').checked;
       const stPrelim = document.getElementById('chk-st-preliminare').checked;
       const stChiusa = document.getElementById('chk-st-chiusa').checked;
-      const soloUrgenti = document.getElementById('chk-solo-urgenti').checked;
-      const depositoFisico = document.getElementById('chk-deposito-fisico').checked;
 
       let filtered = state.opere.filter(op => {
         // Regione
         if (state.selectedRegion !== 'ALL' && op.regione !== state.selectedRegion) {
           return false;
+        }
+
+        // Shortcuts
+        if (state.shortcutFilter === 'PDA') {
+          if (!op.ditte || op.ditte.length === 0) return false;
+        }
+        if (state.shortcutFilter === 'SETTIMANA') {
+          if (!op.settimana_corrente) return false;
+        }
+        if (state.shortcutFilter === 'NOSTRE') {
+          if (!op.nostra_opera) return false;
         }
 
         // Stato
@@ -1063,41 +1087,93 @@
         if (op.stato_opera === 'PRELIMINARE' && !stPrelim) return false;
         if (op.stato_opera === 'CHIUSA' && !stChiusa) return false;
 
-        // Testo / CUP / Ditta
+        // Ricerca testuale
         if (q) {
           const ditteStr = (op.ditte || []).map(d => `${d.intestatario} ${d.mappali}`).join(' ');
           const haystack = `${op.titolo} ${op.cup || ''} ${op.ente} ${op.comune} ${op.provincia} ${ditteStr}`.toLowerCase();
           if (!haystack.includes(q)) return false;
         }
 
-        // Azione
-        if (soloUrgenti) {
-          if (!op.azione || !op.azione.giorni_residui || op.azione.giorni_residui > 30) return false;
-        }
-        if (depositoFisico) {
-          if (!op.azione || !op.azione.elenco_non_pubblico) return false;
-        }
-
         return true;
       });
 
       updateMapMarkers(filtered);
-      updateGlobalMetrics();
+      updateGlobalMetrics(filtered);
     }
 
-    function updateGlobalMetrics() {
+    function updateGlobalMetrics(filteredList) {
+      const pool = filteredList || state.opere;
+      
+      const nostreCount = state.opere.filter(o => o.nostra_opera).length;
+      const inVista = pool.length;
       const avanzate = state.opere.filter(o => o.stato_opera === 'AVANZATA_SENZA_ELENCO').length;
       const elenchi = state.opere.filter(o => o.stato_opera === 'ELENCO_PUBBLICATO').length;
-      const totDitte = state.opere.reduce((acc, o) => acc + (o.ditte ? o.ditte.length : 0), 0);
+      const totEurMln = Math.round(state.opere.reduce((acc, o) => acc + (o.importo_eur || 0), 0) / 1000000);
+      
+      const allComuni = new Set();
+      state.opere.forEach(o => {
+        (o.comune || '').split(',').forEach(c => allComuni.add(c.trim()));
+      });
+      const allRegioni = new Set(state.opere.map(o => o.regione));
 
+      document.getElementById('stat-nostre').textContent = nostreCount;
+      document.getElementById('stat-in-vista').textContent = inVista;
       document.getElementById('stat-avanzate').textContent = avanzate;
       document.getElementById('stat-elenchi').textContent = elenchi;
-      document.getElementById('stat-ditte').textContent = totDitte;
+      document.getElementById('stat-investimento').textContent = totEurMln.toLocaleString('it-IT');
+      document.getElementById('stat-comuni').textContent = allComuni.size;
+      document.getElementById('stat-regioni').textContent = allRegioni.size;
     }
 
     /* =======================================================================
-       6. MODALE PIANO PARTICELLARE DITTE (APERTO DAL TAB SUL PIN)
+       6. MODALE STIMA PERIZIA RAPIDA
        ======================================================================= */
+    function openPeriziaCalculatorModal() {
+      document.getElementById('modal-perizia').classList.remove('hidden');
+      calculateEstimate();
+    }
+    function closePeriziaCalculatorModal() {
+      document.getElementById('modal-perizia').classList.add('hidden');
+    }
+
+    function calculateEstimate() {
+      const mq = parseFloat(document.getElementById('calc-mq').value) || 0;
+      const tipo = document.getElementById('calc-tipo').value;
+      const vam = parseFloat(document.getElementById('calc-vam').value) || 0;
+      const reale = parseFloat(document.getElementById('calc-reale').value) || 0;
+      const isCD = document.getElementById('calc-cd').value === 'si';
+
+      let offEnte = mq * vam;
+      let stimaPeritale = mq * reale;
+
+      // Maggiorazione coltivatore diretto (art. 40 - indennità aggiuntiva pari al VAM)
+      if (isCD) {
+        stimaPeritale += (mq * vam);
+      }
+
+      // Se edificabile, cessione volontaria art. 45 maggiorata del 10%
+      if (tipo === 'edificabile' || tipo === 'commerciale') {
+        stimaPeritale *= 1.10;
+      }
+
+      const delta = stimaPeritale - offEnte;
+      const perc = offEnte > 0 ? Math.round((delta / offEnte) * 100) : 0;
+
+      document.getElementById('res-offerta').textContent = `€ ${Math.round(offEnte).toLocaleString('it-IT')}`;
+      document.getElementById('res-perizia').textContent = `€ ${Math.round(stimaPeritale).toLocaleString('it-IT')}`;
+      document.getElementById('res-delta').textContent = `+ € ${Math.round(delta).toLocaleString('it-IT')} (+${perc}%)`;
+    }
+
+    /* =======================================================================
+       7. MODALE GUIDA & MODALE DITTE
+       ======================================================================= */
+    function openGuidaModal() {
+      document.getElementById('modal-guida').classList.remove('hidden');
+    }
+    function closeGuidaModal() {
+      document.getElementById('modal-guida').classList.add('hidden');
+    }
+
     window.openDitteModalForSlug = function(slug) {
       const op = state.opere.find(o => o.slug === slug);
       if (!op) return;
@@ -1170,7 +1246,7 @@
     }
 
     /* =======================================================================
-       7. MODALE INGESTIONE NUOVO ATTO
+       8. MODALE INGESTIONE NUOVO ATTO
        ======================================================================= */
     function triggerQuickAddModal() {
       document.getElementById('modal-quick-add').classList.remove('hidden');
@@ -1190,14 +1266,18 @@
       const importo = parseFloat(document.getElementById('add-importo').value) || 0;
       const stato = document.getElementById('add-stato').value;
       const scadenza = parseInt(document.getElementById('add-scadenza').value) || null;
-      const estratto = document.getElementById('add-estratto').value;
 
       const regGeo = {
         'Lombardia': { lat: 45.4642, lng: 9.1900 },
         'Veneto': { lat: 45.4384, lng: 12.3160 },
         'Piemonte': { lat: 45.0703, lng: 7.6869 },
         'Emilia-Romagna': { lat: 44.4949, lng: 11.3426 },
-        'Liguria': { lat: 44.4056, lng: 8.9463 }
+        'Liguria': { lat: 44.4056, lng: 8.9463 },
+        'Toscana': { lat: 43.7696, lng: 11.2558 },
+        'Lazio': { lat: 41.9028, lng: 12.4964 },
+        'Campania': { lat: 40.8518, lng: 14.2681 },
+        'Puglia': { lat: 41.1171, lng: 16.8719 },
+        'Sicilia': { lat: 37.5079, lng: 15.0830 }
       };
 
       const newOp = {
@@ -1211,6 +1291,8 @@
         importo_eur: importo,
         data_pubblicazione: new Date().toISOString().split('T')[0],
         stato_opera: stato,
+        nostra_opera: true,
+        settimana_corrente: true,
         maturity_score: stato === 'AVANZATA_SENZA_ELENCO' ? 4 : 2,
         maturity_signals: {
           conferenza_servizi_chiusa: true,
@@ -1226,9 +1308,9 @@
           priorita: "alta",
           giorni_residui: scadenza,
           elenco_non_pubblico: true,
-          deposito_presso: estratto || "Vedi albo pretorio"
+          deposito_presso: "Albo Pretorio"
         },
-        geo: regGeo[regione] || { lat: 45.4642, lng: 9.1900 },
+        geo: regGeo[regione] || { lat: 42.50, lng: 12.50 },
         fonte_url: "",
         ditte: []
       };
@@ -1240,7 +1322,7 @@
           body: JSON.stringify(newOp)
         });
       } catch (err) {
-        console.warn("API locale non raggiungibile per salvataggio remoto:", err);
+        console.warn("API locale non raggiungibile per salvataggio:", err);
       }
 
       state.opere.unshift(newOp);
@@ -1276,10 +1358,11 @@
     }
 
     /* =======================================================================
-       8. BOOTSTRAP APPLICAZIONE (FETCH REST API VERBATIM)
+       9. BOOTSTRAP APPLICAZIONE (FETCH REST API VERBATIM)
        ======================================================================= */
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      startClock();
       fetch('http://127.0.0.1:8000/api/opere')
         .then(res => res.json())
         .then(data => {

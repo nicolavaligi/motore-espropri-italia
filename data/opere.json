@@ -3,13 +3,15 @@
     "slug": "SIMICO-MICO-2026-VALTELLINA-SS38",
     "cup": "B39H21000120001",
     "titolo": "S.S. 38 Variante di Tirano e Nodo di Bormio - Adeguamento e svincoli Olimpiadi 2026",
-    "ente": "SIMICO S.p.A. / ANAS Lombardia",
+    "ente": "SIMICO S.p.A. / ANAS",
     "regione": "Lombardia",
     "provincia": "SO",
     "comune": "Tirano, Villa di Tirano",
     "importo_eur": 184500000,
     "data_pubblicazione": "2026-10-18",
     "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
     "maturity_score": 5,
     "maturity_signals": {
       "conferenza_servizi_chiusa": true,
@@ -35,6 +37,79 @@
     "ditte": []
   },
   {
+    "slug": "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA",
+    "cup": "F81B18000450009",
+    "titolo": "Linea AV/AC Verona-Padova: Tratta 2° Lotto Costruttivo attraversamento Vicenza e opere connesse",
+    "ente": "RFI / Italferr S.p.A.",
+    "regione": "Veneto",
+    "provincia": "VI",
+    "comune": "Vicenza, Altavilla Vicentina",
+    "importo_eur": 890000000,
+    "data_pubblicazione": "2026-10-12",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima provvisoria e perizie tecniche concordate",
+      "priorita": "alta",
+      "giorni_residui": 24,
+      "elenco_non_pubblico": false
+    },
+    "geo": {
+      "lat": 45.5455,
+      "lng": 11.5354
+    },
+    "fonte_url": "https://www.rfi.it/it/progetti-e-interventi/espropri.html",
+    "ditte": [
+      {
+        "intestatario": "Zanella S.r.l. Costruzioni",
+        "comune": "Vicenza",
+        "foglio": "34",
+        "mappali": "128, 129 sub 2",
+        "sup_mq": 4850,
+        "indennita": 145000,
+        "delta": true
+      },
+      {
+        "intestatario": "Rossi Mario & Rossi Giuseppe",
+        "comune": "Vicenza",
+        "foglio": "34",
+        "mappali": "140",
+        "sup_mq": 1200,
+        "indennita": 34000,
+        "delta": false
+      },
+      {
+        "intestatario": "Agricola Berica di Benetti F.lli",
+        "comune": "Altavilla Vic.",
+        "foglio": "12",
+        "mappali": "88, 91, 95",
+        "sup_mq": 18400,
+        "indennita": 198000,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare San Felice S.a.s.",
+        "comune": "Vicenza",
+        "foglio": "35",
+        "mappali": "210, 212",
+        "sup_mq": 3100,
+        "indennita": 89000,
+        "delta": false
+      }
+    ]
+  },
+  {
     "slug": "REGIONE-LOMBARDIA-DERVIO-IDRAULICA-LC",
     "cup": "C12C24000100002",
     "titolo": "Interventi di mitigazione idraulica e viabilità di accesso — Comune di Dervio (LC)",
@@ -45,6 +120,8 @@
     "importo_eur": 4800000,
     "data_pubblicazione": "2026-10-29",
     "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
     "maturity_score": 6,
     "maturity_signals": {
       "conferenza_servizi_chiusa": true,
@@ -336,77 +413,402 @@
         "sup_mq": 15,
         "indennita": 2400,
         "delta": false
-      }
-    ]
-  },
-  {
-    "slug": "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA",
-    "cup": "F81B18000450009",
-    "titolo": "Linea AV/AC Verona-Padova: Tratta 2° Lotto Costruttivo attraversamento Vicenza e opere connesse",
-    "ente": "RFI / Italferr S.p.A.",
-    "regione": "Veneto",
-    "provincia": "VI",
-    "comune": "Vicenza, Altavilla Vicentina",
-    "importo_eur": 890000000,
-    "data_pubblicazione": "2026-10-12",
-    "stato_opera": "ELENCO_PUBBLICATO",
-    "maturity_score": 6,
-    "maturity_signals": {
-      "conferenza_servizi_chiusa": true,
-      "progetto_def_esec_approvato": true,
-      "pubblica_utilita_emessa": true,
-      "cup_attivo_finanziamento": true,
-      "avviso_art11_dpr327": true,
-      "vincolo_preordinato_pgt": true,
-      "bando_aggiudicazione_anac": false
-    },
-    "azione": {
-      "verbo": "Opposizione stima provvisoria e perizie tecniche concordate",
-      "priorita": "alta",
-      "giorni_residui": 24,
-      "elenco_non_pubblico": false
-    },
-    "geo": {
-      "lat": 45.5455,
-      "lng": 11.5354
-    },
-    "fonte_url": "https://www.rfi.it/it/progetti-e-interventi/espropri.html",
-    "ditte": [
+      },
       {
-        "intestatario": "Zanella S.r.l. Costruzioni",
-        "comune": "Vicenza",
-        "foglio": "34",
-        "mappali": "128, 129 sub 2",
-        "sup_mq": 4850,
-        "indennita": 145000,
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1479 EX 792",
+        "sup_mq": 250,
+        "indennita": 40000,
         "delta": true
       },
       {
-        "intestatario": "Rossi Mario & Rossi Giuseppe",
-        "comune": "Vicenza",
-        "foglio": "34",
-        "mappali": "140",
-        "sup_mq": 1200,
-        "indennita": 34000,
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "793",
+        "sup_mq": 50,
+        "indennita": 490,
         "delta": false
       },
       {
-        "intestatario": "Agricola Berica di Benetti F.lli",
-        "comune": "Altavilla Vic.",
-        "foglio": "12",
-        "mappali": "88, 91, 95",
-        "sup_mq": 18400,
-        "indennita": 198000,
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "759",
+        "sup_mq": 320,
+        "indennita": 51200,
         "delta": true
       },
       {
-        "intestatario": "Immobiliare San Felice S.a.s.",
-        "comune": "Vicenza",
-        "foglio": "35",
-        "mappali": "210, 212",
-        "sup_mq": 3100,
-        "indennita": 89000,
+        "intestatario": "CRIPPA ROBERTO ALESSANDRO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1006",
+        "sup_mq": 420,
+        "indennita": 67200,
+        "delta": true
+      },
+      {
+        "intestatario": "ENEL GREEN POWER ITALIA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "305",
+        "sup_mq": 3221,
+        "indennita": 467045,
+        "delta": true
+      },
+      {
+        "intestatario": "ENEL GREEN POWER ITALIA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "605",
+        "sup_mq": 760,
+        "indennita": 110200,
+        "delta": true
+      },
+      {
+        "intestatario": "ENEL GREEN POWER ITALIA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1459",
+        "sup_mq": 145,
+        "indennita": 21025,
+        "delta": true
+      },
+      {
+        "intestatario": "GEISSLER ALBERT OTMAR",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "764",
+        "sup_mq": 430,
+        "indennita": 68800,
+        "delta": true
+      },
+      {
+        "intestatario": "GEISSLER ALBERT OTMAR",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "953",
+        "sup_mq": 70,
+        "indennita": 420,
         "delta": false
+      },
+      {
+        "intestatario": "IMMOBILIARE S.I.M. SVILUPPO INIZIATIVE MONTAN",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "2352",
+        "sup_mq": 10,
+        "indennita": 67,
+        "delta": false
+      },
+      {
+        "intestatario": "LA VALLETTA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "297",
+        "sup_mq": 1010,
+        "indennita": 6060,
+        "delta": true
+      },
+      {
+        "intestatario": "LA VALLETTA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1165",
+        "sup_mq": 818,
+        "indennita": 3272,
+        "delta": false
+      },
+      {
+        "intestatario": "LA VALLETTA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1177",
+        "sup_mq": 139,
+        "indennita": 1362,
+        "delta": false
+      },
+      {
+        "intestatario": "LA VALLETTA S.R.L.",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1172",
+        "sup_mq": 128,
+        "indennita": 768,
+        "delta": false
+      },
+      {
+        "intestatario": "MA.GI.GA",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "5044",
+        "sup_mq": 4330,
+        "indennita": 8660,
+        "delta": true
+      },
+      {
+        "intestatario": "MA.GI.GA",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "5076",
+        "sup_mq": 30,
+        "indennita": 180,
+        "delta": false
+      },
+      {
+        "intestatario": "MA.GI.GA",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "2845",
+        "sup_mq": 40,
+        "indennita": 392,
+        "delta": false
+      },
+      {
+        "intestatario": "MA.GI.GA",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "523",
+        "sup_mq": 300,
+        "indennita": 2940,
+        "delta": false
+      },
+      {
+        "intestatario": "PANDIANI MARIO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1296",
+        "sup_mq": 595,
+        "indennita": 2380,
+        "delta": false
+      },
+      {
+        "intestatario": "PEROTTI GIUSEPPE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1369",
+        "sup_mq": 10,
+        "indennita": 40,
+        "delta": false
+      },
+      {
+        "intestatario": "PEROTTI GIUSEPPE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1370",
+        "sup_mq": 10,
+        "indennita": 40,
+        "delta": false
+      },
+      {
+        "intestatario": "SOLDANO RITA nata a PIOLTELLO (MI) il 06/05/1",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "698",
+        "sup_mq": 380,
+        "indennita": 60800,
+        "delta": true
+      },
+      {
+        "intestatario": "CEREGHINI DAVIDE NATO A BELLANO (LC) IL 08/12",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "941",
+        "sup_mq": 270,
+        "indennita": 1809,
+        "delta": false
+      },
+      {
+        "intestatario": "CEREGHINI DAVIDE NATO A BELLANO (LC) IL 08/12",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "4098",
+        "sup_mq": 4365,
+        "indennita": 632925,
+        "delta": true
+      },
+      {
+        "intestatario": "MANZI Luigi",
+        "comune": "Dervio",
+        "foglio": "901",
+        "mappali": "5143",
+        "sup_mq": 160,
+        "indennita": 14400,
+        "delta": true
+      },
+      {
+        "intestatario": "BETTEGA ENRICA NATA A DORIO (LC) IL 01/03/195",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1193",
+        "sup_mq": 3030,
+        "indennita": 6060,
+        "delta": true
+      },
+      {
+        "intestatario": "BAI ANTONELLO NATO A DERVIO (LC) IL 26/06/195",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1405",
+        "sup_mq": 210,
+        "indennita": 420,
+        "delta": false
+      },
+      {
+        "intestatario": "ARNOLDI GIACOMO FU SANTINO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1202",
+        "sup_mq": 510,
+        "indennita": 1020,
+        "delta": false
+      },
+      {
+        "intestatario": "SISTEMATRE CONTRACT S.R.L. (CF 02302470204) s",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1179",
+        "sup_mq": 500,
+        "indennita": 4900,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "852",
+        "sup_mq": 85,
+        "indennita": 510,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "166",
+        "sup_mq": 130,
+        "indennita": 780,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "849",
+        "sup_mq": 50,
+        "indennita": 300,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "285",
+        "sup_mq": 255,
+        "indennita": 2499,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "848",
+        "sup_mq": 50,
+        "indennita": 300,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "854",
+        "sup_mq": 15,
+        "indennita": 90,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "853",
+        "sup_mq": 20,
+        "indennita": 120,
+        "delta": false
+      },
+      {
+        "intestatario": "POZZI Firmina (CF PZZFMN27M49D280D) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "850",
+        "sup_mq": 10,
+        "indennita": 98,
+        "delta": false
+      },
+      {
+        "intestatario": "ORIO Giuseppina Cornelia nata a DERVIO (LC) i",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "851",
+        "sup_mq": 5,
+        "indennita": 49,
+        "delta": false
+      },
+      {
+        "intestatario": "ORIO Giuseppina Cornelia nata a DERVIO (LC) i",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "618",
+        "sup_mq": 10,
+        "indennita": 98,
+        "delta": false
+      },
+      {
+        "intestatario": "ORIO Giuseppina Cornelia nata a DERVIO (LC) i",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "617",
+        "sup_mq": 15,
+        "indennita": 90,
+        "delta": false
+      },
+      {
+        "intestatario": "BONAZZOLA PEPINO S.R.L. (CF 01875090134)",
+        "comune": "Dervio",
+        "foglio": "904",
+        "mappali": "885",
+        "sup_mq": 440,
+        "indennita": 2948,
+        "delta": false
+      },
+      {
+        "intestatario": "CARIBONI Alfredo (CF CRBLRD48B09C839X)",
+        "comune": "Dervio",
+        "foglio": "904",
+        "mappali": "884",
+        "sup_mq": 480,
+        "indennita": 3216,
+        "delta": false
+      },
+      {
+        "intestatario": "RIZZI FABRIZIO",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "1178",
+        "sup_mq": 2520,
+        "indennita": 403200,
+        "delta": true
+      },
+      {
+        "intestatario": "MELESI FULVIA (CF MLSFLV67C43D280W) nata a DE",
+        "comune": "Dervio",
+        "foglio": "902",
+        "mappali": "781",
+        "sup_mq": 8240,
+        "indennita": 16480,
+        "delta": true
       }
     ]
   },
@@ -421,6 +823,8 @@
     "importo_eur": 420000000,
     "data_pubblicazione": "2026-09-28",
     "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
     "maturity_score": 4,
     "maturity_signals": {
       "conferenza_servizi_chiusa": true,
@@ -456,6 +860,8 @@
     "importo_eur": 65000000,
     "data_pubblicazione": "2026-10-25",
     "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
     "maturity_score": 4,
     "maturity_signals": {
       "conferenza_servizi_chiusa": true,
@@ -491,6 +897,8 @@
     "importo_eur": 1300000000,
     "data_pubblicazione": "2026-08-14",
     "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
     "maturity_score": 6,
     "maturity_signals": {
       "conferenza_servizi_chiusa": true,
@@ -553,6 +961,8 @@
     "importo_eur": 780000000,
     "data_pubblicazione": "2026-09-02",
     "stato_opera": "PRELIMINARE",
+    "nostra_opera": false,
+    "settimana_corrente": false,
     "maturity_score": 2,
     "maturity_signals": {
       "conferenza_servizi_chiusa": false,
@@ -587,6 +997,8 @@
     "importo_eur": 540000000,
     "data_pubblicazione": "2026-07-21",
     "stato_opera": "CHIUSA",
+    "nostra_opera": false,
+    "settimana_corrente": false,
     "maturity_score": 7,
     "maturity_signals": {
       "conferenza_servizi_chiusa": true,
@@ -608,6 +1020,2051 @@
       "lng": 8.9132
     },
     "fonte_url": "https://www.commissari.mit.gov.it/nodo-genova",
+    "ditte": []
+  },
+  {
+    "slug": "TOSCANA-FI-PI-LI-TERZA-CORSIA-EMPOLI",
+    "cup": "D51B22000880001",
+    "titolo": "Strada Grande Comunicazione FI-PI-LI: Terza corsia dinamica e adeguamento svincolo Empoli Est",
+    "ente": "Regione Toscana / Città Metro Firenze",
+    "regione": "Toscana",
+    "provincia": "FI",
+    "comune": "Empoli, Montelupo Fiorentino",
+    "importo_eur": 92000000,
+    "data_pubblicazione": "2026-10-25",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 13,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri Regione Toscana c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 43.718,
+      "lng": 10.948
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "TOSCANA-RFI-RADDOPPIO-PISTOIA-LUCCA",
+    "cup": "F71B17000320009",
+    "titolo": "Potenziamento e raddoppio linea ferroviaria Pistoia - Lucca: Tratta Montecatini - Pescia",
+    "ente": "RFI / Italferr",
+    "regione": "Toscana",
+    "provincia": "PT",
+    "comune": "Montecatini Terme, Pescia",
+    "importo_eur": 240000000,
+    "data_pubblicazione": "2026-10-15",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 12,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 43.882,
+      "lng": 10.773
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Romano Giovanni",
+        "comune": "Montecatini Terme",
+        "foglio": "26",
+        "mappali": "179, 493",
+        "sup_mq": 8719,
+        "indennita": 305015,
+        "delta": true
+      },
+      {
+        "intestatario": "Logistica Adriatica S.r.l. 2",
+        "comune": "Montecatini Terme",
+        "foglio": "35",
+        "mappali": "122, 852",
+        "sup_mq": 1963,
+        "indennita": 95065,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Anna",
+        "comune": "Montecatini Terme",
+        "foglio": "48",
+        "mappali": "244, 884",
+        "sup_mq": 10515,
+        "indennita": 768498,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 4",
+        "comune": "Montecatini Terme",
+        "foglio": "37",
+        "mappali": "90, 630",
+        "sup_mq": 18277,
+        "indennita": 903711,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Luigi",
+        "comune": "Montecatini Terme",
+        "foglio": "29",
+        "mappali": "200, 630",
+        "sup_mq": 22805,
+        "indennita": 1520492,
+        "delta": true
+      },
+      {
+        "intestatario": "Romano Carla",
+        "comune": "Montecatini Terme",
+        "foglio": "7",
+        "mappali": "60, 800",
+        "sup_mq": 15651,
+        "indennita": 399505,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Mario",
+        "comune": "Montecatini Terme",
+        "foglio": "42",
+        "mappali": "438, 662",
+        "sup_mq": 23050,
+        "indennita": 641692,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Carla",
+        "comune": "Montecatini Terme",
+        "foglio": "46",
+        "mappali": "63, 753",
+        "sup_mq": 5648,
+        "indennita": 106650,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Giovanni",
+        "comune": "Montecatini Terme",
+        "foglio": "54",
+        "mappali": "383, 464",
+        "sup_mq": 6054,
+        "indennita": 271474,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Luigi",
+        "comune": "Montecatini Terme",
+        "foglio": "10",
+        "mappali": "252, 874",
+        "sup_mq": 18881,
+        "indennita": 1430846,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "MARCHE-ANAS-SS16-VARIANTE-FALCONARA-ANCONA",
+    "cup": "E31B20000410002",
+    "titolo": "S.S. 16 Adriatica: Variante all'abitato di Falconara e collegamento Porto di Ancona",
+    "ente": "ANAS Marche",
+    "regione": "Marche",
+    "provincia": "AN",
+    "comune": "Falconara Marittima, Ancona",
+    "importo_eur": 145000000,
+    "data_pubblicazione": "2026-10-30",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 21,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Marche c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 43.628,
+      "lng": 13.402
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "MARCHE-RFI-BYPASS-FERROVIARIO-PESARO",
+    "cup": "F11B21000910004",
+    "titolo": "Linea Ferroviaria Adriatica: Bypass di arretramento Pesaro e nuovo tracciato AV",
+    "ente": "RFI S.p.A.",
+    "regione": "Marche",
+    "provincia": "PU",
+    "comune": "Pesaro, Fano",
+    "importo_eur": 620000000,
+    "data_pubblicazione": "2026-10-11",
+    "stato_opera": "PRELIMINARE",
+    "nostra_opera": false,
+    "settimana_corrente": true,
+    "maturity_score": 2,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": false,
+      "progetto_def_esec_approvato": false,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": false,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Monitoraggio conferenza dei servizi",
+      "priorita": "bassa",
+      "giorni_residui": null,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI S.p.A. c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 43.91,
+      "lng": 12.913
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "UMBRIA-ANAS-E45-RISANAMENTO-TERNI-ORTE",
+    "cup": "B81B19000110003",
+    "titolo": "Itinerario E45 Orte-Ravenna: Adeguamento svincoli e complanari nodo di Terni",
+    "ente": "ANAS Umbria",
+    "regione": "Umbria",
+    "provincia": "TR",
+    "comune": "Terni, Narni",
+    "importo_eur": 78000000,
+    "data_pubblicazione": "2026-10-13",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 6,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Umbria c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 42.564,
+      "lng": 12.641
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "LAZIO-AUTOSTRADA-ROMA-LATINA-TRATTA-A",
+    "cup": "C81B16000250005",
+    "titolo": "Corridoio Intermodale Roma - Latina: Tratta autostradale Tor de' Cenci - Latina Borgo Piave",
+    "ente": "Autostrade del Lazio / MIT",
+    "regione": "Lazio",
+    "provincia": "LT",
+    "comune": "Pomezia, Aprilia, Latina",
+    "importo_eur": 1250000000,
+    "data_pubblicazione": "2026-10-20",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 20,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri Autostrade del Lazio c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 41.583,
+      "lng": 12.833
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "LAZIO-RFI-CHIUSURA-ANELLO-ROMA-VIGNA-CLARA",
+    "cup": "F81B23000770001",
+    "titolo": "Chiusura Anello Ferroviario di Roma: Tratta Vigna Clara - Tor di Quinto - Salaria",
+    "ente": "RFI / Italferr",
+    "regione": "Lazio",
+    "provincia": "RM",
+    "comune": "Roma",
+    "importo_eur": 380000000,
+    "data_pubblicazione": "2026-10-15",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 12,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 41.942,
+      "lng": 12.491
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Colombo Carla",
+        "comune": "Roma",
+        "foglio": "25",
+        "mappali": "226, 545",
+        "sup_mq": 15292,
+        "indennita": 1155274,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 2",
+        "comune": "Roma",
+        "foglio": "11",
+        "mappali": "255, 856",
+        "sup_mq": 9212,
+        "indennita": 436773,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Mario",
+        "comune": "Roma",
+        "foglio": "19",
+        "mappali": "195, 852",
+        "sup_mq": 18086,
+        "indennita": 981597,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Carla",
+        "comune": "Roma",
+        "foglio": "55",
+        "mappali": "10, 460",
+        "sup_mq": 13328,
+        "indennita": 827440,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Anna",
+        "comune": "Roma",
+        "foglio": "16",
+        "mappali": "287, 775",
+        "sup_mq": 9114,
+        "indennita": 502299,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Mario",
+        "comune": "Roma",
+        "foglio": "31",
+        "mappali": "375, 798",
+        "sup_mq": 7162,
+        "indennita": 117273,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 7",
+        "comune": "Roma",
+        "foglio": "18",
+        "mappali": "104, 582",
+        "sup_mq": 15642,
+        "indennita": 480533,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Giuseppe",
+        "comune": "Roma",
+        "foglio": "15",
+        "mappali": "425, 570",
+        "sup_mq": 4727,
+        "indennita": 76170,
+        "delta": true
+      },
+      {
+        "intestatario": "Costruzioni Generali S.r.l. 9",
+        "comune": "Roma",
+        "foglio": "44",
+        "mappali": "139, 534",
+        "sup_mq": 3131,
+        "indennita": 92465,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 10",
+        "comune": "Roma",
+        "foglio": "12",
+        "mappali": "44, 676",
+        "sup_mq": 16738,
+        "indennita": 732902,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "CAMPANIA-RFI-AV-NAPOLI-BARI-LOTTO-IRPINIA",
+    "cup": "F21B19000150008",
+    "titolo": "Nuova Linea AV/AC Napoli-Bari: Tratta Apice - Hirpinia e Stazione Hirpinia",
+    "ente": "RFI / Italferr",
+    "regione": "Campania",
+    "provincia": "AV",
+    "comune": "Ariano Irpino, Grottaminarda",
+    "importo_eur": 650000000,
+    "data_pubblicazione": "2026-10-27",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 17,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 41.118,
+      "lng": 15.083
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 1",
+        "comune": "Ariano Irpino",
+        "foglio": "35",
+        "mappali": "361, 817",
+        "sup_mq": 14302,
+        "indennita": 945615,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Giovanni",
+        "comune": "Ariano Irpino",
+        "foglio": "4",
+        "mappali": "298, 586",
+        "sup_mq": 2899,
+        "indennita": 217951,
+        "delta": true
+      },
+      {
+        "intestatario": "Russo Mario",
+        "comune": "Ariano Irpino",
+        "foglio": "40",
+        "mappali": "366, 764",
+        "sup_mq": 14321,
+        "indennita": 427509,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Giuseppe",
+        "comune": "Ariano Irpino",
+        "foglio": "52",
+        "mappali": "11, 466",
+        "sup_mq": 11650,
+        "indennita": 721145,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 5",
+        "comune": "Ariano Irpino",
+        "foglio": "19",
+        "mappali": "384, 627",
+        "sup_mq": 14627,
+        "indennita": 1097119,
+        "delta": true
+      },
+      {
+        "intestatario": "Russo Luigi",
+        "comune": "Ariano Irpino",
+        "foglio": "45",
+        "mappali": "442, 638",
+        "sup_mq": 12616,
+        "indennita": 234712,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 7",
+        "comune": "Ariano Irpino",
+        "foglio": "21",
+        "mappali": "239, 688",
+        "sup_mq": 11476,
+        "indennita": 938697,
+        "delta": true
+      },
+      {
+        "intestatario": "Galli Luigi",
+        "comune": "Ariano Irpino",
+        "foglio": "38",
+        "mappali": "326, 571",
+        "sup_mq": 12755,
+        "indennita": 689232,
+        "delta": true
+      },
+      {
+        "intestatario": "Costruzioni Generali S.r.l. 9",
+        "comune": "Ariano Irpino",
+        "foglio": "17",
+        "mappali": "290, 789",
+        "sup_mq": 5392,
+        "indennita": 202051,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Anna",
+        "comune": "Ariano Irpino",
+        "foglio": "40",
+        "mappali": "283, 881",
+        "sup_mq": 3993,
+        "indennita": 167670,
+        "delta": true
+      },
+      {
+        "intestatario": "Costruzioni Generali S.r.l. 11",
+        "comune": "Ariano Irpino",
+        "foglio": "38",
+        "mappali": "61, 784",
+        "sup_mq": 14624,
+        "indennita": 318408,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 12",
+        "comune": "Ariano Irpino",
+        "foglio": "42",
+        "mappali": "373, 792",
+        "sup_mq": 2747,
+        "indennita": 118917,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 13",
+        "comune": "Ariano Irpino",
+        "foglio": "4",
+        "mappali": "319, 564",
+        "sup_mq": 4213,
+        "indennita": 175829,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Anna",
+        "comune": "Ariano Irpino",
+        "foglio": "43",
+        "mappali": "97, 699",
+        "sup_mq": 10368,
+        "indennita": 269939,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 15",
+        "comune": "Ariano Irpino",
+        "foglio": "55",
+        "mappali": "442, 748",
+        "sup_mq": 9011,
+        "indennita": 536351,
+        "delta": true
+      },
+      {
+        "intestatario": "Galli Anna",
+        "comune": "Ariano Irpino",
+        "foglio": "53",
+        "mappali": "299, 584",
+        "sup_mq": 20100,
+        "indennita": 1156248,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 17",
+        "comune": "Ariano Irpino",
+        "foglio": "20",
+        "mappali": "55, 542",
+        "sup_mq": 9545,
+        "indennita": 654763,
+        "delta": true
+      },
+      {
+        "intestatario": "Romano Giuseppe",
+        "comune": "Ariano Irpino",
+        "foglio": "20",
+        "mappali": "443, 478",
+        "sup_mq": 9589,
+        "indennita": 785307,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "CAMPANIA-ANAS-SS268-RADDOPPIO-VESUVIANA",
+    "cup": "E41B21000300002",
+    "titolo": "S.S. 268 del Vesuvio: Adeguamento a 4 corsie e raccordi autostradali A30",
+    "ente": "ANAS Campania",
+    "regione": "Campania",
+    "provincia": "NA",
+    "comune": "Somma Vesuviana, Ottaviano, Palma C.",
+    "importo_eur": 115000000,
+    "data_pubblicazione": "2026-10-20",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 23,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Campania c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 40.852,
+      "lng": 14.471
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "PUGLIA-ANAS-SS16-TRATTA-BARI-MOLA",
+    "cup": "E91B22000390004",
+    "titolo": "S.S. 16 Variante di Bari: Sistemazione nodi complanari e svincoli Torre a Mare - Mola",
+    "ente": "ANAS Puglia",
+    "regione": "Puglia",
+    "provincia": "BA",
+    "comune": "Bari, Mola di Bari",
+    "importo_eur": 85000000,
+    "data_pubblicazione": "2026-10-11",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 16,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Puglia c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 41.061,
+      "lng": 17.021
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "PUGLIA-TERNA-CORRIDOIO-ADRIATICO-HVDC",
+    "cup": "G41B21000190007",
+    "titolo": "Elettrodotto sottomarino HVDC Adriatico: Stazione di conversione e cavidotto Galatina",
+    "ente": "Terna Rete Italia",
+    "regione": "Puglia",
+    "provincia": "LE",
+    "comune": "Galatina, Soleto",
+    "importo_eur": 410000000,
+    "data_pubblicazione": "2026-10-15",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 23,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri Terna Rete Italia c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 40.174,
+      "lng": 18.168
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Logistica Adriatica S.r.l. 1",
+        "comune": "Galatina",
+        "foglio": "28",
+        "mappali": "437, 837",
+        "sup_mq": 18689,
+        "indennita": 1423398,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Mario",
+        "comune": "Galatina",
+        "foglio": "46",
+        "mappali": "238, 483",
+        "sup_mq": 13729,
+        "indennita": 231512,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 3",
+        "comune": "Galatina",
+        "foglio": "40",
+        "mappali": "11, 848",
+        "sup_mq": 14214,
+        "indennita": 903141,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Giuseppe",
+        "comune": "Galatina",
+        "foglio": "34",
+        "mappali": "158, 584",
+        "sup_mq": 19667,
+        "indennita": 782179,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 5",
+        "comune": "Galatina",
+        "foglio": "17",
+        "mappali": "324, 532",
+        "sup_mq": 6757,
+        "indennita": 285433,
+        "delta": true
+      },
+      {
+        "intestatario": "Logistica Adriatica S.r.l. 6",
+        "comune": "Galatina",
+        "foglio": "34",
+        "mappali": "233, 665",
+        "sup_mq": 8608,
+        "indennita": 707345,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "ABRUZZO-RFI-VELOCIZZAZIONE-ROMA-PESCARA",
+    "cup": "F31B22000820001",
+    "titolo": "Velocizzazione ferrovia Roma-Pescara: Raddoppio tratta Interporto d'Abruzzo - Manoppello",
+    "ente": "RFI S.p.A.",
+    "regione": "Abruzzo",
+    "provincia": "PE",
+    "comune": "Manoppello, Scafa, Chieti",
+    "importo_eur": 320000000,
+    "data_pubblicazione": "2026-10-17",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 7,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri RFI S.p.A. c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 42.348,
+      "lng": 14.062
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "FVG-RFI-POTENZIAMENTO-TRIESTE-DIVACCIA",
+    "cup": "F51B20000340003",
+    "titolo": "Nodo di Trieste: Potenziamento linea di cintura e collegamento scalo Campo Marzio",
+    "ente": "RFI / Italferr",
+    "regione": "Friuli-Venezia Giulia",
+    "provincia": "TS",
+    "comune": "Trieste, San Dorligo della Valle",
+    "importo_eur": 195000000,
+    "data_pubblicazione": "2026-10-21",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 11,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 45.629,
+      "lng": 13.801
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Esposito Luigi",
+        "comune": "Trieste",
+        "foglio": "13",
+        "mappali": "129, 481",
+        "sup_mq": 14156,
+        "indennita": 670068,
+        "delta": true
+      },
+      {
+        "intestatario": "Galli Giovanni",
+        "comune": "Trieste",
+        "foglio": "44",
+        "mappali": "80, 781",
+        "sup_mq": 20717,
+        "indennita": 492160,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 3",
+        "comune": "Trieste",
+        "foglio": "7",
+        "mappali": "316, 500",
+        "sup_mq": 10333,
+        "indennita": 183933,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 4",
+        "comune": "Trieste",
+        "foglio": "37",
+        "mappali": "126, 667",
+        "sup_mq": 16444,
+        "indennita": 897939,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 5",
+        "comune": "Trieste",
+        "foglio": "42",
+        "mappali": "345, 874",
+        "sup_mq": 11649,
+        "indennita": 628468,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Giuseppe",
+        "comune": "Trieste",
+        "foglio": "53",
+        "mappali": "199, 791",
+        "sup_mq": 10150,
+        "indennita": 489338,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Carla",
+        "comune": "Trieste",
+        "foglio": "53",
+        "mappali": "365, 683",
+        "sup_mq": 21111,
+        "indennita": 759983,
+        "delta": true
+      },
+      {
+        "intestatario": "Galli Luigi",
+        "comune": "Trieste",
+        "foglio": "31",
+        "mappali": "342, 523",
+        "sup_mq": 23354,
+        "indennita": 1164752,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 9",
+        "comune": "Trieste",
+        "foglio": "13",
+        "mappali": "432, 533",
+        "sup_mq": 18568,
+        "indennita": 1211572,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Carla",
+        "comune": "Trieste",
+        "foglio": "30",
+        "mappali": "364, 711",
+        "sup_mq": 17644,
+        "indennita": 290318,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Luigi",
+        "comune": "Trieste",
+        "foglio": "30",
+        "mappali": "392, 625",
+        "sup_mq": 6848,
+        "indennita": 148375,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Giuseppe",
+        "comune": "Trieste",
+        "foglio": "29",
+        "mappali": "29, 559",
+        "sup_mq": 11780,
+        "indennita": 387207,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Mario",
+        "comune": "Trieste",
+        "foglio": "54",
+        "mappali": "298, 746",
+        "sup_mq": 21009,
+        "indennita": 910912,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 14",
+        "comune": "Trieste",
+        "foglio": "25",
+        "mappali": "148, 779",
+        "sup_mq": 23139,
+        "indennita": 1136853,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 15",
+        "comune": "Trieste",
+        "foglio": "7",
+        "mappali": "247, 633",
+        "sup_mq": 21240,
+        "indennita": 849092,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "TRENTINO-RFI-CIRCONVALLAZIONE-TRENTO",
+    "cup": "F61B21000630006",
+    "titolo": "Circonvallazione ferroviaria di Trento (Galleria di Trento): Accesso sud Tunnel del Brennero",
+    "ente": "RFI S.p.A.",
+    "regione": "Trentino-Alto Adige",
+    "provincia": "TN",
+    "comune": "Trento",
+    "importo_eur": 970000000,
+    "data_pubblicazione": "2026-10-19",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 14,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI S.p.A. c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 46.067,
+      "lng": 11.121
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Romano Anna",
+        "comune": "Trento",
+        "foglio": "24",
+        "mappali": "104, 682",
+        "sup_mq": 13509,
+        "indennita": 316311,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Carla",
+        "comune": "Trento",
+        "foglio": "4",
+        "mappali": "57, 644",
+        "sup_mq": 10306,
+        "indennita": 831236,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 3",
+        "comune": "Trento",
+        "foglio": "30",
+        "mappali": "143, 673",
+        "sup_mq": 15804,
+        "indennita": 938502,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Luigi",
+        "comune": "Trento",
+        "foglio": "51",
+        "mappali": "256, 629",
+        "sup_mq": 17182,
+        "indennita": 505505,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 5",
+        "comune": "Trento",
+        "foglio": "52",
+        "mappali": "368, 835",
+        "sup_mq": 15867,
+        "indennita": 1111255,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 6",
+        "comune": "Trento",
+        "foglio": "34",
+        "mappali": "263, 566",
+        "sup_mq": 6791,
+        "indennita": 152827,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "ALTO-ADIGE-VARIANTE-VAL-PUSTERIA-SS49",
+    "cup": "E51B22000120004",
+    "titolo": "S.S. 49 della Val Pusteria: Circonvallazione di Perca e centro mobilità",
+    "ente": "Provincia Autonoma Bolzano",
+    "regione": "Trentino-Alto Adige",
+    "provincia": "BZ",
+    "comune": "Perca, Brunico",
+    "importo_eur": 138000000,
+    "data_pubblicazione": "2026-10-23",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 10,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri Provincia Autonoma Bolzano c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 46.792,
+      "lng": 11.981
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "SICILIA-RFI-RADDOPPIO-PALERMO-CATANIA-LOTTO-DITTAINO",
+    "cup": "F41B19000550001",
+    "titolo": "Itinerario ferroviario Palermo - Catania - Messina: Tratta Dittaino - Enna Nuova",
+    "ente": "RFI / Italferr",
+    "regione": "Sicilia",
+    "provincia": "EN",
+    "comune": "Enna, Assoro",
+    "importo_eur": 820000000,
+    "data_pubblicazione": "2026-10-20",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 8,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 37.585,
+      "lng": 14.367
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Costa Carla",
+        "comune": "Enna",
+        "foglio": "38",
+        "mappali": "281, 586",
+        "sup_mq": 14531,
+        "indennita": 896445,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Carla",
+        "comune": "Enna",
+        "foglio": "17",
+        "mappali": "28, 878",
+        "sup_mq": 10843,
+        "indennita": 761038,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 3",
+        "comune": "Enna",
+        "foglio": "13",
+        "mappali": "139, 464",
+        "sup_mq": 5321,
+        "indennita": 100856,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Anna",
+        "comune": "Enna",
+        "foglio": "38",
+        "mappali": "118, 535",
+        "sup_mq": 6331,
+        "indennita": 461624,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 5",
+        "comune": "Enna",
+        "foglio": "27",
+        "mappali": "290, 820",
+        "sup_mq": 15454,
+        "indennita": 1271936,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Carla",
+        "comune": "Enna",
+        "foglio": "24",
+        "mappali": "88, 843",
+        "sup_mq": 2174,
+        "indennita": 183490,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Carla",
+        "comune": "Enna",
+        "foglio": "50",
+        "mappali": "149, 849",
+        "sup_mq": 9804,
+        "indennita": 602421,
+        "delta": true
+      },
+      {
+        "intestatario": "Romano Mario",
+        "comune": "Enna",
+        "foglio": "11",
+        "mappali": "82, 771",
+        "sup_mq": 5367,
+        "indennita": 170308,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 9",
+        "comune": "Enna",
+        "foglio": "7",
+        "mappali": "234, 768",
+        "sup_mq": 15667,
+        "indennita": 455355,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Mario",
+        "comune": "Enna",
+        "foglio": "30",
+        "mappali": "92, 883",
+        "sup_mq": 354,
+        "indennita": 11645,
+        "delta": false
+      }
+    ]
+  },
+  {
+    "slug": "SICILIA-ANAS-RAGUSA-CATANIA-LOTTO-1",
+    "cup": "E11B18000400002",
+    "titolo": "Raddoppio S.S. 514 di Chiaramonte e S.S. 194 Ragusana: Tratta Ragusa - Vizzini",
+    "ente": "ANAS Sicilia",
+    "regione": "Sicilia",
+    "provincia": "RG",
+    "comune": "Ragusa, Chiaramonte Gulfi",
+    "importo_eur": 490000000,
+    "data_pubblicazione": "2026-10-18",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 24,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Sicilia c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 36.985,
+      "lng": 14.685
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "CALABRIA-ANAS-SS106-JONICA-CROTONE-SIBARI",
+    "cup": "E61B22000980003",
+    "titolo": "Nuova S.S. 106 Jonica a 4 corsie: Tratta Crotone Nord - Mandatoriccio",
+    "ente": "ANAS Calabria",
+    "regione": "Calabria",
+    "provincia": "KR",
+    "comune": "Crotone, Cirò Marina",
+    "importo_eur": 730000000,
+    "data_pubblicazione": "2026-10-23",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 23,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Calabria c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 39.221,
+      "lng": 17.108
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "SARDEGNA-ANAS-SS131-ADEGUAMENTO-BONORVA-SASSARI",
+    "cup": "E71B21000440002",
+    "titolo": "S.S. 131 Carlo Felice: Risoluzione nodi critici, eliminazione incroci a raso",
+    "ente": "ANAS Sardegna",
+    "regione": "Sardegna",
+    "provincia": "SS",
+    "comune": "Bonorva, Sassari",
+    "importo_eur": 160000000,
+    "data_pubblicazione": "2026-10-10",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 5,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri ANAS Sardegna c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 40.528,
+      "lng": 8.761
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "BASILICATA-FERROVIA-MATERA-FERRANDINA",
+    "cup": "F91B19000720005",
+    "titolo": "Completamento collegamento ferroviario Ferrandina Scalo - Matera La Martella",
+    "ente": "RFI / Italferr",
+    "regione": "Basilicata",
+    "provincia": "MT",
+    "comune": "Matera, Ferrandina",
+    "importo_eur": 365000000,
+    "data_pubblicazione": "2026-10-24",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 28,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 40.642,
+      "lng": 16.541
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Logistica Adriatica S.r.l. 1",
+        "comune": "Matera",
+        "foglio": "11",
+        "mappali": "238, 808",
+        "sup_mq": 14332,
+        "indennita": 846142,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Giovanni",
+        "comune": "Matera",
+        "foglio": "8",
+        "mappali": "71, 547",
+        "sup_mq": 23557,
+        "indennita": 850699,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Anna",
+        "comune": "Matera",
+        "foglio": "44",
+        "mappali": "346, 509",
+        "sup_mq": 16806,
+        "indennita": 1058435,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Luigi",
+        "comune": "Matera",
+        "foglio": "51",
+        "mappali": "104, 519",
+        "sup_mq": 12299,
+        "indennita": 669745,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Giovanni",
+        "comune": "Matera",
+        "foglio": "33",
+        "mappali": "393, 761",
+        "sup_mq": 7283,
+        "indennita": 458108,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Luigi",
+        "comune": "Matera",
+        "foglio": "28",
+        "mappali": "330, 743",
+        "sup_mq": 11358,
+        "indennita": 405761,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "MOLISE-ANAS-FONDO-VALLE-BIFERNO-SS647",
+    "cup": "E21B20000180001",
+    "titolo": "S.S. 647 Fondo Valle del Biferno: Messa in sicurezza e viadotti viabilità Liscione",
+    "ente": "ANAS Molise",
+    "regione": "Molise",
+    "provincia": "CB",
+    "comune": "Guardialfiera, Larino",
+    "importo_eur": 72000000,
+    "data_pubblicazione": "2026-10-24",
+    "stato_opera": "PRELIMINARE",
+    "nostra_opera": false,
+    "settimana_corrente": true,
+    "maturity_score": 2,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": false,
+      "progetto_def_esec_approvato": false,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": false,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Monitoraggio conferenza dei servizi",
+      "priorita": "bassa",
+      "giorni_residui": null,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri ANAS Molise c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 41.802,
+      "lng": 14.811
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "PIEMONTE-RFI-RADDOPPIO-PIOSSASCO-ORBASSANO",
+    "cup": "F11B23000210002",
+    "titolo": "Linea SFM 5 Torino: Nodo di interscambio e raddoppio scalo Orbassano",
+    "ente": "RFI / Regione Piemonte",
+    "regione": "Piemonte",
+    "provincia": "TO",
+    "comune": "Orbassano, Rivalta di Torino",
+    "importo_eur": 110000000,
+    "data_pubblicazione": "2026-10-13",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 5,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 45.008,
+      "lng": 7.538
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "LOMBARDIA-PEDEMONTANA-TRATTA-B2-CESANO-DESIO",
+    "cup": "C11B09000010008",
+    "titolo": "Autostrada Pedemontana Lombarda: Tratta B2 da Lentate sul Seveso a Cesano Maderno",
+    "ente": "Autostrada Pedemontana Lombarda S.p.A.",
+    "regione": "Lombardia",
+    "provincia": "MB",
+    "comune": "Cesano Maderno, Seveso, Desio",
+    "importo_eur": 680000000,
+    "data_pubblicazione": "2026-10-22",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 12,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri Autostrada Pedemontana Lombarda S.p.A. c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 45.629,
+      "lng": 9.155
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "LOMBARDIA-RFI-QUADRUPICAMENTO-MILANO-PAVIA",
+    "cup": "F21B22000640003",
+    "titolo": "Quadruplicamento linea Milano Rogoredo - Pavia: Tratta Pieve Emanuele - Certosa",
+    "ente": "RFI S.p.A.",
+    "regione": "Lombardia",
+    "provincia": "PV",
+    "comune": "Pieve Emanuele, Locate Triulzi, Certosa di Pavia",
+    "importo_eur": 520000000,
+    "data_pubblicazione": "2026-10-22",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 9,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri RFI S.p.A. c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 45.312,
+      "lng": 9.151
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Romano Carla",
+        "comune": "Pieve Emanuele",
+        "foglio": "6",
+        "mappali": "61, 861",
+        "sup_mq": 1934,
+        "indennita": 95316,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Giovanni",
+        "comune": "Pieve Emanuele",
+        "foglio": "53",
+        "mappali": "135, 472",
+        "sup_mq": 15074,
+        "indennita": 899933,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Mario",
+        "comune": "Pieve Emanuele",
+        "foglio": "46",
+        "mappali": "251, 585",
+        "sup_mq": 23270,
+        "indennita": 1746380,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Anna",
+        "comune": "Pieve Emanuele",
+        "foglio": "20",
+        "mappali": "133, 489",
+        "sup_mq": 8112,
+        "indennita": 291897,
+        "delta": true
+      },
+      {
+        "intestatario": "Russo Carla",
+        "comune": "Pieve Emanuele",
+        "foglio": "13",
+        "mappali": "49, 453",
+        "sup_mq": 23573,
+        "indennita": 1953916,
+        "delta": true
+      },
+      {
+        "intestatario": "Russo Mario",
+        "comune": "Pieve Emanuele",
+        "foglio": "50",
+        "mappali": "216, 717",
+        "sup_mq": 6588,
+        "indennita": 300384,
+        "delta": true
+      },
+      {
+        "intestatario": "Ferrari Mario",
+        "comune": "Pieve Emanuele",
+        "foglio": "51",
+        "mappali": "193, 774",
+        "sup_mq": 14903,
+        "indennita": 356367,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Carla",
+        "comune": "Pieve Emanuele",
+        "foglio": "10",
+        "mappali": "287, 585",
+        "sup_mq": 20674,
+        "indennita": 1092833,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Anna",
+        "comune": "Pieve Emanuele",
+        "foglio": "43",
+        "mappali": "345, 673",
+        "sup_mq": 19611,
+        "indennita": 1016632,
+        "delta": true
+      },
+      {
+        "intestatario": "Immobiliare Veneta S.p.A. 10",
+        "comune": "Pieve Emanuele",
+        "foglio": "44",
+        "mappali": "278, 866",
+        "sup_mq": 10344,
+        "indennita": 768684,
+        "delta": true
+      },
+      {
+        "intestatario": "Costruzioni Generali S.r.l. 11",
+        "comune": "Pieve Emanuele",
+        "foglio": "47",
+        "mappali": "434, 678",
+        "sup_mq": 13750,
+        "indennita": 235391,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Giovanni",
+        "comune": "Pieve Emanuele",
+        "foglio": "11",
+        "mappali": "132, 806",
+        "sup_mq": 3736,
+        "indennita": 167516,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "VENETO-ANAS-SS51-ALEMAGNA-VARIANTE-CORTINA",
+    "cup": "E81B21000190001",
+    "titolo": "S.S. 51 di Alemagna: Circonvallazione e gallerie per Cortina d'Ampezzo",
+    "ente": "SIMICO / ANAS Veneto",
+    "regione": "Veneto",
+    "provincia": "BL",
+    "comune": "Cortina d'Ampezzo, San Vito di Cadore",
+    "importo_eur": 260000000,
+    "data_pubblicazione": "2026-10-24",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 17,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri SIMICO c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 46.538,
+      "lng": 12.138
+    },
+    "fonte_url": "https://stradeanas.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "EMILIA-RFI-PONTREMOLESE-RADDOPPIO-FORNOVO",
+    "cup": "F51B18000770004",
+    "titolo": "Linea Ferroviaria Pontremolese: Raddoppio tratta Fornovo di Taro - Osteriazza",
+    "ente": "RFI / Italferr",
+    "regione": "Emilia-Romagna",
+    "provincia": "PR",
+    "comune": "Fornovo di Taro, Solignano",
+    "importo_eur": 430000000,
+    "data_pubblicazione": "2026-10-25",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": true,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 23,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri RFI c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 44.689,
+      "lng": 10.098
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": []
+  },
+  {
+    "slug": "EMILIA-SNAM-METANODOTTO-RAVENNA-MINERBIO",
+    "cup": "S11B23000450009",
+    "titolo": "Metanodotto dorsale adriatica DN 1200: Tratta Ravenna Hub FSRU - Stoccaggio Minerbio",
+    "ente": "Snam Rete Gas S.p.A.",
+    "regione": "Emilia-Romagna",
+    "provincia": "BO",
+    "comune": "Ravenna, Alfonsine, Minerbio",
+    "importo_eur": 310000000,
+    "data_pubblicazione": "2026-10-28",
+    "stato_opera": "ELENCO_PUBBLICATO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 6,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": true,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": true,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Opposizione stima indennità provvisorie D.P.R. 327/2001",
+      "priorita": "media",
+      "giorni_residui": 5,
+      "elenco_non_pubblico": false,
+      "deposito_presso": "Ufficio Espropri Snam Rete Gas S.p.A. c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 44.524,
+      "lng": 11.782
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
+    "ditte": [
+      {
+        "intestatario": "Colombo Carla",
+        "comune": "Ravenna",
+        "foglio": "24",
+        "mappali": "215, 535",
+        "sup_mq": 12287,
+        "indennita": 801529,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Luigi",
+        "comune": "Ravenna",
+        "foglio": "36",
+        "mappali": "337, 475",
+        "sup_mq": 14023,
+        "indennita": 996885,
+        "delta": true
+      },
+      {
+        "intestatario": "Marino Luigi",
+        "comune": "Ravenna",
+        "foglio": "52",
+        "mappali": "311, 776",
+        "sup_mq": 7918,
+        "indennita": 378725,
+        "delta": true
+      },
+      {
+        "intestatario": "Colombo Luigi",
+        "comune": "Ravenna",
+        "foglio": "47",
+        "mappali": "259, 845",
+        "sup_mq": 8659,
+        "indennita": 177400,
+        "delta": true
+      },
+      {
+        "intestatario": "Esposito Carla",
+        "comune": "Ravenna",
+        "foglio": "8",
+        "mappali": "326, 693",
+        "sup_mq": 20870,
+        "indennita": 1262823,
+        "delta": true
+      },
+      {
+        "intestatario": "Costruzioni Generali S.r.l. 6",
+        "comune": "Ravenna",
+        "foglio": "22",
+        "mappali": "109, 496",
+        "sup_mq": 18098,
+        "indennita": 517118,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Giovanni",
+        "comune": "Ravenna",
+        "foglio": "47",
+        "mappali": "222, 813",
+        "sup_mq": 1678,
+        "indennita": 47857,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 8",
+        "comune": "Ravenna",
+        "foglio": "48",
+        "mappali": "276, 464",
+        "sup_mq": 3149,
+        "indennita": 178702,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 9",
+        "comune": "Ravenna",
+        "foglio": "28",
+        "mappali": "277, 674",
+        "sup_mq": 22547,
+        "indennita": 938532,
+        "delta": true
+      },
+      {
+        "intestatario": "Fontana Mario",
+        "comune": "Ravenna",
+        "foglio": "47",
+        "mappali": "21, 598",
+        "sup_mq": 5793,
+        "indennita": 437910,
+        "delta": true
+      },
+      {
+        "intestatario": "Galli Anna",
+        "comune": "Ravenna",
+        "foglio": "21",
+        "mappali": "348, 454",
+        "sup_mq": 1058,
+        "indennita": 54239,
+        "delta": true
+      },
+      {
+        "intestatario": "Bianchi Giovanni",
+        "comune": "Ravenna",
+        "foglio": "22",
+        "mappali": "399, 745",
+        "sup_mq": 19640,
+        "indennita": 463065,
+        "delta": true
+      },
+      {
+        "intestatario": "Galli Luigi",
+        "comune": "Ravenna",
+        "foglio": "28",
+        "mappali": "378, 610",
+        "sup_mq": 15795,
+        "indennita": 1141027,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Giovanni",
+        "comune": "Ravenna",
+        "foglio": "50",
+        "mappali": "115, 838",
+        "sup_mq": 11717,
+        "indennita": 305039,
+        "delta": true
+      },
+      {
+        "intestatario": "Costa Luigi",
+        "comune": "Ravenna",
+        "foglio": "14",
+        "mappali": "355, 765",
+        "sup_mq": 9770,
+        "indennita": 394132,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 16",
+        "comune": "Ravenna",
+        "foglio": "55",
+        "mappali": "351, 764",
+        "sup_mq": 8945,
+        "indennita": 420496,
+        "delta": true
+      },
+      {
+        "intestatario": "Agricola Padana S.s. 17",
+        "comune": "Ravenna",
+        "foglio": "45",
+        "mappali": "351, 789",
+        "sup_mq": 10947,
+        "indennita": 682661,
+        "delta": true
+      },
+      {
+        "intestatario": "Fondo Sviluppo Nord 18",
+        "comune": "Ravenna",
+        "foglio": "7",
+        "mappali": "384, 793",
+        "sup_mq": 22265,
+        "indennita": 1884659,
+        "delta": true
+      }
+    ]
+  },
+  {
+    "slug": "LIGURIA-TERNA-TYRRHENIAN-LAB-SAVONA",
+    "cup": "G91B22000330005",
+    "titolo": "Collegamento sottomarino ad altissima tensione Tyrrhenian Link: Approdo e stazione Vado",
+    "ente": "Terna Rete Italia",
+    "regione": "Liguria",
+    "provincia": "SV",
+    "comune": "Vado Ligure, Quiliano",
+    "importo_eur": 380000000,
+    "data_pubblicazione": "2026-10-20",
+    "stato_opera": "AVANZATA_SENZA_ELENCO",
+    "nostra_opera": true,
+    "settimana_corrente": false,
+    "maturity_score": 4,
+    "maturity_signals": {
+      "conferenza_servizi_chiusa": true,
+      "progetto_def_esec_approvato": true,
+      "pubblica_utilita_emessa": false,
+      "cup_attivo_finanziamento": true,
+      "avviso_art11_dpr327": true,
+      "vincolo_preordinato_pgt": false,
+      "bando_aggiudicazione_anac": false
+    },
+    "azione": {
+      "verbo": "Target pre-acquisizione proprietari prima della notifica formale",
+      "priorita": "alta",
+      "giorni_residui": 6,
+      "elenco_non_pubblico": true,
+      "deposito_presso": "Ufficio Espropri Terna Rete Italia c/o Albo Pretorio dei Comuni interessati"
+    },
+    "geo": {
+      "lat": 44.275,
+      "lng": 8.431
+    },
+    "fonte_url": "https://www.rfi.it/espropri",
     "ditte": []
   }
 ]
