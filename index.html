@@ -2462,29 +2462,59 @@
       }
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    async function loadOpereDataset() {
+      let basePath = window.location.pathname;
+      if (!basePath.endsWith('/')) {
+        basePath += '/';
+      }
+
+      const candidateUrls = [
+        '/api/opere',
+        basePath + 'data/opere.json',
+        basePath + 'opere.json',
+        './data/opere.json',
+        './opere.json',
+        'https://raw.githubusercontent.com/nicolavaligi/motore-espropri-italia/main/data/opere.json'
+      ];
+
+      for (const url of candidateUrls) {
+        try {
+          const res = await fetch(url);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              return data;
+            }
+          }
+        } catch (err) {
+          // Continua al prossimo candidato
+        }
+      }
+      return [];
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
       lucide.createIcons();
       startClock();
       initStimaModalBindings();
 
-      fetch('/api/opere')
-        .then(res => {
-          if (!res.ok) throw new Error("Fallback static");
-          return res.json();
-        })
-        .catch(() => fetch('data/opere.json').then(r => r.json()))
-        .then(data => {
-          state.opere = data;
-          initMap();
+      initMap();
+
+      const data = await loadOpereDataset();
+      state.opere = data;
+      applyFilters();
+
+      if (state.map) {
+        if (state.map.loaded()) {
+          updateMapMarkers(state.opere);
           caricaConfiniRegionaliIstat(state.map);
-          applyFilters();
-        })
-        .catch(err => {
-          console.warn("Dati opere non raggiungibili:", err);
-          initMap();
-          caricaConfiniRegionaliIstat(state.map);
-          applyFilters();
-        });
+        } else {
+          state.map.on('load', () => {
+            updateMapMarkers(state.opere);
+            caricaConfiniRegionaliIstat(state.map);
+          });
+        }
+      }
     });
   </script>
 </body>
