@@ -717,13 +717,13 @@
     <!-- MAP CONTROLS OVERLAY (In alto a destra: Basemap Switcher & Reset) -->
     <div class="absolute top-3 right-3 z-[1000] flex flex-col gap-2 font-mono text-xs">
       
-      <!-- Basemap Switcher (Dark GIS vs Strade HD vs OSM) -->
+      <!-- Basemap Switcher (Strade HD Chiara vs Dark GIS vs OSM) -->
       <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-1.5 flex gap-1 shadow-xl">
-        <button onclick="switchTileLayer('dark')" id="btn-tile-dark" class="px-2 py-1 rounded bg-slate-800 text-amber-400 font-bold border border-amber-500/40 text-[10px] flex items-center gap-1">
-          <span>🌙 Dark GIS</span>
-        </button>
-        <button onclick="switchTileLayer('voyager')" id="btn-tile-voyager" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
+        <button onclick="switchTileLayer('voyager')" id="btn-tile-voyager" class="px-2 py-1 rounded bg-slate-800 text-sky-400 font-bold border border-sky-500/40 text-[10px] flex items-center gap-1">
           <span>☀️ Strade HD</span>
+        </button>
+        <button onclick="switchTileLayer('dark')" id="btn-tile-dark" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
+          <span>🌙 Dark GIS</span>
         </button>
         <button onclick="switchTileLayer('osm')" id="btn-tile-osm" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
           <span>🗺️ OSM</span>
@@ -1133,7 +1133,7 @@
       selectedRegion: 'ALL',
       selectedOpera: null,
       shortcutFilter: null,
-      currentTileTheme: 'dark',
+      currentTileTheme: 'voyager',
       map: null,
       tileLayers: {},
       markersGroup: null,
@@ -1221,8 +1221,8 @@
         }
       });
 
-      // Applica Dark come predefinito
-      state.tileLayers.dark.addTo(state.map);
+      // Applica Strade HD Chiara come predefinito
+      state.tileLayers.voyager.addTo(state.map);
 
       // Prevenzione freeze rotella mouse / blocco scroll su popup Leaflet
       state.map.on('popupopen', (e) => {
@@ -2315,8 +2315,12 @@
       startClock();
       initStimaModalBindings();
 
-      fetch('http://127.0.0.1:8000/api/opere')
-        .then(res => res.json())
+      fetch('/api/opere')
+        .then(res => {
+          if (!res.ok) throw new Error("Fallback static");
+          return res.json();
+        })
+        .catch(() => fetch('data/opere.json').then(r => r.json()))
         .then(data => {
           state.opere = data;
           initMap();
@@ -2324,7 +2328,7 @@
           applyFilters();
         })
         .catch(err => {
-          console.warn("API locale non raggiungibile, uso fallback locale:", err);
+          console.warn("Dati opere non raggiungibili:", err);
           initMap();
           caricaConfiniRegionaliIstat(state.map);
           applyFilters();
