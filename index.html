@@ -8,11 +8,13 @@
   <meta http-equiv="Expires" content="0" />
   <title>Motore Espropri Italia — Intelligence Territoriale DPR 327/2001</title>
   
-  <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, MapLibre GL 3D (SunPro Engine) -->
+  <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, MapLibre GL 3D (SunPro Engine), Turf.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
+  <script src="tracciato_suite.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -775,30 +777,63 @@
         </button>
       </div>
 
-      <!-- Legenda Dinamica Particellare Catastale & Asse Progetto -->
+      <!-- Legenda Dinamica Particellare Catastale, Fasce & Tracciato Progetto -->
       <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1 text-[10px] font-mono">
-        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 flex items-center gap-1">
-          <span>📐 Particellare DPR 327</span>
+        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 flex items-center justify-between">
+          <span>📐 Tracciato & Fasce DPR 327</span>
+          <span class="text-sky-400 text-[8px] font-semibold">SUITE INTEGRATA</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm bg-[#E63946] border border-red-300 inline-block"></span>
-          <span class="text-slate-200">Esproprio Totale/Parz.</span>
+          <span class="w-2.5 h-2.5 rounded-sm bg-[#E63946] border border-red-400 inline-block"></span>
+          <span class="text-slate-200">Fascia Esproprio Sede (±12m)</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm bg-[#F4A261] border border-orange-300 inline-block"></span>
-          <span class="text-slate-200">Asservimento / Elettrod.</span>
+          <span class="w-2.5 h-2.5 rounded-sm bg-[#F4A261] border border-orange-400 inline-block"></span>
+          <span class="text-slate-200">Fascia Asservimento / Rispetto (±25m)</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm bg-[#2A9D8F] border border-emerald-300 inline-block"></span>
-          <span class="text-slate-300">Fondo Intatto (0.08 op.)</span>
+          <span class="w-2.5 h-2.5 rounded-sm bg-[#EAB308]/40 border border-yellow-500/80 inline-block"></span>
+          <span class="text-slate-300">Fascia Cantiere Temporaneo (±35m)</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3.5 h-0 border-t-2 border-dashed border-slate-300 inline-block"></span>
-          <span class="text-slate-200 font-semibold">Tracciato Opera Lineare</span>
+          <span class="w-3.5 h-0 border-t-2 border-dashed border-slate-200 inline-block" style="outline: 1px solid #000;"></span>
+          <span class="text-slate-200 font-semibold">Asse Opera (con Casing)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-sky-500 border border-white inline-block"></span>
+          <span class="text-sky-300 font-semibold">Picchetti PK (0+000)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 border border-white inline-block"></span>
+          <span class="text-amber-300 font-semibold">Opere d'Arte (Ponti, Gallerie)</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-sm border-2 border-[#D90429] bg-transparent inline-block"></span>
           <span class="text-red-300 font-semibold">Relitto Critico (Art. 33)</span>
+        </div>
+      </div>
+
+      <!-- Componente Toolbar: Suite Tracciato Ingegneristico & Tool Vettoriali -->
+      <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1.5 font-mono">
+        <div class="flex items-center justify-between gap-1 text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+          <span>🛣️ Strumenti Tracciato</span>
+          <span class="text-emerald-400">GEOJSON / KML</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="btn-toggle-tracciato" onclick="toggleTracciatoFasce()" class="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-sky-500/50 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all" title="Attiva/disattiva asse e buffer di progetto">
+            <span>🛣️ Fasce On</span>
+          </button>
+          <button id="btn-toggle-pk" onclick="togglePicchettiPK()" class="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-sky-500/50 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all" title="Attiva/disattiva progressive chilometriche PK e opere d'arte">
+            <span>📏 PK On</span>
+          </button>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 mt-0.5">
+          <button onclick="apriModalUploadTracciato()" class="px-2 py-1 rounded bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/60 text-emerald-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all shadow-sm" title="Importa file KML o GeoJSON con calcolo automatico buffer e interferenze">
+            <span>📂 Carica</span>
+          </button>
+          <button onclick="esportaTracciatoSelezionato()" class="px-2 py-1 rounded bg-sky-950/80 hover:bg-sky-900 border border-sky-500/60 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all shadow-sm" title="Esporta asse, fasce di buffer e picchetti PK in GeoJSON">
+            <span>💾 Esporta</span>
+          </button>
         </div>
       </div>
 
@@ -1123,6 +1158,72 @@
   </div>
 
   <!-- =======================================================================
+       MODALE 3b: IMPORTAZIONE FILE TRACCIATO (GEOJSON / KML)
+       ======================================================================= -->
+  <div id="modal-upload-tracciato" onclick="if(event.target === this) chiudiModalUploadTracciato()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[10060] flex items-center justify-center p-3 md:p-6 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-xl rounded-xl shadow-2xl flex flex-col overflow-hidden text-xs font-mono">
+      <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
+        <div>
+          <h3 class="text-sm font-bold text-slate-100 flex items-center gap-2">
+            <span>🛣️ Caricamento Tracciato di Progetto</span>
+          </h3>
+          <p class="text-[11px] text-sky-400 mt-0.5">Supporto nativo file GeoJSON (.geojson, .json) e KML (.kml)</p>
+        </div>
+        <button onclick="chiudiModalUploadTracciato()" class="text-slate-400 hover:text-white text-base">✕</button>
+      </div>
+
+      <div class="p-5 flex flex-col gap-4">
+        <!-- Area Drag and Drop -->
+        <div id="drop-zone-tracciato" ondragover="event.preventDefault(); this.classList.add('border-sky-400', 'bg-sky-950/30');" ondragleave="this.classList.remove('border-sky-400', 'bg-sky-950/30');" ondrop="event.preventDefault(); this.classList.remove('border-sky-400', 'bg-sky-950/30'); gestisciFileDrop(event);" class="border-2 border-dashed border-slate-700 hover:border-sky-500 rounded-xl p-6 text-center cursor-pointer transition-colors bg-slate-950/50 flex flex-col items-center justify-center gap-2">
+          <div class="w-10 h-10 rounded-full bg-sky-950/80 border border-sky-500/40 flex items-center justify-center text-sky-400 text-lg">
+            📁
+          </div>
+          <div class="font-bold text-slate-200">Trascina qui il file del tracciato</div>
+          <div class="text-[11px] text-slate-400">oppure seleziona dal tuo computer (.geojson, .kml, .json)</div>
+          <input type="file" id="input-tracciato-file" accept=".geojson,.json,.kml" onchange="gestisciFileSelezionato(this)" class="hidden" />
+          <button type="button" onclick="document.getElementById('input-tracciato-file').click()" class="mt-2 px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold border border-slate-600 transition-colors">
+            Seleziona File
+          </button>
+        </div>
+
+        <!-- Parametri Buffer di Progetto -->
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col gap-2">
+          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dimensioni Fasce di Rispetto (Buffer Metrici):</div>
+          <div class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="text-[10px] text-red-400 block mb-1">Esproprio (m):</label>
+              <input type="number" id="upload-buf-esp" value="12" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-red-400" />
+            </div>
+            <div>
+              <label class="text-[10px] text-amber-400 block mb-1">Asservimento (m):</label>
+              <input type="number" id="upload-buf-ass" value="25" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-amber-400" />
+            </div>
+            <div>
+              <label class="text-[10px] text-yellow-400 block mb-1">Cantiere (m):</label>
+              <input type="number" id="upload-buf-cant" value="35" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-yellow-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback & Anteprima Metrica -->
+        <div id="upload-preview-info" class="hidden bg-emerald-950/40 border border-emerald-600/50 p-3 rounded-lg text-emerald-300 flex flex-col gap-1">
+          <div class="font-bold flex items-center gap-1.5">
+            <span>✅ File analizzato con successo</span>
+          </div>
+          <div id="upload-preview-details" class="text-[11px] text-slate-300"></div>
+        </div>
+      </div>
+
+      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-between items-center">
+        <button onclick="chiudiModalUploadTracciato()" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300">Annulla</button>
+        <button id="btn-conferma-upload-tracciato" onclick="confermaApplicazioneTracciato()" disabled class="px-4 py-1.5 rounded bg-sky-600 hover:bg-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold transition-colors">
+          Visualizza su Mappa 3D
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
        MODALE 4: INGESTIONE NUOVO ATTO
        ======================================================================= -->
   <div id="modal-quick-add" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -1221,7 +1322,11 @@
       markers: [],
       markerMap: {},
       catastoVisible: false,
-      sidebarOpen: true
+      sidebarOpen: true,
+      tracciatoVisible: true,
+      pkVisible: true,
+      buffersVisible: true,
+      userTracciati: []
     };
 
     /* =======================================================================
@@ -1250,6 +1355,7 @@
           container: 'gis-map',
           style: {
             version: 8,
+            glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
             sources: {
               'esri-satellite': {
                 type: 'raster',
@@ -1325,7 +1431,13 @@
         });
 
         state.map.on('load', () => {
-          // 1. Sorgenti GeoJSON per Particellare e Tracciato Opera
+          // 1. Sorgenti GeoJSON per Particellare, Buffer Fasce, Tracciato Opera e Picchetti PK
+          if (!state.map.getSource('opera-buffer-source')) {
+            state.map.addSource('opera-buffer-source', {
+              type: 'geojson',
+              data: { type: 'FeatureCollection', features: [] }
+            });
+          }
           if (!state.map.getSource('particellare-source')) {
             state.map.addSource('particellare-source', {
               type: 'geojson',
@@ -1338,8 +1450,95 @@
               data: { type: 'FeatureCollection', features: [] }
             });
           }
+          if (!state.map.getSource('opera-pk-source')) {
+            state.map.addSource('opera-pk-source', {
+              type: 'geojson',
+              data: { type: 'FeatureCollection', features: [] }
+            });
+          }
 
-          // Aggiunta layer particelle catastali con styling dinamico se interferite da progetto
+          // A. LAYER FASCE BUFFER TOPOLOGICHE (D.P.R. 327/2001)
+          // Fascia Cantiere Temporaneo (±35m)
+          if (!state.map.getLayer('opera-buffer-cantiere-fill')) {
+            state.map.addLayer({
+              id: 'opera-buffer-cantiere-fill',
+              type: 'fill',
+              source: 'opera-buffer-source',
+              filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
+              paint: {
+                'fill-color': '#EAB308',
+                'fill-opacity': 0.18
+              }
+            });
+          }
+          if (!state.map.getLayer('opera-buffer-cantiere-line')) {
+            state.map.addLayer({
+              id: 'opera-buffer-cantiere-line',
+              type: 'line',
+              source: 'opera-buffer-source',
+              filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
+              paint: {
+                'line-color': '#CA8A04',
+                'line-width': 1.2,
+                'line-dasharray': [3, 2]
+              }
+            });
+          }
+
+          // Fascia Asservimento / Rispetto (±25m)
+          if (!state.map.getLayer('opera-buffer-asservimento-fill')) {
+            state.map.addLayer({
+              id: 'opera-buffer-asservimento-fill',
+              type: 'fill',
+              source: 'opera-buffer-source',
+              filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
+              paint: {
+                'fill-color': '#F4A261',
+                'fill-opacity': 0.28
+              }
+            });
+          }
+          if (!state.map.getLayer('opera-buffer-asservimento-line')) {
+            state.map.addLayer({
+              id: 'opera-buffer-asservimento-line',
+              type: 'line',
+              source: 'opera-buffer-source',
+              filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
+              paint: {
+                'line-color': '#E76F51',
+                'line-width': 1.6,
+                'line-dasharray': [2, 1]
+              }
+            });
+          }
+
+          // Fascia Esproprio Sede Permanente (±12m)
+          if (!state.map.getLayer('opera-buffer-esproprio-fill')) {
+            state.map.addLayer({
+              id: 'opera-buffer-esproprio-fill',
+              type: 'fill',
+              source: 'opera-buffer-source',
+              filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
+              paint: {
+                'fill-color': '#E63946',
+                'fill-opacity': 0.38
+              }
+            });
+          }
+          if (!state.map.getLayer('opera-buffer-esproprio-line')) {
+            state.map.addLayer({
+              id: 'opera-buffer-esproprio-line',
+              type: 'line',
+              source: 'opera-buffer-source',
+              filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
+              paint: {
+                'line-color': '#D90429',
+                'line-width': 2.0
+              }
+            });
+          }
+
+          // B. LAYER PARTICELLARE CATASTALE
           if (!state.map.getLayer('particelle-catastali-fill')) {
             state.map.addLayer({
               id: 'particelle-catastali-fill',
@@ -1378,7 +1577,7 @@
             });
           }
 
-          // 1. Aggiunta della sorgente WMS Agenzia delle Entrate (Catasto Ufficiale AdE)
+          // C. SORGENTE WMS AGENZIA DELLE ENTRATE (Catasto Ufficiale AdE)
           if (!state.map.getSource('wms-catasto-ade')) {
             state.map.addSource('wms-catasto-ade', {
               type: 'raster',
@@ -1397,37 +1596,190 @@
             });
           }
 
-          // Tracciato asse opera lineare (in primo piano)
+          // Casing bianco/nero di contrasto per l'asse opera
+          if (!state.map.getLayer('opera-tracciato-casing')) {
+            state.map.addLayer({
+              id: 'opera-tracciato-casing',
+              type: 'line',
+              source: 'opera-source',
+              paint: {
+                'line-color': '#FFFFFF',
+                'line-width': 5.5,
+                'line-opacity': 0.85
+              }
+            });
+          }
+
+          // Tracciato asse opera lineare (in primo piano con tratto ingegneristico)
           if (!state.map.getLayer('opera-tracciato-line')) {
             state.map.addLayer({
               id: 'opera-tracciato-line',
               type: 'line',
               source: 'opera-source',
               paint: {
-                'line-color': '#000000',
-                'line-width': 3.5,
-                'line-dasharray': [2, 1]
+                'line-color': '#0F172A',
+                'line-width': 3.2,
+                'line-dasharray': [3, 1]
               }
             });
           }
 
-          // 2. Layer raster del catasto AdE (posizionato sotto il tracciato dell'opera)
+          // D. LAYER RASTER CATASTO ADE (posizionato sotto il tracciato)
           if (!state.map.getLayer('catasto-ade-layer')) {
             state.map.addLayer(
               {
                 id: 'catasto-ade-layer',
                 type: 'raster',
                 source: 'wms-catasto-ade',
-                minzoom: 14, // Visibile solo a scale di dettaglio (richiesta AdE)
+                minzoom: 14,
                 maxzoom: 22,
                 layout: { visibility: state.catastoVisible ? 'visible' : 'none' },
                 paint: {
                   'raster-opacity': 0.85
                 }
               },
-              'opera-tracciato-line' // ID del layer del tracciato per mantenerlo sopra
+              'opera-tracciato-casing'
             );
           }
+
+          // E. LAYER PICCHETTI PROGRESSIVE CHILOMETRICHE (PK 0+000)
+          if (!state.map.getLayer('opera-pk-circle')) {
+            state.map.addLayer({
+              id: 'opera-pk-circle',
+              type: 'circle',
+              source: 'opera-pk-source',
+              filter: ['==', ['get', 'tipo'], 'PICCHETTO_PK'],
+              paint: {
+                'circle-radius': 4.0,
+                'circle-color': '#0284C7',
+                'circle-stroke-width': 1.5,
+                'circle-stroke-color': '#FFFFFF'
+              }
+            });
+          }
+
+          if (!state.map.getLayer('opera-pk-label')) {
+            state.map.addLayer({
+              id: 'opera-pk-label',
+              type: 'symbol',
+              source: 'opera-pk-source',
+              filter: ['==', ['get', 'tipo'], 'PICCHETTO_PK'],
+              minzoom: 13.5,
+              layout: {
+                'text-field': ['get', 'pk_label'],
+                'text-size': 10,
+                'text-offset': [0, 1.2],
+                'text-anchor': 'top'
+              },
+              paint: {
+                'text-color': '#0369A1',
+                'text-halo-color': '#FFFFFF',
+                'text-halo-width': 1.5
+              }
+            });
+          }
+
+          // F. LAYER OPERE D'ARTE (Ponti, Gallerie, Svincoli)
+          if (!state.map.getLayer('opera-opere-arte-circle')) {
+            state.map.addLayer({
+              id: 'opera-opere-arte-circle',
+              type: 'circle',
+              source: 'opera-pk-source',
+              filter: ['==', ['get', 'tipo'], 'OPERA_ARTE'],
+              paint: {
+                'circle-radius': 6.5,
+                'circle-color': '#D97706',
+                'circle-stroke-width': 2.0,
+                'circle-stroke-color': '#FFFFFF'
+              }
+            });
+          }
+
+          if (!state.map.getLayer('opera-opere-arte-label')) {
+            state.map.addLayer({
+              id: 'opera-opere-arte-label',
+              type: 'symbol',
+              source: 'opera-pk-source',
+              filter: ['==', ['get', 'tipo'], 'OPERA_ARTE'],
+              minzoom: 12.5,
+              layout: {
+                'text-field': ['get', 'nome_opera_arte'],
+                'text-size': 11,
+                'text-offset': [0, -1.4],
+                'text-anchor': 'bottom'
+              },
+              paint: {
+                'text-color': '#92400E',
+                'text-halo-color': '#FFFFFF',
+                'text-halo-width': 2.0
+              }
+            });
+          }
+
+          // Eventi click su Picchetti PK
+          state.map.on('click', 'opera-pk-circle', (e) => {
+            if (!e.features || !e.features.length) return;
+            const p = e.features[0].properties;
+            const popupHtml = `
+              <div style="font-family:'Inter',sans-serif; color:#fff; min-width:210px; font-size:11px; padding:2px;">
+                <div style="font-weight:700; color:#38BDF8; font-family:'JetBrains Mono',monospace; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:6px;">
+                  📏 PICCHETTO: ${p.pk_label}
+                </div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Progressiva:</b> ${Number(p.distanza_m).toLocaleString('it-IT')} metri da inizio tratta</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Descrizione:</b> ${p.desc || 'Picchetto di tracciato'}</div>
+              </div>
+            `;
+            new maplibregl.Popup({ closeButton: true })
+              .setLngLat(e.lngLat)
+              .setHTML(popupHtml)
+              .addTo(state.map);
+          });
+
+          // Eventi click su Opere d'Arte
+          state.map.on('click', 'opera-opere-arte-circle', (e) => {
+            if (!e.features || !e.features.length) return;
+            const p = e.features[0].properties;
+            const popupHtml = `
+              <div style="font-family:'Inter',sans-serif; color:#fff; min-width:230px; font-size:11px; padding:2px;">
+                <div style="font-weight:700; color:#F59E0B; font-family:'JetBrains Mono',monospace; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:6px;">
+                  🏛️ OPERA D'ARTE: ${p.sottotipo || 'Infrastruttura'}
+                </div>
+                <div style="margin-bottom:4px; font-weight:700; color:#F8FAFC;">${p.nome_opera_arte}</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Ubicazione:</b> ${p.pk_label}</div>
+              </div>
+            `;
+            new maplibregl.Popup({ closeButton: true })
+              .setLngLat(e.lngLat)
+              .setHTML(popupHtml)
+              .addTo(state.map);
+          });
+
+          // Eventi click su Fasce Buffer
+          ['opera-buffer-esproprio-fill', 'opera-buffer-asservimento-fill', 'opera-buffer-cantiere-fill'].forEach(layerId => {
+            state.map.on('click', layerId, (e) => {
+              if (!e.features || !e.features.length) return;
+              const p = e.features[0].properties;
+              const popupHtml = `
+                <div style="font-family:'Inter',sans-serif; color:#fff; min-width:220px; font-size:11px; padding:2px;">
+                  <div style="font-weight:700; color:${p.colore || '#38BDF8'}; font-family:'JetBrains Mono',monospace; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:6px;">
+                    📐 ${p.nome_fascia || 'Fascia di Progetto'}
+                  </div>
+                  <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Buffer da asse:</b> ±${p.buffer_m} metri</div>
+                  <div style="color:#CBD5E1; font-size:10px;">Interferenza vincolistica e ablatoria ai sensi del D.P.R. 327/2001</div>
+                </div>
+              `;
+              new maplibregl.Popup({ closeButton: true })
+                .setLngLat(e.lngLat)
+                .setHTML(popupHtml)
+                .addTo(state.map);
+            });
+          });
+
+          // Cursori interattivi
+          ['opera-pk-circle', 'opera-opere-arte-circle', 'opera-buffer-esproprio-fill', 'opera-buffer-asservimento-fill'].forEach(lid => {
+            state.map.on('mouseenter', lid, () => { state.map.getCanvas().style.cursor = 'pointer'; });
+            state.map.on('mouseleave', lid, () => { state.map.getCanvas().style.cursor = ''; });
+          });
 
           // Popup interattivo al click sulle particelle catastali
           state.map.on('click', 'particelle-catastali-fill', (e) => {
@@ -1871,17 +2223,21 @@
     }
 
     /* =======================================================================
-       4b. GENERAZIONE & AGGIORNAMENTO PARTICELLARE CATASTALE (D.P.R. 327/2001)
+       4b. GENERAZIONE & AGGIORNAMENTO SUITE TRACCIATO & PARTICELLARE (D.P.R. 327/2001)
        ======================================================================= */
     function updateParticellareGeoJSON(opereList) {
       if (!state.map) return;
       const pSrc = state.map.getSource('particellare-source');
+      const bSrc = state.map.getSource('opera-buffer-source');
       const oSrc = state.map.getSource('opera-source');
+      const kSrc = state.map.getSource('opera-pk-source');
       if (!pSrc || !oSrc) return;
 
       const targetOpere = (opereList || state.opere).filter(o => o.ditte && o.ditte.length > 0 && o.geo && o.geo.lat && o.geo.lng);
       const parcelFeatures = [];
+      const bufferFeatures = [];
       const axisFeatures = [];
+      const pkFeatures = [];
 
       targetOpere.forEach(op => {
         const centerLng = op.geo.lng;
@@ -1968,35 +2324,287 @@
           });
         }
 
-        // Linea tracciato asse opera lineare (in primo piano, tratteggiata)
-        axisFeatures.push({
-          type: 'Feature',
-          id: `${op.slug}-axis`,
-          geometry: {
-            type: 'LineString',
-            coordinates: [
-              [centerLng - 0.004, centerLat - 0.0025],
-              [centerLng - 0.001, centerLat - 0.0005],
-              [centerLng + 0.001, centerLat + 0.0008],
-              [centerLng + 0.004, centerLat + 0.0025]
-            ]
-          },
-          properties: {
-            opera_slug: op.slug,
-            titolo: op.titolo
+        // Generazione Suite Tracciato Ingegneristico: Asse + Buffer Fasce (12m/25m/35m) + Picchetti PK
+        if (window.TracciatoSuite) {
+          const suite = window.TracciatoSuite.generaSuiteGeoJsonPerOpera(op);
+          if (suite) {
+            axisFeatures.push(suite.asse);
+            if (suite.buffer_cantiere) bufferFeatures.push(suite.buffer_cantiere);
+            if (suite.buffer_asservimento) bufferFeatures.push(suite.buffer_asservimento);
+            if (suite.buffer_esproprio) bufferFeatures.push(suite.buffer_esproprio);
+            if (suite.picchetti && suite.picchetti.length) {
+              pkFeatures.push(...suite.picchetti);
+            }
           }
-        });
+        } else {
+          // Fallback geometrico essenziale
+          axisFeatures.push({
+            type: 'Feature',
+            id: `${op.slug}-axis`,
+            geometry: {
+              type: 'LineString',
+              coordinates: [
+                [centerLng - 0.004, centerLat - 0.0025],
+                [centerLng - 0.001, centerLat - 0.0005],
+                [centerLng + 0.001, centerLat + 0.0008],
+                [centerLng + 0.004, centerLat + 0.0025]
+              ]
+            },
+            properties: {
+              opera_slug: op.slug,
+              titolo: op.titolo
+            }
+          });
+        }
       });
+
+      // Integra eventuali tracciati caricati dall'utente
+      if (state.userTracciati && state.userTracciati.length) {
+        state.userTracciati.forEach(ut => {
+          if (ut.asse) axisFeatures.push(ut.asse);
+          if (ut.buffer_cantiere) bufferFeatures.push(ut.buffer_cantiere);
+          if (ut.buffer_asservimento) bufferFeatures.push(ut.buffer_asservimento);
+          if (ut.buffer_esproprio) bufferFeatures.push(ut.buffer_esproprio);
+          if (ut.picchetti) pkFeatures.push(...ut.picchetti);
+        });
+      }
 
       pSrc.setData({
         type: 'FeatureCollection',
         features: parcelFeatures
       });
 
+      if (bSrc) {
+        bSrc.setData({
+          type: 'FeatureCollection',
+          features: bufferFeatures
+        });
+      }
+
       oSrc.setData({
         type: 'FeatureCollection',
         features: axisFeatures
       });
+
+      if (kSrc) {
+        kSrc.setData({
+          type: 'FeatureCollection',
+          features: pkFeatures
+        });
+      }
+    }
+
+    /* =======================================================================
+       4c. STRUMENTI TRACCIATO: TOGGLE, EXPORT & CARICAMENTO FILE KML/GEOJSON
+       ======================================================================= */
+    function toggleTracciatoFasce() {
+      if (!state.map) return;
+      state.tracciatoVisible = !state.tracciatoVisible;
+      const vis = state.tracciatoVisible ? 'visible' : 'none';
+
+      const layers = [
+        'opera-buffer-cantiere-fill', 'opera-buffer-cantiere-line',
+        'opera-buffer-asservimento-fill', 'opera-buffer-asservimento-line',
+        'opera-buffer-esproprio-fill', 'opera-buffer-esproprio-line',
+        'opera-tracciato-casing', 'opera-tracciato-line'
+      ];
+      layers.forEach(l => {
+        if (state.map.getLayer(l)) state.map.setLayoutProperty(l, 'visibility', vis);
+      });
+
+      const btn = document.getElementById('btn-toggle-tracciato');
+      if (btn) {
+        btn.innerHTML = state.tracciatoVisible ? '<span>🛣️ Fasce On</span>' : '<span class="text-slate-500">🛣️ Fasce Off</span>';
+        btn.className = state.tracciatoVisible
+          ? 'px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-sky-500/50 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all'
+          : 'px-2 py-1 rounded bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-500 text-[10px] flex items-center justify-center gap-1 transition-all';
+      }
+    }
+
+    function togglePicchettiPK() {
+      if (!state.map) return;
+      state.pkVisible = !state.pkVisible;
+      const vis = state.pkVisible ? 'visible' : 'none';
+
+      const layers = [
+        'opera-pk-circle', 'opera-pk-label',
+        'opera-opere-arte-circle', 'opera-opere-arte-label'
+      ];
+      layers.forEach(l => {
+        if (state.map.getLayer(l)) state.map.setLayoutProperty(l, 'visibility', vis);
+      });
+
+      const btn = document.getElementById('btn-toggle-pk');
+      if (btn) {
+        btn.innerHTML = state.pkVisible ? '<span>📏 PK On</span>' : '<span class="text-slate-500">📏 PK Off</span>';
+        btn.className = state.pkVisible
+          ? 'px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-sky-500/50 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all'
+          : 'px-2 py-1 rounded bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-500 text-[10px] flex items-center justify-center gap-1 transition-all';
+      }
+    }
+
+    function esportaTracciatoSelezionato() {
+      if (!window.TracciatoSuite) {
+        alert('Modulo TracciatoSuite non inizializzato.');
+        return;
+      }
+      const targetOp = state.selectedOpera || state.opere.find(o => o.ditte && o.ditte.length > 0) || state.opere[0];
+      if (!targetOp) {
+        alert('Nessuna opera selezionata per l\'esportazione.');
+        return;
+      }
+      window.TracciatoSuite.esportaGeoJsonTracciato(targetOp);
+    }
+
+    // Gestione Modale Upload Tracciato
+    let parsedTracciatoTemp = null;
+
+    function apriModalUploadTracciato() {
+      const modal = document.getElementById('modal-upload-tracciato');
+      if (modal) modal.classList.remove('hidden');
+      parsedTracciatoTemp = null;
+      const infoEl = document.getElementById('upload-preview-info');
+      if (infoEl) infoEl.classList.add('hidden');
+      const btn = document.getElementById('btn-conferma-upload-tracciato');
+      if (btn) btn.disabled = true;
+    }
+
+    function chiudiModalUploadTracciato() {
+      const modal = document.getElementById('modal-upload-tracciato');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function gestisciFileSelezionato(input) {
+      if (!input.files || !input.files[0]) return;
+      caricaEAnalizzaFile(input.files[0]);
+    }
+
+    function gestisciFileDrop(e) {
+      const files = e.dataTransfer.files;
+      if (!files || !files.length) return;
+      caricaEAnalizzaFile(files[0]);
+    }
+
+    function caricaEAnalizzaFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const content = e.target.result;
+          if (!window.TracciatoSuite) throw new Error('Modulo TracciatoSuite non disponibile.');
+          const feat = window.TracciatoSuite.parseTracciatoFile(content, file.name);
+          parsedTracciatoTemp = {
+            feature: feat,
+            filename: file.name
+          };
+
+          const coords = feat.geometry.coordinates;
+          const infoEl = document.getElementById('upload-preview-info');
+          const detailsEl = document.getElementById('upload-preview-details');
+          const btn = document.getElementById('btn-conferma-upload-tracciato');
+
+          if (infoEl && detailsEl) {
+            infoEl.classList.remove('hidden');
+            let cumKm = 0;
+            for (let i = 0; i < coords.length - 1; i++) {
+              cumKm += window.TracciatoSuite.distanzaMetriWgs84(coords[i], coords[i + 1]) / 1000;
+            }
+            detailsEl.innerHTML = `
+              <div><b>File:</b> ${file.name}</div>
+              <div><b>Geometria:</b> ${feat.geometry.type} (${coords.length} vertici)</div>
+              <div><b>Sviluppo Asse:</b> ${cumKm.toFixed(2)} km</div>
+            `;
+          }
+          if (btn) btn.disabled = false;
+        } catch (err) {
+          alert('Errore lettura file tracciato: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function confermaApplicazioneTracciato() {
+      if (!parsedTracciatoTemp || !parsedTracciatoTemp.feature) return;
+
+      const feat = parsedTracciatoTemp.feature;
+      const coords = feat.geometry.coordinates;
+      const bufEsp = parseFloat(document.getElementById('upload-buf-esp').value) || 12.0;
+      const bufAss = parseFloat(document.getElementById('upload-buf-ass').value) || 25.0;
+      const bufCant = parseFloat(document.getElementById('upload-buf-cant').value) || 35.0;
+
+      const opSimulata = {
+        slug: 'user-track-' + Date.now(),
+        titolo: parsedTracciatoTemp.filename,
+        geo: { lng: coords[0][0], lat: coords[0][1] }
+      };
+
+      // Calcola pacchetto suite per il tracciato utente
+      const geomEsp = window.TracciatoSuite.calcolaBufferPoligono(coords, bufEsp);
+      const geomAss = window.TracciatoSuite.calcolaBufferPoligono(coords, bufAss);
+      const geomCant = window.TracciatoSuite.calcolaBufferPoligono(coords, bufCant);
+
+      const userPack = {
+        asse: {
+          type: 'Feature',
+          id: `${opSimulata.slug}-asse`,
+          geometry: { type: 'LineString', coordinates: coords },
+          properties: { titolo: parsedTracciatoTemp.filename, opera_slug: opSimulata.slug }
+        },
+        buffer_esproprio: {
+          type: 'Feature',
+          id: `${opSimulata.slug}-esp`,
+          geometry: geomEsp,
+          properties: { nome_fascia: `Fascia Esproprio (${bufEsp}m)`, buffer_m: bufEsp, tipo_fascia: 'ESPROPRIO', colore: '#E63946' }
+        },
+        buffer_asservimento: {
+          type: 'Feature',
+          id: `${opSimulata.slug}-ass`,
+          geometry: geomAss,
+          properties: { nome_fascia: `Fascia Asservimento (${bufAss}m)`, buffer_m: bufAss, tipo_fascia: 'ASSERVIMENTO', colore: '#F4A261' }
+        },
+        buffer_cantiere: {
+          type: 'Feature',
+          id: `${opSimulata.slug}-cant`,
+          geometry: geomCant,
+          properties: { nome_fascia: `Fascia Cantiere (${bufCant}m)`, buffer_m: bufCant, tipo_fascia: 'CANTIERE', colore: '#EAB308' }
+        },
+        picchetti: []
+      };
+
+      // Genera PK
+      let cumM = 0;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const d = window.TracciatoSuite.distanzaMetriWgs84(coords[i], coords[i + 1]);
+        if (i === 0) {
+          userPack.picchetti.push({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: coords[0] },
+            properties: { pk_label: 'PK 0+000', distanza_m: 0, tipo: 'PICCHETTO_PK', desc: 'Inizio tracciato caricato' }
+          });
+        }
+        cumM += d;
+      }
+      userPack.picchetti.push({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: coords[coords.length - 1] },
+        properties: { pk_label: `PK ${Math.floor(cumM/1000)}+${Math.floor(cumM%1000)}`, distanza_m: Math.floor(cumM), tipo: 'PICCHETTO_PK', desc: 'Fine tracciato caricato' }
+      });
+
+      if (!state.userTracciati) state.userTracciati = [];
+      state.userTracciati.push(userPack);
+
+      updateParticellareGeoJSON(state.opere);
+      chiudiModalUploadTracciato();
+
+      // Zoom sulla geometria caricata
+      let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+      coords.forEach(c => {
+        if (c[0] < minLng) minLng = c[0];
+        if (c[0] > maxLng) maxLng = c[0];
+        if (c[1] < minLat) minLat = c[1];
+        if (c[1] > maxLat) maxLat = c[1];
+      });
+
+      state.map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 60, duration: 1500 });
     }
 
     function zoomToParticelleAndHighlight(slug) {

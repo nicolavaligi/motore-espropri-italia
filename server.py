@@ -91,6 +91,16 @@ async def serve_quadro_interferenze():
     return HTMLResponse("<h1>Quadro interferenze in preparazione</h1>")
 
 
+@app.get("/tracciato_suite.js")
+@app.get("/{filename}.js")
+async def serve_js(filename: str):
+    base_dir = Path(__file__).parent
+    js_path = base_dir / f"{filename}.js"
+    if js_path.exists() and js_path.is_file():
+        return FileResponse(js_path, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="File JavaScript non trovato")
+
+
 # Endpoint WFS regionale (esempio Lombardia / Geoportale Nazionale)
 WFS_URL = "https://www.geoportale.regione.lombardia.it/geoserver/wfs"
 

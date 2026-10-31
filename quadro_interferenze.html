@@ -7,6 +7,7 @@
   
   <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
   <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="tracciato_suite.js"></script>
   
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -119,28 +120,58 @@
     <div class="top-nav">
       <a href="./">← Dashboard Principale</a>
       <span style="color:#64748b;">|</span>
-      <span>Autore: <b>Nicola Valigi (Houdinick)</b></span>
+      <span>Opera:</span>
+      <select id="select-opera-tracciato" onchange="cambiaOperaTracciato(this.value)" style="background:#1e293b; color:#38bdf8; border:1px solid #475569; border-radius:4px; font-size:11px; padding:2px 6px; font-weight:bold;">
+        <option value="RFI-TAV-VR-PD-SUB-TRATTA-VICENZA">TAV Vicenza (AV/AC Verona-Padova)</option>
+        <option value="SIMICO-MICO-2026-VALTELLINA-SS38">SS38 Variante di Tirano</option>
+        <option value="AUTOVIE-A4-TERZA-CORSIA-SAN-DONA-PORTOGRUARO">A4 Terza Corsia Portogruaro</option>
+        <option value="REGIONE-LOMBARDIA-DERVIO-IDRAULICA-LC">Mitigazione Dervio (Varrone)</option>
+        <option value="ANAS-LOMBARDIA-VARIANTE-PALADINA-SEDRINA-SS470">SS470 Variante di Paladina</option>
+      </select>
+      <span style="color:#64748b;">|</span>
+      <button onclick="document.getElementById('input-kml-quadro').click()" style="background:#064e3b; color:#6ee7b7; border:1px solid #059669; border-radius:4px; font-size:11px; padding:3px 8px; cursor:pointer; font-weight:bold;">
+        📂 Carica KML/GeoJSON
+      </button>
+      <input type="file" id="input-kml-quadro" accept=".kml,.geojson,.json" onchange="caricaFileInQuadro(this)" style="display:none;" />
+      <button onclick="esportaTracciatoQuadro()" style="background:#0c4a6e; color:#7dd3fc; border:1px solid #0284c7; border-radius:4px; font-size:11px; padding:3px 8px; cursor:pointer; font-weight:bold;">
+        💾 Esporta GeoJSON
+      </button>
       <span style="color:#64748b;">|</span>
       <span style="color:#10b981;">D.P.R. 327/2001</span>
     </div>
 
     <!-- Legenda tematismi -->
     <div class="legend-control">
+      <div style="font-weight: bold; font-size: 11px; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase;">
+        📐 Fasce & Tracciato di Progetto
+      </div>
       <div class="legend-item">
         <div class="legend-color" style="background: #e63946;"></div>
-        <span>Esproprio Permanente (Sede Opera)</span>
+        <span>Fascia Esproprio Sede (±12m)</span>
       </div>
       <div class="legend-item">
         <div class="legend-color" style="background: #f4a261;"></div>
-        <span>Fascia Asservimento / Rispetto</span>
+        <span>Fascia Asservimento / Rispetto (±25m)</span>
       </div>
       <div class="legend-item">
-        <div class="legend-color" style="background: #457b9d;"></div>
-        <span>Occupazione Cantiere</span>
+        <div class="legend-color" style="background: rgba(234, 179, 8, 0.4); border-color: #ca8a04;"></div>
+        <span>Fascia Cantiere Temporaneo (±35m)</span>
+      </div>
+      <div class="legend-item">
+        <div style="width: 14px; height: 0; border-top: 2px dashed #000; outline: 1px solid #fff;"></div>
+        <span>Asse Tracciato Opera</span>
+      </div>
+      <div class="legend-item">
+        <div style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; border: 1px solid #fff;"></div>
+        <span>Picchetti PK (0+000)</span>
+      </div>
+      <div class="legend-item">
+        <div style="width: 10px; height: 10px; border-radius: 50%; background: #d97706; border: 1px solid #fff;"></div>
+        <span>Opere d'Arte (Viadotto, Galleria)</span>
       </div>
       <div class="legend-item">
         <div class="legend-color" style="border: 2px solid #ef4444; background: transparent;"></div>
-        <span>Allarme Relitto Inutilizzabile (Art. 33)</span>
+        <span>Relitto Critico (Art. 33)</span>
       </div>
     </div>
   </div>
@@ -166,6 +197,7 @@
     container: 'map',
     style: {
       version: 8,
+      glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
       sources: {
         'osm-tiles': {
           type: 'raster',
@@ -319,25 +351,82 @@
       }
     });
 
-    // 3. Tracciato Asse Opera (LineString)
+    // 3. Suite Tracciato Ingegneristico: Asse + Buffer Fasce + PK
+    let currentOperaSlug = 'RFI-TAV-VR-PD-SUB-TRATTA-VICENZA';
+    let currentSuite = TracciatoSuite ? TracciatoSuite.generaSuiteGeoJsonPerOpera({
+      slug: currentOperaSlug,
+      titolo: 'Linea AV/AC Verona-Padova: Tratta Vicenza',
+      geo: { lat: 45.5455, lng: 11.5354 }
+    }) : null;
+
+    // Buffer Fasce (Cantiere 35m, Asservimento 25m, Esproprio 12m)
+    map.addSource('buffer-fasce-source', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: currentSuite ? [currentSuite.buffer_cantiere, currentSuite.buffer_asservimento, currentSuite.buffer_esproprio] : []
+      }
+    });
+
+    map.addLayer({
+      id: 'buffer-cantiere-fill',
+      type: 'fill',
+      source: 'buffer-fasce-source',
+      filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
+      paint: { 'fill-color': '#eab308', 'fill-opacity': 0.18 }
+    });
+    map.addLayer({
+      id: 'buffer-cantiere-line',
+      type: 'line',
+      source: 'buffer-fasce-source',
+      filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
+      paint: { 'line-color': '#ca8a04', 'line-width': 1.2, 'line-dasharray': [3, 2] }
+    });
+
+    map.addLayer({
+      id: 'buffer-asservimento-fill',
+      type: 'fill',
+      source: 'buffer-fasce-source',
+      filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
+      paint: { 'fill-color': '#f4a261', 'fill-opacity': 0.28 }
+    });
+    map.addLayer({
+      id: 'buffer-asservimento-line',
+      type: 'line',
+      source: 'buffer-fasce-source',
+      filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
+      paint: { 'line-color': '#e76f51', 'line-width': 1.6, 'line-dasharray': [2, 1] }
+    });
+
+    map.addLayer({
+      id: 'buffer-esproprio-fill',
+      type: 'fill',
+      source: 'buffer-fasce-source',
+      filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
+      paint: { 'fill-color': '#e63946', 'fill-opacity': 0.38 }
+    });
+    map.addLayer({
+      id: 'buffer-esproprio-line',
+      type: 'line',
+      source: 'buffer-fasce-source',
+      filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
+      paint: { 'line-color': '#d90429', 'line-width': 2.0 }
+    });
+
+    // Asse Tracciato (Casing bianco + linea tratteggiata ingegneristica)
     map.addSource('tracciato-line-source', {
       type: 'geojson',
       data: {
         type: 'FeatureCollection',
-        features: [{
-          type: 'Feature',
-          geometry: {
-            type: 'LineString',
-            coordinates: [
-              [11.530, 45.542],
-              [11.534, 45.544],
-              [11.537, 45.546],
-              [11.541, 45.548]
-            ]
-          },
-          properties: { nome: "Asse Tracciato Alta Velocità Vicenza" }
-        }]
+        features: currentSuite ? [currentSuite.asse] : []
       }
+    });
+
+    map.addLayer({
+      id: 'tracciato-linea-casing',
+      type: 'line',
+      source: 'tracciato-line-source',
+      paint: { 'line-color': '#ffffff', 'line-width': 5.5, 'line-opacity': 0.85 }
     });
 
     map.addLayer({
@@ -345,9 +434,82 @@
       type: 'line',
       source: 'tracciato-line-source',
       paint: {
-        'line-color': '#000000',
-        'line-width': 3,
-        'line-dasharray': [2, 1]
+        'line-color': '#0f172a',
+        'line-width': 3.2,
+        'line-dasharray': [3, 1]
+      }
+    });
+
+    // Picchetti PK e Opere d'Arte
+    map.addSource('picchetti-pk-source', {
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: currentSuite && currentSuite.picchetti ? currentSuite.picchetti : []
+      }
+    });
+
+    map.addLayer({
+      id: 'tracciato-pk-circle',
+      type: 'circle',
+      source: 'picchetti-pk-source',
+      filter: ['==', ['get', 'tipo'], 'PICCHETTO_PK'],
+      paint: {
+        'circle-radius': 4.0,
+        'circle-color': '#0284c7',
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': '#ffffff'
+      }
+    });
+
+    map.addLayer({
+      id: 'tracciato-pk-label',
+      type: 'symbol',
+      source: 'picchetti-pk-source',
+      filter: ['==', ['get', 'tipo'], 'PICCHETTO_PK'],
+      minzoom: 12.5,
+      layout: {
+        'text-field': ['get', 'pk_label'],
+        'text-size': 10,
+        'text-offset': [0, 1.2],
+        'text-anchor': 'top'
+      },
+      paint: {
+        'text-color': '#0369a1',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 1.5
+      }
+    });
+
+    map.addLayer({
+      id: 'tracciato-opere-arte-circle',
+      type: 'circle',
+      source: 'picchetti-pk-source',
+      filter: ['==', ['get', 'tipo'], 'OPERA_ARTE'],
+      paint: {
+        'circle-radius': 6.5,
+        'circle-color': '#d97706',
+        'circle-stroke-width': 2.0,
+        'circle-stroke-color': '#ffffff'
+      }
+    });
+
+    map.addLayer({
+      id: 'tracciato-opere-arte-label',
+      type: 'symbol',
+      source: 'picchetti-pk-source',
+      filter: ['==', ['get', 'tipo'], 'OPERA_ARTE'],
+      minzoom: 11.5,
+      layout: {
+        'text-field': ['get', 'nome_opera_arte'],
+        'text-size': 11,
+        'text-offset': [0, -1.4],
+        'text-anchor': 'bottom'
+      },
+      paint: {
+        'text-color': '#92400e',
+        'text-halo-color': '#ffffff',
+        'text-halo-width': 2.0
       }
     });
 
@@ -426,6 +588,102 @@
         </tr>
       </table>
     `;
+  }
+
+  function cambiaOperaTracciato(slug) {
+    if (!TracciatoSuite) return;
+    currentOperaSlug = slug;
+    const known = TracciatoSuite.KNOWN_TRACCIATI[slug];
+    if (!known) return;
+
+    currentSuite = TracciatoSuite.generaSuiteGeoJsonPerOpera({
+      slug: slug,
+      titolo: known.nome,
+      geo: { lat: known.coordinates[0][1], lng: known.coordinates[0][0] }
+    });
+
+    if (currentSuite) {
+      map.getSource('buffer-fasce-source').setData({
+        type: 'FeatureCollection',
+        features: [currentSuite.buffer_cantiere, currentSuite.buffer_asservimento, currentSuite.buffer_esproprio]
+      });
+      map.getSource('tracciato-line-source').setData({
+        type: 'FeatureCollection',
+        features: [currentSuite.asse]
+      });
+      map.getSource('picchetti-pk-source').setData({
+        type: 'FeatureCollection',
+        features: currentSuite.picchetti || []
+      });
+
+      // Calcola BBOX e centra
+      const coords = currentSuite.asse.geometry.coordinates;
+      let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+      coords.forEach(c => {
+        if (c[0] < minLng) minLng = c[0];
+        if (c[0] > maxLng) maxLng = c[0];
+        if (c[1] < minLat) minLat = c[1];
+        if (c[1] > maxLat) maxLat = c[1];
+      });
+      map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 80, duration: 1500 });
+    }
+  }
+
+  function caricaFileInQuadro(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        if (!TracciatoSuite) throw new Error('TracciatoSuite non disponibile.');
+        const feat = TracciatoSuite.parseTracciatoFile(e.target.result, file.name);
+        const coords = feat.geometry.coordinates;
+
+        const gEsp = TracciatoSuite.calcolaBufferPoligono(coords, 12);
+        const gAss = TracciatoSuite.calcolaBufferPoligono(coords, 25);
+        const gCant = TracciatoSuite.calcolaBufferPoligono(coords, 35);
+
+        map.getSource('buffer-fasce-source').setData({
+          type: 'FeatureCollection',
+          features: [
+            { type: 'Feature', geometry: gCant, properties: { tipo_fascia: 'CANTIERE' } },
+            { type: 'Feature', geometry: gAss, properties: { tipo_fascia: 'ASSERVIMENTO' } },
+            { type: 'Feature', geometry: gEsp, properties: { tipo_fascia: 'ESPROPRIO' } }
+          ]
+        });
+
+        map.getSource('tracciato-line-source').setData({
+          type: 'FeatureCollection',
+          features: [feat]
+        });
+
+        // PK
+        const pks = [
+          { type: 'Feature', geometry: { type: 'Point', coordinates: coords[0] }, properties: { tipo: 'PICCHETTO_PK', pk_label: 'PK 0+000' } },
+          { type: 'Feature', geometry: { type: 'Point', coordinates: coords[coords.length - 1] }, properties: { tipo: 'PICCHETTO_PK', pk_label: 'PK Fine' } }
+        ];
+        map.getSource('picchetti-pk-source').setData({ type: 'FeatureCollection', features: pks });
+
+        let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+        coords.forEach(c => {
+          if (c[0] < minLng) minLng = c[0];
+          if (c[0] > maxLng) maxLng = c[0];
+          if (c[1] < minLat) minLat = c[1];
+          if (c[1] > maxLat) maxLat = c[1];
+        });
+        map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 60, duration: 1500 });
+        alert(`Tracciato "${file.name}" caricato con successo con buffer 12m, 25m e 35m!`);
+      } catch (err) {
+        alert('Errore caricamento tracciato: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function esportaTracciatoQuadro() {
+    if (!TracciatoSuite) return;
+    const op = { slug: currentOperaSlug, titolo: 'Tracciato Progetto' };
+    TracciatoSuite.esportaGeoJsonTracciato(op);
   }
 </script>
 </body>

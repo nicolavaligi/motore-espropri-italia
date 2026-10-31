@@ -77,3 +77,15 @@ def test_api_catasto_interferenze():
     data = resp.json()
     assert data["type"] == "FeatureCollection"
     assert len(data["features"]) > 0
+
+def test_serve_tracciato_suite_js():
+    resp = client.get("/tracciato_suite.js")
+    assert resp.status_code == 200
+    assert "TracciatoSuite" in resp.text
+    assert "KNOWN_TRACCIATI" in resp.text
+
+def test_quadro_interferenze_html_served():
+    resp = client.get("/quadro-interferenze")
+    assert resp.status_code == 200
+    assert "Quadro Territoriale delle Interferenze" in resp.text
+    assert "tracciato_suite.js" in resp.text
