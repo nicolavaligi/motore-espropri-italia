@@ -5,19 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Motore Espropri Italia — Intelligence Territoriale DPR 327/2001</title>
   
-  <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, Leaflet CSS & JS -->
+  <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, MapLibre GL 3D (SunPro Engine) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
     
     :root {
-      --bg-main: #090D14;
-      --bg-panel: #0F172A;
-      --border-color: #1E293B;
+      --bg-main: #070C18;
+      --bg-panel: #0D1526;
+      --border-color: #1C2942;
+      --brand: #10B981;
+      --accent: #38BDF8;
+      --amber: #F59E0B;
     }
     
     body {
@@ -30,47 +33,82 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
-    /* Mappa Fullscreen Nitida (Senza filtri degradanti) */
-    .leaflet-container {
-      background: #090D14 !important;
-      outline: none;
+    /* Mappa Fullscreen MapLibre GL 3D */
+    #gis-map {
       width: 100%;
       height: 100%;
+      background: #070C18;
+      outline: none;
     }
 
-    /* Custom Leaflet Tabbed Popup Styling */
-    .leaflet-popup-content-wrapper {
-      background: rgba(15, 23, 42, 0.98) !important;
+    /* Stile Pin Teardrop 3D SunPro Vettoriali */
+    .map-pin-wrap {
+      width: 38px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease;
+      transform-origin: 50% 100%;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+      user-select: none;
+    }
+    .map-pin-wrap svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      overflow: visible;
+    }
+    .map-pin-wrap:hover {
+      transform: translateY(-8px) scale(1.18);
+      filter: drop-shadow(0 12px 22px rgba(56, 189, 248, 0.8));
+      z-index: 9999 !important;
+    }
+    .map-pin-wrap.active {
+      transform: translateY(-10px) scale(1.26);
+      filter: drop-shadow(0 14px 28px rgba(16, 185, 129, 0.95));
+      z-index: 10000 !important;
+    }
+    .map-pin-wrap.target-lead {
+      filter: drop-shadow(0 4px 10px rgba(245, 158, 11, 0.6));
+    }
+    .map-pin-wrap.target-lead:hover {
+      filter: drop-shadow(0 12px 24px rgba(245, 158, 11, 0.9));
+    }
+
+    /* Custom MapLibre GL Popup Styling (Tabbed & Aerodinamico) */
+    .maplibregl-popup {
+      z-index: 1000;
+    }
+    .maplibregl-popup-content {
+      background: rgba(13, 21, 38, 0.98) !important;
       backdrop-filter: blur(16px);
       color: #F8FAFC !important;
-      border: 1px solid #334155;
+      border: 1px solid #2C3D61;
       border-radius: 12px;
-      box-shadow: 0 25px 40px -10px rgba(0, 0, 0, 0.85), 0 0 20px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 25px 45px -10px rgba(0, 0, 0, 0.9), 0 0 24px rgba(56, 189, 248, 0.25);
       padding: 0 !important;
       overflow: hidden;
-    }
-    .leaflet-popup-content {
-      margin: 0 !important;
-      line-height: 1.4;
       width: 410px !important;
       max-width: 92vw !important;
     }
-    .leaflet-popup-tip {
-      background: #0F172A !important;
-      border: 1px solid #334155;
+    .maplibregl-popup-tip {
+      border-top-color: #0D1526 !important;
     }
-    .leaflet-container a.leaflet-popup-close-button {
-      top: 10px;
-      right: 12px;
+    .maplibregl-popup-close-button {
+      top: 8px;
+      right: 10px;
       color: #94A3B8 !important;
       font-size: 18px;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 4px;
       transition: all 0.15s ease;
+      outline: none;
     }
-    .leaflet-container a.leaflet-popup-close-button:hover {
+    .maplibregl-popup-close-button:hover {
       color: #F8FAFC !important;
-      background: #1E293B;
+      background: #1C2942;
     }
 
     /* Scrollbar sottile dark */
@@ -597,7 +635,7 @@
   </div>
 
   <!-- =======================================================================
-       MAPPA FULLSCREEN LEAFLET (CARTO-DB NATIVE HIGH DEFINITION)
+       MAPPA FULLSCREEN MAPLIBRE GL 3D (SUNPRO GEO-INTELLIGENCE ENGINE)
        ======================================================================= -->
   <div class="flex-1 relative overflow-hidden flex">
 
@@ -717,16 +755,16 @@
     <!-- MAP CONTROLS OVERLAY (In alto a destra: Basemap Switcher & Reset) -->
     <div class="absolute top-3 right-3 z-[1000] flex flex-col gap-2 font-mono text-xs">
       
-      <!-- Basemap Switcher (Strade HD Chiara vs Dark GIS vs OSM) -->
+      <!-- Basemap Switcher (Satellite 3D SunPro vs Strade HD vs Dark GIS) -->
       <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-1.5 flex gap-1 shadow-xl">
-        <button onclick="switchTileLayer('voyager')" id="btn-tile-voyager" class="px-2 py-1 rounded bg-slate-800 text-sky-400 font-bold border border-sky-500/40 text-[10px] flex items-center gap-1">
+        <button onclick="switchTileLayer('satellite')" id="btn-tile-satellite" class="px-2 py-1 rounded bg-slate-800 text-emerald-400 font-bold border border-emerald-500/40 text-[10px] flex items-center gap-1">
+          <span>🛰️ Satellite 3D</span>
+        </button>
+        <button onclick="switchTileLayer('streets')" id="btn-tile-streets" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
           <span>☀️ Strade HD</span>
         </button>
         <button onclick="switchTileLayer('dark')" id="btn-tile-dark" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
           <span>🌙 Dark GIS</span>
-        </button>
-        <button onclick="switchTileLayer('osm')" id="btn-tile-osm" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
-          <span>🗺️ OSM</span>
         </button>
       </div>
 
@@ -1133,11 +1171,11 @@
       selectedRegion: 'ALL',
       selectedOpera: null,
       shortcutFilter: null,
-      currentTileTheme: 'voyager',
+      currentTileTheme: 'satellite',
       map: null,
-      tileLayers: {},
-      markersGroup: null,
+      markers: [],
       markerMap: {},
+      catastoVisible: false,
       sidebarOpen: true
     };
 
@@ -1156,102 +1194,126 @@
     }
 
     /* =======================================================================
-       2. INIZIALIZZAZIONE MAPPA NITIDA (ESRI WORLD DARK GRAY & HD LAYERS)
-       Nessuna API Key richiesta, zero watermark, 100% pulito e leggibile
+       2. INIZIALIZZAZIONE MAPLIBRE GL 3D (GEO-INTELLIGENCE SUNPRO ENGINE)
+       Nessuna API Key richiesta, zero watermark, 100% WebGL 60 FPS
        ======================================================================= */
     function initMap() {
       if (state.map) return;
 
-      // Coordinate baricentriche Italia: 42.8°N, 12.5°E
-      state.map = L.map('gis-map', {
-        zoomControl: false,
-        attributionControl: false
-      }).setView([43.20, 12.50], 6.5);
+      const wmsCatastoUrl = 'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows?service=WMS&request=GetMap&layers=CP.CadastralParcel,CP.CadastralZoning,BU.Building&styles=&format=image/png&transparent=true&version=1.3.0&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}';
 
-      L.control.zoom({ position: 'bottomright' }).addTo(state.map);
-
-      // 1. ESRI World Dark Gray Canvas (Base + Labels) - Ufficiale, libero da API key, nitido
-      const darkBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 16,
-        attribution: 'Esri, HERE, Garmin, © OpenStreetMap'
+      state.map = new maplibregl.Map({
+        container: 'gis-map',
+        style: {
+          version: 8,
+          sources: {
+            'esri-satellite': {
+              type: 'raster',
+              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+              tileSize: 256,
+              attribution: 'Esri World Imagery (SunPro 3D)'
+            },
+            'esri-labels': {
+              type: 'raster',
+              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],
+              tileSize: 256
+            },
+            'esri-streets': {
+              type: 'raster',
+              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'],
+              tileSize: 256,
+              attribution: 'Esri Street Map'
+            },
+            'esri-dark': {
+              type: 'raster',
+              tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
+              tileSize: 256,
+              attribution: 'Esri Dark Canvas'
+            },
+            'catasto-wms': {
+              type: 'raster',
+              tiles: [wmsCatastoUrl],
+              tileSize: 256,
+              attribution: '© Agenzia delle Entrate - Catasto'
+            }
+          },
+          layers: [
+            {
+              id: 'layer-satellite',
+              type: 'raster',
+              source: 'esri-satellite',
+              layout: { visibility: 'visible' }
+            },
+            {
+              id: 'layer-labels',
+              type: 'raster',
+              source: 'esri-labels',
+              layout: { visibility: 'visible' }
+            },
+            {
+              id: 'layer-streets',
+              type: 'raster',
+              source: 'esri-streets',
+              layout: { visibility: 'none' }
+            },
+            {
+              id: 'layer-dark',
+              type: 'raster',
+              source: 'esri-dark',
+              layout: { visibility: 'none' }
+            },
+            {
+              id: 'layer-catasto',
+              type: 'raster',
+              source: 'catasto-wms',
+              layout: { visibility: 'none' },
+              paint: { 'raster-opacity': 0.85 }
+            }
+          ]
+        },
+        center: [12.50, 42.80],
+        zoom: 6.2,
+        pitch: 35,
+        bearing: 0
       });
-      const darkLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 16,
-        pane: 'shadowPane'
-      });
-      state.tileLayers.dark = L.layerGroup([darkBase, darkLabels]);
 
-      // 2. ESRI World Street Map (Chiara / Strade HD)
-      state.tileLayers.voyager = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 18,
-        attribution: 'Esri, HERE, Garmin, USGS'
-      });
+      // Controlli 3D SunPro con visualizzazione Pitch e bussola
+      state.map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
-      // 3. OpenStreetMap Standard (Piena risoluzione, zero watermark)
-      state.tileLayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-      });
-
-      // 4. Catasto Agenzia delle Entrate (WMS INSPIRE Ufficiale - Parzelle & Fabbricati)
-      const wmsCatastoUrl = 'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows';
-      state.catastoLayer = L.tileLayer.wms(wmsCatastoUrl, {
-        layers: 'CP.CadastralParcel,CP.CadastralZoning,BU.Building',
-        format: 'image/png',
-        transparent: true,
-        version: '1.3.0',
-        crs: L.CRS.EPSG3857,
-        opacity: 0.85,
-        minZoom: 14,
-        maxZoom: 22,
-        attribution: '© Agenzia delle Entrate - Dati Catastali'
-      });
-      state.catastoVisible = false;
-
-      // Listener cambio zoom per avviso Catasto
+      // Gestione Zoom Alert per Catasto AdE
       state.map.on('zoomend', () => {
         const alertEl = document.getElementById('catasto-zoom-alert');
         if (state.catastoVisible && alertEl) {
-          if (state.map.getZoom() < 15) {
+          if (state.map.getZoom() < 14) {
             alertEl.style.display = 'block';
-            alertEl.textContent = '⚠️ Zoom ≥ 15 per particelle';
+            alertEl.textContent = '⚠️ Zoom ≥ 14 per particelle';
           } else {
             alertEl.style.display = 'none';
           }
         }
       });
 
-      // Applica Strade HD Chiara come predefinito
-      state.tileLayers.voyager.addTo(state.map);
-
-      // Prevenzione freeze rotella mouse / blocco scroll su popup Leaflet
-      state.map.on('popupopen', (e) => {
-        if (e.popup && e.popup._container) {
-          L.DomEvent.disableScrollPropagation(e.popup._container);
-          L.DomEvent.disableClickPropagation(e.popup._container);
-        }
+      state.map.on('load', () => {
+        caricaConfiniRegionaliIstat(state.map);
+        updateMapMarkers(state.opere);
       });
-
-      state.markersGroup = L.featureGroup().addTo(state.map);
-      updateMapMarkers(state.opere);
     }
 
     function toggleCatastoWms() {
+      if (!state.map) return;
       const btn = document.getElementById('btn-toggle-catasto');
       const alertEl = document.getElementById('catasto-zoom-alert');
       state.catastoVisible = !state.catastoVisible;
 
       if (state.catastoVisible) {
-        state.catastoLayer.addTo(state.map);
+        state.map.setLayoutProperty('layer-catasto', 'visibility', 'visible');
         btn.className = 'px-2.5 py-1 rounded bg-sky-950 text-sky-400 font-bold border border-sky-400 text-[10px] flex items-center gap-1.5 transition-all shadow-sm shadow-sky-500/20';
-        if (state.map.getZoom() < 15) {
+        if (state.map.getZoom() < 14 && alertEl) {
           alertEl.style.display = 'block';
-          alertEl.textContent = '⚠️ Zoom ≥ 15 per particelle';
-        } else {
-          alertEl.style.display = 'none';
+          alertEl.textContent = '⚠️ Zoom ≥ 14 per particelle';
         }
       } else {
-        state.map.removeLayer(state.catastoLayer);
+        state.map.setLayoutProperty('layer-catasto', 'visibility', 'none');
         btn.className = 'px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-[10px] flex items-center gap-1.5 transition-all shadow-sm';
         if (alertEl) alertEl.style.display = 'none';
       }
@@ -1259,16 +1321,42 @@
 
     function updateCatastoOpacity(val) {
       const op = parseFloat(val);
-      if (state.catastoLayer) {
-        state.catastoLayer.setOpacity(op);
+      if (state.map && state.map.getLayer('layer-catasto')) {
+        state.map.setPaintProperty('layer-catasto', 'raster-opacity', op);
       }
     }
 
     function switchTileLayer(theme) {
-      if (theme === state.currentTileTheme) return;
-      state.map.removeLayer(state.tileLayers[state.currentTileTheme]);
-      state.tileLayers[theme].addTo(state.map);
+      if (!state.map) return;
       state.currentTileTheme = theme;
+
+      const btnSat = document.getElementById('btn-tile-satellite');
+      const btnStr = document.getElementById('btn-tile-streets');
+      const btnDark = document.getElementById('btn-tile-dark');
+
+      [btnSat, btnStr, btnDark].forEach(b => {
+        if (b) b.className = 'px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1';
+      });
+
+      const layers = ['layer-satellite', 'layer-labels', 'layer-streets', 'layer-dark'];
+      layers.forEach(l => {
+        if (state.map.getLayer(l)) {
+          state.map.setLayoutProperty(l, 'visibility', 'none');
+        }
+      });
+
+      if (theme === 'satellite') {
+        state.map.setLayoutProperty('layer-satellite', 'visibility', 'visible');
+        state.map.setLayoutProperty('layer-labels', 'visibility', 'visible');
+        if (btnSat) btnSat.className = 'px-2 py-1 rounded bg-slate-800 text-emerald-400 font-bold border border-emerald-500/40 text-[10px] flex items-center gap-1';
+      } else if (theme === 'streets') {
+        state.map.setLayoutProperty('layer-streets', 'visibility', 'visible');
+        if (btnStr) btnStr.className = 'px-2 py-1 rounded bg-slate-800 text-sky-400 font-bold border border-sky-500/40 text-[10px] flex items-center gap-1';
+      } else if (theme === 'dark') {
+        state.map.setLayoutProperty('layer-dark', 'visibility', 'visible');
+        if (btnDark) btnDark.className = 'px-2 py-1 rounded bg-slate-800 text-amber-400 font-bold border border-amber-500/40 text-[10px] flex items-center gap-1';
+      }
+    }
 
       const btnDark = document.getElementById('btn-tile-dark');
       const btnVoyager = document.getElementById('btn-tile-voyager');
@@ -1289,7 +1377,13 @@
 
     function zoomNordItalia() {
       if (state.map) {
-        state.map.flyTo([43.20, 12.50], 6.5, { duration: 0.8 });
+        state.map.flyTo({
+          center: [12.50, 42.80],
+          zoom: 6.2,
+          pitch: 35,
+          bearing: 0,
+          duration: 1000
+        });
       }
     }
 
@@ -1515,49 +1609,81 @@
     };
 
     /* =======================================================================
-       4. AGGIORNAMENTO MARKERS SU MAPPA & LISTA QUICK
+       4. AGGIORNAMENTO MARKERS SU MAPPA & LISTA QUICK (SUNPRO TEARDROP PIN 3D)
        ======================================================================= */
     function updateMapMarkers(opereList) {
-      if (!state.markersGroup) return;
-      state.markersGroup.clearLayers();
+      if (state.markers && state.markers.length > 0) {
+        state.markers.forEach(m => m.remove());
+      }
+      state.markers = [];
       state.markerMap = {};
+
+      if (!state.map) return;
 
       opereList.forEach(op => {
         if (!op.geo || !op.geo.lat || !op.geo.lng) return;
 
-        const color = getPinColor(op.stato_opera);
-        const isTarget = op.stato_opera === 'AVANZATA_SENZA_ELENCO';
+        const hasPda = op.ditte && op.ditte.length > 0;
+        const isAvanzata = op.stato_opera === 'AVANZATA_SENZA_ELENCO';
+        const numDitte = op.ditte ? op.ditte.length : 0;
+        const step = op.maturita_step || 3;
 
-        const markerHtml = `
-          <div style="position:relative; width: 26px; height: 26px; display:flex; align-items:center; justify-content:center; cursor:pointer;">
-            ${isTarget ? `<div class="pin-pulse" style="position:absolute; width:100%; height:100%; border-radius:50%; background:${color};"></div>` : ''}
-            <div style="width: 15px; height: 15px; border-radius: 50%; background: ${color}; border: 2.5px solid #090D14; box-shadow: 0 0 14px ${color};"></div>
-          </div>
+        // Palette Teardrop Pin 3D SunPro
+        let outerColor = '#0284C7';
+        let ringColor = '#0369A1';
+        let badgeStroke = 'stroke="rgba(0,0,0,0.12)" stroke-width="1.2"';
+        let topAccent = '';
+        let badgeContent = step;
+
+        if (hasPda) {
+          outerColor = '#10B981'; // Smeraldo Fase 4
+          ringColor = '#047857';
+          badgeStroke = 'stroke="#38BDF8" stroke-width="2.5"';
+          topAccent = '<circle cx="50" cy="8" r="4.5" fill="#38BDF8" stroke="#FFFFFF" stroke-width="1.2"/>';
+          badgeContent = numDitte > 99 ? '99+' : numDitte;
+        } else if (isAvanzata) {
+          outerColor = '#F59E0B'; // Ambra Target
+          ringColor = '#B45309';
+          badgeStroke = 'stroke="#F59E0B" stroke-width="2.5"';
+          topAccent = '<circle cx="50" cy="8" r="4.5" fill="#F59E0B" stroke="#FFFFFF" stroke-width="1.2"/>';
+          badgeContent = '★';
+        }
+
+        const el = document.createElement('div');
+        el.className = `map-pin-wrap${hasPda ? ' pda-ready' : ''}${isAvanzata ? ' target-lead' : ''}`;
+        el.id = `pin-${op.slug}`;
+        el.title = `${op.titolo}\nEnte: ${op.ente}\nCUP: ${op.cup || 'N.D.'}\nStato: ${op.stato_opera}\nDitte: ${numDitte}`;
+
+        el.innerHTML = `
+          <svg viewBox="0 0 100 142" xmlns="http://www.w3.org/2000/svg">
+            <!-- Ground Contact Shadow 3D -->
+            <ellipse cx="50" cy="138" rx="16" ry="3.5" fill="rgba(15,23,42,0.65)"/>
+            <!-- Teardrop Pin Body -->
+            <path d="M 50 136 L 9.5 77.6 A 49 49 0 1 1 90.5 77.6 Z" fill="${outerColor}" class="pin-body"/>
+            <!-- Concentric Bevel Ring -->
+            <circle cx="50" cy="49" r="36" fill="${ringColor}" class="pin-ring"/>
+            <!-- White Circular Inset Badge -->
+            <circle cx="50" cy="49" r="24" fill="#FFFFFF" ${badgeStroke} class="pin-badge"/>
+            <!-- Display Step / Numero Ditte -->
+            <text x="50" y="49" font-family="'JetBrains Mono', monospace" font-size="${String(badgeContent).length > 2 ? '17' : '20'}" font-weight="900" fill="#0F172A" text-anchor="middle" dominant-baseline="central" letter-spacing="-0.5">${badgeContent}</text>
+            ${topAccent}
+          </svg>
         `;
 
-        const icon = L.divIcon({
-          className: 'custom-pin-marker',
-          html: markerHtml,
-          iconSize: [26, 26],
-          iconAnchor: [13, 13],
-          popupAnchor: [0, -10]
-        });
+        const popup = new maplibregl.Popup({ offset: [0, -48], maxWidth: '420px', closeButton: true })
+          .setHTML(buildTabbedPopupHtml(op));
 
-        const marker = L.marker([op.geo.lat, op.geo.lng], { icon: icon });
-        const popupHtml = buildTabbedPopupHtml(op);
+        el.onclick = (e) => {
+          e.stopPropagation();
+          selectAndOpenPin(op.slug);
+        };
 
-        marker.bindPopup(popupHtml, {
-          maxWidth: 410,
-          minWidth: 330,
-          autoPan: true,
-          autoPanPadding: [20, 20]
-        });
+        const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([op.geo.lng, op.geo.lat])
+          .setPopup(popup)
+          .addTo(state.map);
 
-        marker.on('click', () => {
-          state.selectedOpera = op;
-        });
-
-        state.markersGroup.addLayer(marker);
+        state.markers.push(marker);
         state.markerMap[op.slug] = marker;
       });
 
@@ -1569,10 +1695,26 @@
       const marker = state.markerMap[slug];
       if (op && marker && state.map) {
         state.selectedOpera = op;
-        state.map.flyTo([op.geo.lat, op.geo.lng], 11, { duration: 0.7 });
+
+        document.querySelectorAll('.map-pin-wrap').forEach(p => p.classList.remove('active'));
+        const pinEl = document.getElementById(`pin-${slug}`);
+        if (pinEl) pinEl.classList.add('active');
+
+        // Camera FlyTo 3D cinematografica con pitch e inclinazione
+        state.map.flyTo({
+          center: [op.geo.lng, op.geo.lat],
+          zoom: 14.2,
+          pitch: 50,
+          bearing: 25,
+          speed: 1.1,
+          curve: 1.3
+        });
+
         setTimeout(() => {
-          marker.openPopup();
-        }, 750);
+          if (marker.getPopup() && !marker.getPopup().isOpen()) {
+            marker.togglePopup();
+          }
+        }, 600);
       }
     }
 
@@ -1713,7 +1855,7 @@
       }
       toggleRegionFilter('ALL');
       if (state.map) {
-        state.map.setView([43.20, 12.50], 6.5);
+        state.map.flyTo({ center: [12.50, 42.80], zoom: 6.2, pitch: 35, bearing: 0, duration: 900 });
       }
     }
 
@@ -1759,14 +1901,16 @@
       updateMapMarkers(filtered);
       updateGlobalMetrics(filtered);
 
-      // Auto-inquadra i risultati se è attivo un filtro shortcut
-      if (state.shortcutFilter && filtered.length > 0 && state.markersGroup && state.map) {
-        try {
-          const bounds = state.markersGroup.getBounds();
-          if (bounds.isValid()) {
-            state.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 9 });
-          }
-        } catch (e) {}
+      // Auto-inquadra i risultati con pitch 35 prospettico
+      if (state.shortcutFilter && filtered.length > 0 && state.map) {
+        const pts = filtered.filter(o => o.geo && o.geo.lat && o.geo.lng).map(o => [o.geo.lng, o.geo.lat]);
+        if (pts.length > 0) {
+          try {
+            const bounds = new maplibregl.LngLatBounds(pts[0], pts[0]);
+            pts.forEach(p => bounds.extend(p));
+            state.map.fitBounds(bounds, { padding: 60, pitch: 35, duration: 800 });
+          } catch (e) {}
+        }
       }
     }
         if (op.stato_opera === 'CHIUSA' && !stChiusa) return false;
@@ -2024,9 +2168,7 @@
       state.selectedOpera = op;
 
       // Chiudi eventuale popup mappa per non affollare la visuale
-      if (state.map) {
-        state.map.closePopup();
-      }
+      document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
 
       document.getElementById('modal-ditte-title').textContent = `📋 Piano Particellare: ${op.titolo}`;
       document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune} (${op.provincia || 'ND'})`;
@@ -2210,21 +2352,31 @@
        9. BOOTSTRAP APPLICAZIONE (FETCH REST API VERBATIM)
        ======================================================================= */
     async function caricaConfiniRegionaliIstat(map) {
+      if (!map) return;
       try {
         const res = await fetch('https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_regions.geojson');
         if (!res.ok) return;
         const geojsonData = await res.json();
-        L.geoJSON(geojsonData, {
-          style: { className: 'regioni-border-layer' },
-          onEachFeature: (feature, layer) => {
-            if (feature.properties && feature.properties.reg_name) {
-              layer.bindTooltip(feature.properties.reg_name.toUpperCase(), {
-                sticky: true,
-                className: 'tooltip-regione-istat'
-              });
+        
+        if (map.getSource('regioni-istat')) {
+          map.getSource('regioni-istat').setData(geojsonData);
+        } else {
+          map.addSource('regioni-istat', {
+            type: 'geojson',
+            data: geojsonData
+          });
+          map.addLayer({
+            id: 'layer-regioni-line',
+            type: 'line',
+            source: 'regioni-istat',
+            paint: {
+              'line-color': '#38BDF8',
+              'line-width': 1.2,
+              'line-opacity': 0.65,
+              'line-dasharray': [2, 2]
             }
-          }
-        }).addTo(map);
+          });
+        }
       } catch (err) {
         console.warn("Impossibile caricare confini regionali:", err);
       }
