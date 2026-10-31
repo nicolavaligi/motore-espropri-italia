@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Motore Espropri Italia — Intelligence Territoriale DPR 327/2001</title>
   
   <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, MapLibre GL 3D (SunPro Engine) -->
@@ -768,8 +771,8 @@
         </button>
       </div>
 
-      <!-- Componente Toolbar: Catasto WMS Agenzia delle Entrate -->
-      <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex flex-col gap-1.5 catasto-control-group">
+      <!-- Componente Toolbar: Catasto WMS Agenzia delle Entrate (Desktop) -->
+      <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1.5 catasto-control-group">
         <div class="flex items-center justify-between gap-2">
           <button id="btn-toggle-catasto" onclick="toggleCatastoWms()" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-[10px] flex items-center gap-1.5 transition-all shadow-sm" title="Attiva layer particellare AdE (zoom >= 15)">
             <span>📐 Catasto AdE</span>
@@ -797,8 +800,8 @@
         <span>Reset Vista Italia</span>
       </button>
 
-      <!-- Legenda Rapida Trasparente -->
-      <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 text-[10px] text-slate-300 space-y-1.5 shadow-xl">
+      <!-- Legenda Rapida Trasparente (Desktop) -->
+      <div class="hidden lg:block bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 text-[10px] text-slate-300 space-y-1.5 shadow-xl">
         <div class="uppercase font-bold text-slate-400 border-b border-slate-800 pb-0.5">Legenda Procedurale</div>
         <div class="flex items-center gap-2">
           <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm shadow-amber-400"></span>
@@ -2426,15 +2429,16 @@
         dirPath += '/';
       }
 
+      const ts = Date.now();
       const candidateUrls = [
-        dirPath + 'data/opere.json',
-        dirPath + 'opere.json',
-        './data/opere.json',
-        './opere.json',
-        'data/opere.json',
-        'opere.json',
-        '/api/opere',
-        'https://raw.githubusercontent.com/nicolavaligi/motore-espropri-italia/main/data/opere.json'
+        dirPath + 'data/opere.json?t=' + ts,
+        dirPath + 'opere.json?t=' + ts,
+        './data/opere.json?t=' + ts,
+        './opere.json?t=' + ts,
+        'data/opere.json?t=' + ts,
+        'opere.json?t=' + ts,
+        '/api/opere?t=' + ts,
+        'https://raw.githubusercontent.com/nicolavaligi/motore-espropri-italia/main/data/opere.json?t=' + ts
       ];
 
       for (const url of candidateUrls) {
@@ -2457,6 +2461,15 @@
       lucide.createIcons();
       startClock();
       initStimaModalBindings();
+
+      // Su schermi compatti/mobile, mantieni la sidebar chiusa all'avvio per visualizzare subito l'intera mappa
+      if (window.innerWidth <= 1024) {
+        state.sidebarOpen = false;
+        const el = document.getElementById('floating-sidebar');
+        const btn = document.getElementById('btn-toggle-sidebar');
+        if (el) el.classList.add('-translate-x-[115%]', 'opacity-0', 'pointer-events-none');
+        if (btn) btn.classList.remove('text-amber-400');
+      }
 
       initMap();
 
