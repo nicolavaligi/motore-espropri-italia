@@ -28,7 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(stima_router)
+@app.include_router(stima_router)
+
+# Supporta router anche senza prefisso /api per compatibilità Vercel Serverless
+from stima_delta import router as stima_no_prefix_router
+app.include_router(stima_no_prefix_router, prefix="")
 
 DATA_PATH = Path(__file__).parent / "data" / "opere.json"
 STATIC_INDEX = Path(__file__).parent / "index.html"
@@ -79,6 +83,7 @@ async def serve_index():
     return HTMLResponse("<h1>Motore Espropri Italia API attivo</h1><p>Visita <a href='/api/opere'>/api/opere</a></p>")
 
 
+@app.get("/health")
 @app.get("/api/health")
 async def health_check():
     return {
@@ -89,6 +94,7 @@ async def health_check():
     }
 
 
+@app.get("/specifiche-dossier")
 @app.get("/api/specifiche-dossier")
 async def get_specifiche_dossier():
     return {
@@ -192,6 +198,7 @@ async def calcola_stima_perizia(req: StimaPeriziaRequest):
     )
 
 
+@app.get("/opere")
 @app.get("/api/opere")
 async def get_opere(
     regione: Optional[str] = Query(None, description="Filtra per regione (es. Lombardia, Veneto)"),
@@ -219,6 +226,7 @@ async def get_opere(
     return opere
 
 
+@app.get("/opere/{slug}")
 @app.get("/api/opere/{slug}")
 async def get_opera_by_slug(slug: str):
     opere = load_opere()
@@ -228,6 +236,7 @@ async def get_opera_by_slug(slug: str):
     raise HTTPException(status_code=404, detail="Opera non trovata")
 
 
+@app.post("/opere")
 @app.post("/api/opere")
 async def create_or_update_opera(opera_data: Dict[str, Any]):
     opere = load_opere()
