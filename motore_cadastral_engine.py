@@ -1,46 +1,62 @@
 #!/usr/bin/env python3
 """
-MOTORE ESPROPRI & ASSERVIMENTI — D.P.R. 327/2001
-Modulo Integrato di Intelligence Territoriale & Quadro Estimativo Analitico
-
+================================================================================
+MOTORE ESPROPRI & ASSERVIMENTI — SUITE INTEGRATA D.P.R. 327/2001
+================================================================================
 Proprietà intellettuale: Nicola Valigi (Houdinick)
 Ambiente: Antigravity (AGY)
 
-Funzionalità:
-  1. Ingestione Visure & Join Censuario Ditte (Normalizzazione chiavi e aggregazione comproprietà)
-  2. Analisi Topologica di Interclusione e Accessibilità Stradale dei Relitti (Art. 33)
-  3. Calcolo Estimativo Completo con Maggiorazioni Coltivatore Diretto / IAP (Artt. 37, 40, 45, 50)
-  4. Intersezione Topologica e Calcolo Quote di Occupazione (Esproprio, Asservimento, Cantiere)
-  5. Esportazione GeoJSON per WebGIS e Tabellare Excel per Relazione Tecnica
+Include:
+  - Ingestione Visure & Normalizzazione Ditte Comproprietà
+  - Buffer Topologici, Sottrazione Geometrica e Test Interclusione Viaria (Art. 33)
+  - Computo Soprassuoli Agricoli e Fabbricati (Impianti, Alberi, Pozzi, Fabbricati)
+  - Quadro Estimativo di Legge con Maggiorazioni CD/IAP e Cessione Volontaria
+  - Esportazione Deliverable: GeoJSON WebGIS, Excel Peritale e Memorie di Opposizione
+================================================================================
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import pandas as pd
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import MultiPolygon, Polygon, shape
 
 
 # ==============================================================================
-# PARAMETRI ECONOMICI ED ESTIMATIVI COMUNALI
+# PARAMETRI TECNICI ED ECONOMICI ESTIMATIVI
 # ==============================================================================
 @dataclass
-class ParametriEconomici:
-    valore_venale_agricolo_mq: float = 5.00     # Mercato effettivo fondo libero (art. 40 - Sent. 181/2011)
-    valore_agricolo_medio_mq: float = 3.20      # VAM di riferimento per indennità aggiuntiva IAP/CD
-    valore_venale_edificabile_mq: float = 90.00 # Valore venale area fabbricabile (art. 37)
-    saggio_asservimento: float = 0.35           # Deprezzamento fascia di rispetto/servitù (30%-50%)
-    durata_anni_cantiere: float = 2.0           # Durata prevista cantiere (art. 50: 1/12 annuo)
-    buffer_esproprio_m: float = 12.0            # Sede permanente opera (metri da asse)
-    buffer_asservimento_m: float = 25.0         # Fascia rispetto/asservimento (metri da asse)
-    buffer_cantiere_m: float = 8.0              # Fascia occupazione temporanea aggiuntiva
-    tolleranza_strada_m: float = 0.50           # Snapping geometrico viabilità esistente
+class ParametriEspropri:
+    # Valori di mercato terreni (€/mq)
+    valore_venale_agricolo_mq: float = 5.00      # Valore effettivo di mercato fondo libero (Corte Cost. 181/2011)
+    valore_agricolo_medio_mq: float = 3.20       # Riferimento VAM per indennità aggiuntiva CD/IAP (art. 40 c. 4)
+    valore_venale_edificabile_mq: float = 95.00  # Valore venale area edificabile (art. 37)
+    saggio_asservimento: float = 0.35            # Saggio deprezzamento fascia di rispetto/sorvolo (30%-50%)
+    durata_anni_cantiere: float = 2.0            # Durata cantiere per indennità temporanea (art. 50: 1/12 annuo)
+
+    # Parametri dimensionali buffer metrici
+    buffer_esproprio_m: float = 12.0             # Sede permanente opera (metri da asse)
+    buffer_asservimento_m: float = 25.0          # Fascia asservimento/rispetto (metri da asse)
+    buffer_cantiere_m: float = 8.0               # Occupazione temporanea esterna
+    tolleranza_strada_m: float = 1.00            # Snapping topologico viabilità pubblica esistente
+
+    # Costi parametrici soprassuoli e manufatti (€)
+    costo_recinzione_ml: float = 65.00           # Recinzione metallica con muretto cls al metro lineare
+    costo_albero_frutto: float = 280.00          # Valore complementare pianta da frutto in piena produzione
+    costo_albero_olivo_vite: float = 350.00      # Pianta specializzata di pregio
+    costo_impianto_irrigazione_mq: float = 1.80  # Impianto a goccia o aspersione su superficie lorda
+    costo_fabbricato_rurale_mq: float = 650.00   # Fabbricato rurale/deposito abbattuto (valore di ricostruzione)
+
+
+# Alias per retrocompatibilità estimativa
+ParametriEconomici = ParametriEspropri
 
 
 @dataclass
@@ -53,10 +69,10 @@ class ParametriEconomiciComune:
 
 
 # ==============================================================================
-# 1. NORMALIZZAZIONE & INGESTIONE VISURE CATASTALI
+# 1. INGESTIONE CATASTALE & NORMALIZZAZIONE CROWDED COMPROPRIETÀ
 # ==============================================================================
-def normalizza_codice(valore: Any) -> str:
-    """Rimuove zeri iniziali, spazi e caratteri spuri per match deterministico."""
+def normalizza_stringa_catasto(valore: Any) -> str:
+    """Elimina zeri non significativi, spazi bianchi e caratteri non alfanumerici."""
     if pd.isna(valore):
         return ""
     val_str = str(valore).strip().upper()
@@ -64,110 +80,128 @@ def normalizza_codice(valore: Any) -> str:
     return val_str
 
 
-def carica_e_associa_censuario(
-    gdf_particellare: gpd.GeoDataFrame,
-    visure_path: Optional[str] = None,
-    col_comune_gis: str = "COMUNE",
-    col_foglio_gis: str = "FOGLIO",
-    col_mappale_gis: str = "NUMERO"
-) -> gpd.GeoDataFrame:
-    """
-    Esegue il join tra il layer cartografico e l'estratto tavolare delle ditte intestate,
-    qualità colturale, classe, superficie catastale nominale e redditi dominicali/agrari.
-    """
-    gdf = gdf_particellare.copy()
+normalizza_codice = normalizza_stringa_catasto
 
-    # Se non c'è file visure, predispone attributi standard
+
+def arricchisci_catasto_con_visure(
+    gdf_catasto: gpd.GeoDataFrame,
+    visure_path: Optional[str] = None,
+    col_comune: str = "COMUNE",
+    col_foglio: str = "FOGLIO",
+    col_mappale: str = "NUMERO"
+) -> gpd.GeoDataFrame:
+    """Effettua il join relazionale tra i poligoni del catasto e i tabulati ditte Sister/AdE."""
+    gdf = gdf_catasto.copy()
+
     if not visure_path or not Path(visure_path).is_file():
-        gdf["INTESTATI_COMPLETI"] = "Dati ditta non censiti / In attesa di visura"
+        gdf["INTESTATI_COMPLETI"] = "Ditta da visura non disponibile"
         gdf["NUM_INTESTATI"] = 1
         gdf["QUALIFICA_SOGGETTO"] = "PROPRIETARIO_NON_COLTIVATORE"
         gdf["DESTINAZIONE_URB"] = gdf.get("DESTINAZIONE_URB", "Agricola")
+        gdf["ALBERI_PREGIO_QTA"] = 0
+        gdf["RECINZIONE_ML"] = 0.0
+        gdf["IMPIANTO_IRRIGUO"] = False
         return gdf
 
-    # 1. Caricamento dati visure (supporta CSV o XLSX)
     if visure_path.endswith((".xlsx", ".xls")):
         df_visure = pd.read_excel(visure_path)
     else:
         df_visure = pd.read_csv(visure_path, sep=None, engine="python")
 
-    # 2. Generazione chiavi normalizzate per il join
+    # Creazione chiave univoca di join
     gdf["_key_join"] = (
-        gdf[col_comune_gis].apply(normalizza_codice) + "_" +
-        gdf[col_foglio_gis].apply(normalizza_codice) + "_" +
-        gdf[col_mappale_gis].apply(normalizza_codice)
+        gdf[col_comune].apply(normalizza_stringa_catasto) + "_" +
+        gdf[col_foglio].apply(normalizza_stringa_catasto) + "_" +
+        gdf[col_mappale].apply(normalizza_stringa_catasto)
     )
 
     df_visure["_key_join"] = (
-        df_visure["COMUNE"].apply(normalizza_codice) + "_" +
-        df_visure["FOGLIO"].apply(normalizza_codice) + "_" +
-        df_visure["MAPPALE"].apply(normalizza_codice)
+        df_visure["COMUNE"].apply(normalizza_stringa_catasto) + "_" +
+        df_visure["FOGLIO"].apply(normalizza_stringa_catasto) + "_" +
+        df_visure["MAPPALE"].apply(normalizza_stringa_catasto)
     )
 
-    # 3. Aggregazione intestati nel caso di comproprietà multiple sullo stesso mappale
-    def aggrega_ditte(gruppo):
-        ditte_lista = []
-        for _, row in gruppo.iterrows():
-            quota = f" ({row.get('QUOTA', '1/1')})" if pd.notna(row.get("QUOTA")) else ""
-            cf = f" - CF: {row.get('CODICE_FISCALE', '')}" if pd.notna(row.get("CODICE_FISCALE")) else ""
-            ditte_lista.append(f"{row.get('INTESTATO', 'N.D.')}{quota}{cf}")
+    # Aggregazione comproprietari
+    def _aggrega_ditta(sub_df):
+        ditte = []
+        for _, r in sub_df.iterrows():
+            q = f" ({r.get('QUOTA', '1/1')})" if pd.notna(r.get("QUOTA")) else ""
+            cf = f" [CF: {r.get('CODICE_FISCALE', '')}]" if pd.notna(r.get("CODICE_FISCALE")) else ""
+            ditte.append(f"{r.get('INTESTATO', 'N.D.')}{q}{cf}")
 
-        prima_riga = gruppo.iloc[0].to_dict()
-        prima_riga["INTESTATI_COMPLETI"] = " | ".join(ditte_lista)
-        prima_riga["NUM_INTESTATI"] = len(ditte_lista)
-        return pd.Series(prima_riga)
+        primo = sub_df.iloc[0].to_dict()
+        prima_serie = pd.Series(primo)
+        prima_serie["INTESTATI_COMPLETI"] = " | ".join(ditte)
+        prima_serie["NUM_INTESTATI"] = len(ditte)
+        return prima_serie
 
-    df_visure_agg = df_visure.groupby("_key_join", group_keys=False).apply(aggrega_ditte)
+    df_agg = df_visure.groupby("_key_join", group_keys=False).apply(_aggrega_ditta)
 
-    # 4. Join con il layer geografico
-    campi_merge = [
-        c for c in [
-            "_key_join", "INTESTATI_COMPLETI", "NUM_INTESTATI", "QUALITA",
-            "CLASSE", "REDDITO_DOMINICALE", "REDDITO_AGRARIO",
-            "QUALIFICA_SOGGETTO", "DESTINAZIONE_URB"
-        ] if c in df_visure_agg.columns
+    campi_join = [
+        "_key_join", "INTESTATI_COMPLETI", "NUM_INTESTATI", "QUALITA",
+        "CLASSE", "QUALIFICA_SOGGETTO", "DESTINAZIONE_URB",
+        "ALBERI_PREGIO_QTA", "RECINZIONE_ML", "IMPIANTO_IRRIGUO"
     ]
+    campi_presenti = [c for c in campi_join if c in df_agg.columns]
 
-    gdf_join = gdf.merge(df_visure_agg[campi_merge], on="_key_join", how="left")
-    gdf_join["INTESTATI_COMPLETI"] = gdf_join["INTESTATI_COMPLETI"].fillna("Dati ditta non censiti / In attesa di visura")
-    gdf_join["QUALIFICA_SOGGETTO"] = gdf_join["QUALIFICA_SOGGETTO"].fillna("PROPRIETARIO_NON_COLTIVATORE")
-    gdf_join["DESTINAZIONE_URB"] = gdf_join.get("DESTINAZIONE_URB", "Agricola").fillna("Agricola")
-    gdf_join.drop(columns=["_key_join"], inplace=True)
+    gdf_out = gdf.merge(df_agg[campi_presenti], on="_key_join", how="left")
+    gdf_out["INTESTATI_COMPLETI"] = gdf_out["INTESTATI_COMPLETI"].fillna("Dati non censiti")
+    gdf_out["QUALIFICA_SOGGETTO"] = gdf_out["QUALIFICA_SOGGETTO"].fillna("PROPRIETARIO_NON_COLTIVATORE")
+    gdf_out["DESTINAZIONE_URB"] = gdf_out["DESTINAZIONE_URB"].fillna("Agricola")
+    gdf_out["ALBERI_PREGIO_QTA"] = gdf_out.get("ALBERI_PREGIO_QTA", 0).fillna(0).astype(int)
+    gdf_out["RECINZIONE_ML"] = gdf_out.get("RECINZIONE_ML", 0.0).fillna(0.0).astype(float)
+    gdf_out["IMPIANTO_IRRIGUO"] = gdf_out.get("IMPIANTO_IRRIGUO", False).fillna(False).astype(bool)
+    gdf_out.drop(columns=["_key_join"], inplace=True)
 
-    return gdf_join
+    return gdf_out
+
+
+carica_e_associa_censuario = arricchisci_catasto_con_visure
 
 
 # ==============================================================================
-# 2. CALCOLO INTERFERENZE TOPOLOGICHE E ACCESSIBILITÀ STRADALE (ART. 33)
+# 2. ANALISI TOPOLOGICA: FASCE D'INGOMBRO, RESIDUI & INTERCLUSIONE STRADALE (ART. 33)
 # ==============================================================================
-def analizza_interferenze_e_interclusione(
-    gdf_particelle: gpd.GeoDataFrame,
+def elabora_interferenze_spaziali(
+    gdf_catasto: gpd.GeoDataFrame,
     gdf_tracciato: gpd.GeoDataFrame,
     gdf_strade: Optional[gpd.GeoDataFrame] = None,
-    params: Optional[ParametriEconomici] = None,
+    gdf_fabbricati: Optional[gpd.GeoDataFrame] = None,
+    params: Optional[ParametriEspropri] = None,
     target_crs: str = "EPSG:32632"
 ) -> gpd.GeoDataFrame:
-    """Esegue buffering metrico, sottrazione spaziale e test di contatto viario."""
+    """Interseca le fasce di progetto con il particellare e analizza l'accessibilità viaria."""
     if params is None:
-        params = ParametriEconomici()
+        params = ParametriEspropri()
 
-    catasto_m = gdf_particelle.to_crs(target_crs)
+    catasto_m = gdf_catasto.to_crs(target_crs)
     tracciato_m = gdf_tracciato.to_crs(target_crs)
 
-    # Preparazione rete stradale se fornita
-    rete_stradale_geom = None
+    strade_geom = None
     if gdf_strade is not None and not gdf_strade.empty:
-        rete_stradale_geom = gdf_strade.to_crs(target_crs).unary_union.buffer(params.tolleranza_strada_m)
+        try:
+            strade_union = gdf_strade.to_crs(target_crs).union_all()
+        except AttributeError:
+            strade_union = gdf_strade.to_crs(target_crs).unary_union
+        strade_geom = strade_union.buffer(params.tolleranza_strada_m)
 
-    # Generazione fasce d'ingombro
-    geom_asse = tracciato_m.unary_union
-    geom_esp = geom_asse.buffer(params.buffer_esproprio_m)
-    geom_ass_tot = geom_asse.buffer(params.buffer_asservimento_m)
+    fabbricati_m = None
+    if gdf_fabbricati is not None and not gdf_fabbricati.empty:
+        fabbricati_m = gdf_fabbricati.to_crs(target_crs)
+
+    # Geometrie fasce di progetto
+    try:
+        asse_union = tracciato_m.union_all()
+    except AttributeError:
+        asse_union = tracciato_m.unary_union
+
+    geom_esp = asse_union.buffer(params.buffer_esproprio_m)
+    geom_ass_tot = asse_union.buffer(params.buffer_asservimento_m)
     geom_ass = geom_ass_tot.difference(geom_esp)
-    geom_cant_tot = geom_asse.buffer(params.buffer_asservimento_m + params.buffer_cantiere_m)
+    geom_cant_tot = asse_union.buffer(params.buffer_asservimento_m + params.buffer_cantiere_m)
     geom_cant = geom_cant_tot.difference(geom_ass_tot)
 
-    record_elaborati = []
+    risultati = []
 
     for _, row in catasto_m.iterrows():
         geom_part = row.geometry
@@ -189,35 +223,35 @@ def analizza_interferenze_e_interclusione(
 
         pct_esp = (area_esp / sup_tot) * 100.0 if sup_tot > 0 else 0.0
 
-        # Rilevamento relitto critico dimensionale (< 450 mq o > 75% espropriato)
+        # Riconoscimento relitto critico dimensionale
         relitto_critico = (0 < area_res < 450.0) or (0 < area_res and pct_esp > 75.0)
 
-        # Analisi topologica dei frammenti residui e verifica sbocco su strada
+        # Analisi interclusione e spezzoni
         is_intercluso = False
-        frammenti_info = []
+        num_spezzoni = 1
 
         if area_esp > 0:
             residuo_geom = geom_part.difference(geom_esp)
-            lista_spezzoni = []
+            frammenti: List[Polygon] = []
             if isinstance(residuo_geom, Polygon):
                 if not residuo_geom.is_empty and residuo_geom.area > 1.0:
-                    lista_spezzoni.append(residuo_geom)
+                    frammenti.append(residuo_geom)
             elif isinstance(residuo_geom, MultiPolygon):
-                lista_spezzoni = [p for p in residuo_geom.geoms if not p.is_empty and p.area > 1.0]
+                frammenti = [p for p in residuo_geom.geoms if not p.is_empty and p.area > 1.0]
 
-            for idx, spezzone in enumerate(lista_spezzoni):
-                ha_strada = True
-                if rete_stradale_geom is not None:
-                    ha_strada = spezzone.intersects(rete_stradale_geom)
+            num_spezzoni = len(frammenti)
+            if strade_geom is not None and frammenti:
+                for f in frammenti:
+                    if not f.intersects(strade_geom):
+                        is_intercluso = True
+                        break
 
-                if not ha_strada:
-                    is_intercluso = True
-
-                frammenti_info.append({
-                    "spezzone_id": idx + 1,
-                    "superficie_mq": round(spezzone.area, 1),
-                    "accesso_stradale": ha_strada
-                })
+        # Verifica collisione fabbricati censiti
+        sup_fabbricati_abbattuti = 0.0
+        if fabbricati_m is not None:
+            fabb_intersecati = fabbricati_m[fabbricati_m.intersects(int_esp)]
+            if not fabb_intersecati.empty:
+                sup_fabbricati_abbattuti = float(fabb_intersecati.intersection(int_esp).area.sum())
 
         dati = row.to_dict()
         dati.update({
@@ -229,155 +263,142 @@ def analizza_interferenze_e_interclusione(
             "sup_residua_mq": round(area_res, 1),
             "relitto_critico": relitto_critico,
             "relitto_intercluso_art33": is_intercluso,
-            "num_spezzoni_residui": len(frammenti_info) if frammenti_info else 1,
+            "num_spezzoni_residui": num_spezzoni,
+            "sup_fabbricati_abbattuti_mq": round(sup_fabbricati_abbattuti, 1),
             "has_progetto": True
         })
-        record_elaborati.append(dati)
+        risultati.append(dati)
 
-    if not record_elaborati:
+    if not risultati:
         return gpd.GeoDataFrame(columns=catasto_m.columns, crs=target_crs)
 
-    return gpd.GeoDataFrame(record_elaborati, crs=target_crs)
+    return gpd.GeoDataFrame(risultati, crs=target_crs)
 
 
-# Alias per compatibilità con entrambe le nomenclature
-analizza_accessibilita_e_interclusione = analizza_interferenze_e_interclusione
+analizza_interferenze_e_interclusione = elabora_interferenze_spaziali
+analizza_accessibilita_e_interclusione = elabora_interferenze_spaziali
 
 
 # ==============================================================================
-# 3. INTERSEZIONE TOPOLOGICA & CALCOLO ESTIMATIVO DI DETTAGLIO
+# 3. COMPUTO ESTIMATIVO DETTAGLIATO: FONDI, SOPRASSUOLI & MAGGIORAZIONI
 # ==============================================================================
-def elabora_piano_particellare_espropri(
-    tracciato_path: str,
-    catasto_path: str,
-    fabbricati_path: Optional[str] = None,
-    buffer_esproprio_m: float = 12.0,
-    buffer_asservimento_m: float = 25.0,
-    buffer_cantiere_m: float = 8.0,
-    valore_agricolo_medio_mq: float = 4.50,
-    valore_edificabile_mq: float = 85.00,
-    target_crs: str = "EPSG:32632"
-) -> gpd.GeoDataFrame:
-    """
-    Esegue l'intersezione topologica e il calcolo estimativo di dettaglio 
-    per ogni particella interferita dal tracciato di progetto.
-    """
-    gdf_tracciato = gpd.read_file(tracciato_path).to_crs(target_crs)
-    gdf_catasto = gpd.read_file(catasto_path).to_crs(target_crs)
+def calcola_stime_espropriative(
+    gdf_interferenze: gpd.GeoDataFrame,
+    params: Optional[ParametriEspropri] = None,
+    cessione_volontaria: bool = True
+) -> pd.DataFrame:
+    """Quantifica analiticamente tutte le spettanze indennitarie e formula le memorie difensive."""
+    if params is None:
+        params = ParametriEspropri()
 
-    gdf_fabbricati = None
-    if fabbricati_path and Path(fabbricati_path).is_file():
-        gdf_fabbricati = gpd.read_file(fabbricati_path).to_crs(target_crs)
+    dossier = []
 
-    # 1. Calcolo geometrie unificate di ingombro
-    geom_tracciato_union = gdf_tracciato.unary_union
-    geom_esproprio = geom_tracciato_union.buffer(buffer_esproprio_m)
+    for _, r in gdf_interferenze.iterrows():
+        dest = str(r.get("DESTINAZIONE_URB", r.get("destinazione", "Agricola"))).strip().capitalize()
+        qual = str(r.get("QUALIFICA_SOGGETTO", "PROPRIETARIO_NON_COLTIVATORE")).strip().upper()
 
-    # Asservimento al netto della sede dell'opera espropriata
-    geom_asservimento_totale = geom_tracciato_union.buffer(buffer_asservimento_m)
-    geom_asservimento = geom_asservimento_totale.difference(geom_esproprio)
+        sup_esp = float(r.get("sup_esproprio_mq", 0.0))
+        sup_ass = float(r.get("sup_asservimento_mq", 0.0))
+        sup_cant = float(r.get("sup_cantiere_mq", 0.0))
+        sup_res = float(r.get("sup_residua_mq", 0.0))
+        is_intercluso = bool(r.get("relitto_intercluso_art33", False))
+        is_relitto = bool(r.get("relitto_critico", False))
 
-    # Cantiere / occupazione temporanea esterna
-    geom_cantiere_totale = geom_tracciato_union.buffer(buffer_asservimento_m + buffer_cantiere_m)
-    geom_cantiere = geom_cantiere_totale.difference(geom_asservimento_totale)
+        # 1. Indennità Base Esproprio
+        if dest == "Edificabile":
+            v_unit = params.valore_venale_edificabile_mq
+            ind_base = sup_esp * v_unit
+            if cessione_volontaria:
+                ind_base *= 1.10  # Maggiorazione 10% art. 45 c. 2 lett. a
+        else:
+            v_unit = params.valore_venale_agricolo_mq
+            ind_base = sup_esp * v_unit
 
-    record_particelle = []
+        # 2. Maggiorazione Coltivatore Diretto / IAP
+        ind_cd_iap = 0.0
+        if any(k in qual for k in ["IAP", "COLTIVATORE"]):
+            if cessione_volontaria and dest != "Edificabile":
+                # Triplo del valore agricolo effettivo ex art. 45 c. 2 lett. d
+                ind_cd_iap = (sup_esp * v_unit) * 2.0
+            else:
+                # Indennità aggiuntiva ordinaria pari al VAM ex art. 40 c. 4
+                ind_cd_iap = sup_esp * params.valore_agricolo_medio_mq
+        elif "FITTA" in qual:
+            ind_cd_iap = sup_esp * params.valore_agricolo_medio_mq
 
-    # 2. Iterazione particellare
-    for _, part in gdf_catasto.iterrows():
-        geom_part = part.geometry
+        # 3. Asservimento (deprezzamento fascia servitù/rispetto)
+        ind_ass = sup_ass * (v_unit * params.saggio_asservimento)
 
-        # Filtro rapido di intersezione
-        if not geom_part.intersects(geom_cantiere_totale):
-            continue
+        # 4. Occupazione Temporanea Cantiere (Art. 50: 1/12 annuo)
+        ind_cant = (sup_cant * v_unit) * (1.0 / 12.0) * params.durata_anni_cantiere
 
-        sup_totale = float(geom_part.area)
+        # 5. Soprassuoli, Manufatti e Fabbricati Rurali
+        qta_alberi = int(r.get("ALBERI_PREGIO_QTA", 0))
+        ml_recinto = float(r.get("RECINZIONE_ML", 0.0))
+        has_irriguo = bool(r.get("IMPIANTO_IRRIGUO", False))
+        sup_fabb = float(r.get("sup_fabbricati_abbattuti_mq", 0.0))
 
-        # Intersezioni geometriche
-        geom_int_esp = geom_part.intersection(geom_esproprio)
-        geom_int_ass = geom_part.intersection(geom_asservimento)
-        geom_int_cant = geom_part.intersection(geom_cantiere)
+        ind_soprassuoli = (
+            (qta_alberi * params.costo_albero_olivo_vite) +
+            (ml_recinto * params.costo_recinzione_ml) +
+            ((sup_esp * params.costo_impianto_irrigazione_mq) if has_irriguo else 0.0) +
+            (sup_fabb * params.costo_fabbricato_rurale_mq)
+        )
 
-        area_esp = float(geom_int_esp.area) if not geom_int_esp.is_empty else 0.0
-        area_ass = float(geom_int_ass.area) if not geom_int_ass.is_empty else 0.0
-        area_cant = float(geom_int_cant.area) if not geom_int_cant.is_empty else 0.0
-        area_res = max(0.0, sup_totale - area_esp)
+        # 6. Danno Relitto / Interclusione (Art. 33)
+        ind_relitto = 0.0
+        if is_intercluso:
+            ind_relitto = sup_res * v_unit
+            motivo_azione = "Interclusione assoluta della porzione residua priva di viabilità (art. 33 c. 2)."
+            azione = "Istanza di esproprio totale con liquidazione integrale del relitto."
+        elif is_relitto:
+            ind_relitto = sup_res * (v_unit * 0.50)
+            motivo_azione = "Relitto di consistenza antieconomica inferiore al minimo colturale o con taglio > 75%."
+            azione = "Richiesta deprezzamento del 50% su area residua o accorpamento all'esproprio."
+        else:
+            motivo_azione = "Opera regolare senza relitti critici individuati."
+            azione = "Accettazione con riserva o cessione volontaria con indennità concordata."
 
-        if (area_esp + area_ass + area_cant) == 0:
-            continue
+        totale = ind_base + ind_cd_iap + ind_ass + ind_cant + ind_soprassuoli + ind_relitto
 
-        pct_esproprio = (area_esp / sup_totale) * 100.0 if sup_totale > 0 else 0.0
-
-        # Rilevamento criticità art. 33 DPR 327/2001 (Relitto non utilizzabile o frammentazione)
-        is_relitto = False
-        motivo_relitto = "Nessuno"
-        if 0 < area_res < 450.0:
-            is_relitto = True
-            motivo_relitto = "Superficie residua < 450 mq (soglia minima lavorabilità)"
-        elif 0 < area_res and (pct_esproprio > 75.0):
-            is_relitto = True
-            motivo_relitto = "Esproprio > 75% della superficie totale catastale"
-
-        # Verifica impatto su fabbricati o manufatti censiti
-        has_fabbricato = False
-        num_fabbricati = 0
-        if gdf_fabbricati is not None:
-            fabbricati_intersecati = gdf_fabbricati[gdf_fabbricati.intersects(geom_part)]
-            if not fabbricati_intersecati.empty:
-                interferenza_fabb = fabbricati_intersecati.intersects(geom_esproprio | geom_asservimento)
-                if interferenza_fabb.any():
-                    has_fabbricato = True
-                    num_fabbricati = int(interferenza_fabb.sum())
-
-        # Classificazione urbanistica (default agricola se non specificata)
-        destinazione = str(part.get("DESTINAZIONE_URB", "Agricola")).strip().capitalize()
-        v_unitario = valore_edificabile_mq if destinazione == "Edificabile" else valore_agricolo_medio_mq
-
-        # 3. Conteggio Estimativo Indennitario (D.P.R. 327/2001)
-        indennita_esp = area_esp * v_unitario
-        saggio_asservimento = 0.35
-        indennita_ass = area_ass * (v_unitario * saggio_asservimento)
-        indennita_cant = (area_cant * v_unitario) * (1.0 / 12.0) * 2.0
-        totale_indennita = indennita_esp + indennita_ass + indennita_cant
-
-        record_particelle.append({
-            "comune": part.get("COMUNE", "N.D."),
-            "foglio": str(part.get("FOGLIO", "")),
-            "mappale": str(part.get("NUMERO", part.get("MAPPALE", ""))),
-            "destinazione": destinazione,
-            "sup_totale_mq": round(sup_totale, 1),
-            "sup_esproprio_mq": round(area_esp, 1),
-            "pct_esproprio": round(pct_esproprio, 1),
-            "sup_asservimento_mq": round(area_ass, 1),
-            "sup_cantiere_mq": round(area_cant, 1),
-            "sup_residua_mq": round(area_res, 1),
-            "relitto_critico": is_relitto,
-            "motivo_relitto": motivo_relitto,
-            "has_fabbricato": has_fabbricato,
-            "num_fabbricati": num_fabbricati,
-            "indennita_esp_eur": round(indennita_esp, 2),
-            "indennita_ass_eur": round(indennita_ass, 2),
-            "indennita_cant_eur": round(indennita_cant, 2),
-            "totale_indennita_eur": round(totale_indennita, 2),
-            "has_progetto": True,
-            "geometry": geom_part
+        dossier.append({
+            "COMUNE": r.get("COMUNE", r.get("comune", "N.D.")),
+            "FOGLIO": str(r.get("FOGLIO", r.get("foglio", ""))),
+            "MAPPALE": str(r.get("NUMERO", r.get("MAPPALE", r.get("mappale", "")))),
+            "INTESTATI": r.get("INTESTATI_COMPLETI", r.get("intestatario", "N.D.")),
+            "QUALIFICA": qual,
+            "DESTINAZIONE": dest,
+            "SUP_TOT_MQ": r.get("sup_totale_mq", 0.0),
+            "SUP_ESP_MQ": sup_esp,
+            "PCT_ESP": r.get("pct_esproprio", 0.0),
+            "SUP_ASS_MQ": sup_ass,
+            "SUP_CANT_MQ": sup_cant,
+            "SUP_RES_MQ": sup_res,
+            "INTERCLUSO_ART33": is_intercluso,
+            "RELITTO_CRITICO": is_relitto,
+            "IND_ESPROPRIO_BASE": round(ind_base, 2),
+            "IND_AGGIUNTIVA_CD_IAP": round(ind_cd_iap, 2),
+            "IND_ASSERVIMENTO": round(ind_ass, 2),
+            "IND_CANTIERE_ART50": round(ind_cant, 2),
+            "IND_SOPRASSUOLI_MANUFATTI": round(ind_soprassuoli, 2),
+            "DANNO_RELITTO_ART33": round(ind_relitto, 2),
+            "TOTALE_INDENNITA_STIMATA": round(totale, 2),
+            "MOTIVAZIONE_TECNICA": motivo_azione,
+            "AZIONE_CONSIGLIATA": azione
         })
 
-    gdf_risultato = gpd.GeoDataFrame(record_particelle, crs=target_crs)
-    return gdf_risultato.to_crs(epsg=4326)
+    return pd.DataFrame(dossier)
 
 
-# ==============================================================================
-# 4. MOTORE ESTIMATIVO INDENNITARIO ANALITICO CON MAGGIORAZIONI CD / IAP
-# ==============================================================================
+calcola_indennita_dpr327 = calcola_stime_espropriative
+
+
 def calcola_quadro_indennitario_analitico(
     row: Dict[str, Any],
     parametri: Any,
     opzione_cessione_volontaria: bool = True
 ) -> Dict[str, Any]:
-    """
-    Calcola le singole componenti indennitarie nel rispetto degli artt. 33, 37, 40, 45 e 50 D.P.R. 327/2001.
-    """
+    """Helper di calcolo estimativo per singola riga di dizionario."""
     destinazione = str(row.get("destinazione", row.get("DESTINAZIONE_URB", "Agricola"))).strip().capitalize()
     qualifica = str(row.get("QUALIFICA_SOGGETTO", "PROPRIETARIO_NON_COLTIVATORE")).strip().upper()
 
@@ -389,21 +410,15 @@ def calcola_quadro_indennitario_analitico(
 
     indennita_base_esproprio = 0.0
     indennita_aggiuntiva_iap_cd = 0.0
-    indennita_asservimento = 0.0
-    indennita_cantiere = 0.0
-    indennita_deprezzamento_relitto = 0.0
 
-    # 1. Stima Indennità di Esproprio Principale
     if destinazione == "Edificabile":
-        valore_unitario = getattr(parametri, "valore_venale_edificabile_mq", 90.0)
+        valore_unitario = getattr(parametri, "valore_venale_edificabile_mq", 95.0)
         indennita_base_esproprio = sup_esp * valore_unitario
         if opzione_cessione_volontaria:
             indennita_base_esproprio *= 1.10
     else:
         valore_unitario = getattr(parametri, "valore_venale_agricolo_mq", 5.0)
         indennita_base_esproprio = sup_esp * valore_unitario
-
-        # Maggiorazioni Coltivatore Diretto / IAP (Art. 40 c. 4 e Art. 45 c. 2 lett. d)
         vam = getattr(parametri, "valore_agricolo_medio_mq", 3.20)
         if "IAP" in qualifica or "COLTIVATORE" in qualifica:
             if opzione_cessione_volontaria:
@@ -413,15 +428,13 @@ def calcola_quadro_indennitario_analitico(
         elif "FITTA" in qualifica:
             indennita_aggiuntiva_iap_cd = sup_esp * vam
 
-    # 2. Indennità di Asservimento
     saggio = getattr(parametri, "saggio_asservimento", 0.35)
     indennita_asservimento = sup_ass * (valore_unitario * saggio)
 
-    # 3. Indennità di Cantiere (Art. 50 D.P.R. 327/2001)
     durata = getattr(parametri, "durata_anni_cantiere", 2.0)
     indennita_cantiere = (sup_cant * valore_unitario) * (1.0 / 12.0) * durata
 
-    # 4. Deprezzamento Relitto o Riacquisto per Interclusione (Art. 33)
+    indennita_deprezzamento_relitto = 0.0
     if is_intercluso:
         indennita_deprezzamento_relitto = sup_res * valore_unitario
     elif row.get("relitto_critico", False):
@@ -452,7 +465,7 @@ def calcola_quadro_indennitario_analitico(
         "criticita": {
             "interclusione": is_intercluso,
             "relitto_critico": row.get("relitto_critico", False),
-            "azione_consigliata": row.get("azione_consigliata", "Liquidazione standard")
+            "azione_consigliata": "Opposizione per relitto" if row.get("relitto_critico") else "Liquidazione standard"
         },
         "indennita": {
             "esproprio_base_eur": round(indennita_base_esproprio, 2),
@@ -465,125 +478,213 @@ def calcola_quadro_indennitario_analitico(
     }
 
 
-def calcola_indennita_dpr327(
-    gdf_interferenze: gpd.GeoDataFrame,
-    params: Optional[ParametriEconomici] = None,
-    cessione_volontaria: bool = True
-) -> pd.DataFrame:
-    """Calcola le voci indennitarie conformemente agli artt. 33, 37, 40, 45 e 50."""
-    if params is None:
-        params = ParametriEconomici()
+def elabora_piano_particellare_espropri(
+    tracciato_path: str,
+    catasto_path: str,
+    fabbricati_path: Optional[str] = None,
+    buffer_esproprio_m: float = 12.0,
+    buffer_asservimento_m: float = 25.0,
+    buffer_cantiere_m: float = 8.0,
+    valore_agricolo_medio_mq: float = 4.50,
+    valore_edificabile_mq: float = 85.00,
+    target_crs: str = "EPSG:32632"
+) -> gpd.GeoDataFrame:
+    """Wrapper di alto livello per elaborazione del piano particellare con fabbricati."""
+    params = ParametriEspropri(
+        buffer_esproprio_m=buffer_esproprio_m,
+        buffer_asservimento_m=buffer_asservimento_m,
+        buffer_cantiere_m=buffer_cantiere_m,
+        valore_agricolo_medio_mq=valore_agricolo_medio_mq,
+        valore_venale_edificabile_mq=valore_edificabile_mq
+    )
+    gdf_tracciato = gpd.read_file(tracciato_path)
+    gdf_catasto = gpd.read_file(catasto_path)
+    gdf_fabb = gpd.read_file(fabbricati_path) if fabbricati_path and Path(fabbricati_path).is_file() else None
 
-    righe = []
-    for _, r in gdf_interferenze.iterrows():
-        stima = calcola_quadro_indennitario_analitico(r.to_dict(), params, cessione_volontaria)
-        righe.append({
-            "COMUNE": stima["comune"],
-            "FOGLIO": stima["foglio"],
-            "MAPPALE": stima["mappale"],
-            "INTESTATI": stima["intestati"],
-            "QUALIFICA": stima["qualifica"],
-            "DESTINAZIONE": stima["destinazione"],
-            "SUP_TOT_MQ": stima["superfici"]["totale_mq"],
-            "SUP_ESP_MQ": stima["superfici"]["esproprio_mq"],
-            "SUP_ASS_MQ": stima["superfici"]["asservimento_mq"],
-            "SUP_CANT_MQ": stima["superfici"]["cantiere_mq"],
-            "SUP_RES_MQ": stima["superfici"]["residuo_mq"],
-            "INTERCLUSO_ART33": stima["criticita"]["interclusione"],
-            "RELITTO_CRITICO": stima["criticita"]["relitto_critico"],
-            "IND_ESPROPRIO_BASE_EUR": stima["indennita"]["esproprio_base_eur"],
-            "IND_AGGIUNTIVA_CD_IAP_EUR": stima["indennita"]["aggiuntiva_cd_iap_eur"],
-            "IND_ASSERVIMENTO_EUR": stima["indennita"]["asservimento_eur"],
-            "IND_CANTIERE_ART50_EUR": stima["indennita"]["cantiere_art50_eur"],
-            "DANNO_RELITTO_ART33_EUR": stima["indennita"]["danno_relitto_art33_eur"],
-            "TOTALE_INDENNITA_EUR": stima["indennita"]["totale_liquidabile_eur"],
-            "AZIONE_CONSIGLIATA": stima["criticita"]["azione_consigliata"]
-        })
-    return pd.DataFrame(righe)
+    gdf_interf = elabora_interferenze_spaziali(
+        gdf_catasto, gdf_tracciato, gdf_fabbricati=gdf_fabb, params=params, target_crs=target_crs
+    )
+    return gdf_interf.to_crs(epsg=4326)
 
 
 # ==============================================================================
-# 5. PIPELINE DI ESECUZIONE & CLI ENTRYPOINT
+# 4. GENERAZIONE MEMORIE TECNICHE E PERIZIE MONOGRAFICHE (MARKDOWN / HTML)
 # ==============================================================================
-def esegui_pipeline(
+def genera_memorie_tecniche(df_stime: pd.DataFrame, out_dir: Path):
+    """Compila le relazioni peritali e le osservazioni al piano particellare per ogni ditta."""
+    memorie_dir = out_dir / "memorie_osservazione"
+    memorie_dir.mkdir(parents=True, exist_ok=True)
+
+    for _, r in df_stime.iterrows():
+        mappale_clean = re.sub(r'[^A-Za-z0-9_]', '_', f"{r['COMUNE']}_F{r['FOGLIO']}_M{r['MAPPALE']}")
+        filepath = memorie_dir / f"Osservazione_{mappale_clean}.md"
+
+        contenuto = f"""# MEMORIA TECNICO-ESTIMATIVA E OSSERVAZIONI AL PIANO PARTICELLARE
+**Ai sensi e per gli effetti degli artt. 16, 21 e 33 del D.P.R. 8 giugno 2001, n. 327**
+
+---
+
+### 1. DATI IDENTIFICATIVI DEL COMPENDIO
+- **Comune Censuario:** {r['COMUNE']}
+- **Foglio:** {r['FOGLIO']} | **Mappale:** {r['MAPPALE']}
+- **Ditta Intestata:** {r['INTESTATI']}
+- **Qualifica Soggettiva:** {r['QUALIFICA']}
+- **Destinazione Urbanistica Vigente:** {r['DESTINAZIONE']}
+
+---
+
+### 2. CONSISTENZA DELLE SUPERFICI INTERFERITE
+- **Superficie Catastale Totale:** {r['SUP_TOT_MQ']:,.1f} mq
+- **Superficie in Esproprio Permanente (Sede Opera):** {r['SUP_ESP_MQ']:,.1f} mq ({r['PCT_ESP']}%)
+- **Superficie in Asservimento / Rispetto:** {r['SUP_ASS_MQ']:,.1f} mq
+- **Superficie in Occupazione Temporanea (Cantiere):** {r['SUP_CANT_MQ']:,.1f} mq
+- **Superficie Residua Libera:** {r['SUP_RES_MQ']:,.1f} mq
+
+---
+
+### 3. CRITICITÀ TOPOLOGICHE E FONDIARE (ART. 33 D.P.R. 327/2001)
+- **Stato Interclusione Stradale:** {'ATTENZIONE: PARTICELLA INTERCLUSA (Priva di sbocco su viabilità pubblica)' if r['INTERCLUSO_ART33'] else 'Accesso stradale verificato'}
+- **Frazionamento Antieconomico (Relitto):** {'SÌ (Area residua inferiore a 450 mq o > 75% espropriato)' if r['RELITTO_CRITICO'] else 'No'}
+- **Diagnosi Peritale:** {r['MOTIVAZIONE_TECNICA']}
+- **Richiesta Formale:** {r['AZIONE_CONSIGLIATA']}
+
+---
+
+### 4. QUADRO ESTIMATIVO DELLE SPETTANZE INDENNITARIE
+| Voce di Computo | Riferimento di Legge | Indennizzo Stimato (€) |
+| :--- | :--- | :--- |
+| **Indennità Espropriativa Base** | Artt. 37 / 40 D.P.R. 327/2001 | € {r['IND_ESPROPRIO_BASE']:,.2f} |
+| **Maggiorazione Spettante CD / IAP** | Artt. 40 c. 4 / 45 c. 2 lett. d | € {r['IND_AGGIUNTIVA_CD_IAP']:,.2f} |
+| **Indennità di Asservimento (Rispetto/Sorvolo)** | Deprezzamento fascia servitù | € {r['IND_ASSERVIMENTO']:,.2f} |
+| **Occupazione Temporanea di Cantiere** | Art. 50 (1/12 annuo per durata lavori) | € {r['IND_CANTIERE_ART50']:,.2f} |
+| **Soprassuoli, Manufatti e Fabbricati** | Ricostruzione e valore complementare | € {r['IND_SOPRASSUOLI_MANUFATTI']:,.2f} |
+| **Deprezzamento o Riacquisto Relitto** | Art. 33 D.P.R. 327/2001 | € {r['DANNO_RELITTO_ART33']:,.2f} |
+| **TOTALE INDENNITÀ PROVVISORIA DETERMINATA** | | **€ {r['TOTALE_INDENNITA_STIMATA']:,.2f}** |
+
+---
+
+### 5. CONCLUSIONI E FORMALIZZAZIONE RISERVE
+Si formula formale opposizione all'indennità provvisoria qualora non comprensiva dei soprassuoli accertati e del ristoro del relitto immobiliare residuo ai sensi dell'art. 33 del Testo Unico Espropri. Si richiede l'attivazione della commissione arbitrale peritale ex art. 21 D.P.R. 327/2001 in caso di disaccordo con l'Ente Espropriante.
+
+*Data perizia: 31 Ottobre 2026*  
+*Il Tecnico Incaricato: Nicola Valigi (Houdinick)*
+"""
+        filepath.write_text(contenuto, encoding="utf-8")
+
+
+# ==============================================================================
+# 5. PIPELINE GENERALE DI ESECUZIONE
+# ==============================================================================
+def esegui_motore_integrato(
     tracciato_path: str,
     catasto_path: str,
     strade_path: Optional[str] = None,
+    fabbricati_path: Optional[str] = None,
     visure_path: Optional[str] = None,
-    output_dir: str = "output_espropri",
-    params: Optional[ParametriEconomici] = None,
-    target_crs: str = "EPSG:32632"
+    outdir: str = "espropri_deliverables",
+    crs: str = "EPSG:32632"
 ):
-    """Coordina l'esecuzione sequenziale e produce i deliverable peritali e GIS."""
-    if params is None:
-        params = ParametriEconomici()
+    """Esegue la pipeline end-to-end e produce tutti i deliverable."""
+    params = ParametriEspropri()
+    out_dir_path = Path(outdir)
+    out_dir_path.mkdir(parents=True, exist_ok=True)
 
-    out_path = Path(output_dir)
-    out_path.mkdir(parents=True, exist_ok=True)
+    print("=" * 80)
+    print(" AVVIO MOTORE ESPROPRI & ASSERVIMENTI (D.P.R. 327/2001)")
+    print("=" * 80)
 
-    print(f"[*] Caricamento vettoriali geografici in sistema metrico {target_crs}...")
+    # 1. Caricamento e join visure
+    print("[1/5] Caricamento catasto e join con visure ditte intestate...")
+    gdf_catasto_raw = gpd.read_file(catasto_path)
+    gdf_censuario = arricchisci_catasto_con_visure(gdf_catasto_raw, visure_path)
+
+    # 2. Vettoriali di contesto
     gdf_tracciato = gpd.read_file(tracciato_path)
-    gdf_catasto = gpd.read_file(catasto_path)
     gdf_strade = gpd.read_file(strade_path) if strade_path and Path(strade_path).is_file() else None
+    gdf_fabbricati = gpd.read_file(fabbricati_path) if fabbricati_path and Path(fabbricati_path).is_file() else None
 
-    # Step 1: Join Ditte Censuarie
-    print("[*] Esecuzione join ditte e aggregazione comproprietari da visura...")
-    gdf_censuario = carica_e_associa_censuario(gdf_catasto, visure_path)
-
-    # Step 2: Analisi Spaziale e Interclusione
-    print("[*] Buffering opera, clip particellare e test topologico accessibilità viaria...")
-    gdf_interferenze = analizza_interferenze_e_interclusione(
-        gdf_censuario, gdf_tracciato, gdf_strade, params, target_crs=target_crs
+    # 3. Analisi topologica
+    print(f"[2/5] Elaborazione buffer geometrici, frazionamenti e test interclusione viaria ({crs})...")
+    gdf_interferenze = elabora_interferenze_spaziali(
+        gdf_censuario, gdf_tracciato, gdf_strade, gdf_fabbricati, params, target_crs=crs
     )
 
     if gdf_interferenze.empty:
-        print("[!] Nessuna particella interferita dal tracciato con i buffer impostati.")
+        print("[!] Nessuna particella interferita dal tracciato con i buffer definiti.")
         return
 
-    # Step 3: Calcolo Estimativo Analitico D.P.R. 327/2001
-    print("[*] Calcolo indennità provvisorie, cessione volontaria e maggiorazioni CD/IAP...")
-    df_stime = calcola_indennita_dpr327(gdf_interferenze, params, cessione_volontaria=True)
+    # 4. Computo Estimativo
+    print("[3/5] Calcolo analitico indennità base, soprassuoli, danni da relitto e maggiorazioni CD/IAP...")
+    df_stime = calcola_stime_espropriative(gdf_interferenze, params, cessione_volontaria=True)
 
-    # Step 4: Esportazione Deliverable
-    geojson_out = out_path / "piano_particellare_espropri.geojson"
-    excel_out = out_path / "quadro_economico_perizia_espropri.xlsx"
+    # 5. Generazione Deliverable
+    print("[4/5] Esportazione layer GeoJSON per WebGIS e Quadro Economico Excel multi-scheda...")
+    gdf_webgis = gdf_interferenze.merge(
+        df_stime[[
+            "COMUNE", "FOGLIO", "MAPPALE", "IND_ESPROPRIO_BASE", "IND_AGGIUNTIVA_CD_IAP",
+            "IND_ASSERVIMENTO", "IND_CANTIERE_ART50", "IND_SOPRASSUOLI_MANUFATTI",
+            "DANNO_RELITTO_ART33", "TOTALE_INDENNITA_STIMATA", "MOTIVAZIONE_TECNICA", "AZIONE_CONSIGLIATA"
+        ]],
+        left_on=["COMUNE", "FOGLIO", "NUMERO"],
+        right_on=["COMUNE", "FOGLIO", "MAPPALE"],
+        how="left"
+    )
 
-    print(f"[*] Esportazione layer WebGIS in EPSG:4326: {geojson_out}")
-    gdf_interferenze.to_crs(epsg=4326).to_file(geojson_out, driver="GeoJSON")
+    geojson_path = out_dir_path / "piano_particellare_espropri.geojson"
+    gdf_webgis.to_crs(epsg=4326).to_file(geojson_path, driver="GeoJSON")
 
-    print(f"[*] Esportazione perizia tabellare Excel: {excel_out}")
-    with pd.ExcelWriter(excel_out, engine="openpyxl") as writer:
+    excel_path = out_dir_path / "quadro_economico_espropri.xlsx"
+    with pd.ExcelWriter(excel_path, engine="openpyxl") as writer:
         df_stime.to_excel(writer, sheet_name="Piano Particellare", index=False)
 
-        df_riepilogo = df_stime.groupby("INTESTATI", as_index=False).agg({
+        # Riepilogo aggregato ditte
+        df_ditte = df_stime.groupby("INTESTATI", as_index=False).agg({
             "SUP_ESP_MQ": "sum",
             "SUP_ASS_MQ": "sum",
             "SUP_CANT_MQ": "sum",
-            "TOTALE_INDENNITA_EUR": "sum"
-        }).rename(columns={"TOTALE_INDENNITA_EUR": "TOTALE_LIQUIDABILE_EUR"})
-        df_riepilogo.to_excel(writer, sheet_name="Riepilogo Liquidazione Ditte", index=False)
+            "IND_ESPROPRIO_BASE": "sum",
+            "IND_AGGIUNTIVA_CD_IAP": "sum",
+            "IND_SOPRASSUOLI_MANUFATTI": "sum",
+            "DANNO_RELITTO_ART33": "sum",
+            "TOTALE_INDENNITA_STIMATA": "sum"
+        }).rename(columns={"TOTALE_INDENNITA_STIMATA": "TOTALE_LIQUIDAZIONE_DITTA"})
+        df_ditte.to_excel(writer, sheet_name="Riepilogo per Ditta", index=False)
 
-    print("\n[+] Elaborazione completata con successo.")
-    print(f"    - Particelle impattate: {len(df_stime)}")
-    print(f"    - Totale Indennità Provvisorie Stimate: € {df_stime['TOTALE_INDENNITA_EUR'].sum():,.2f}")
-    print(f"    - Relitti con allarme interclusione: {int(df_stime['INTERCLUSO_ART33'].sum())}")
+    print("[5/5] Compilazione automatica delle memorie di opposizione e schede tecniche...")
+    genera_memorie_tecniche(df_stime, out_dir_path)
+
+    print("\n" + "=" * 80)
+    print(" ELABORAZIONE COMPLETATA")
+    print(f"  - Mappali interferiti: {len(df_stime)}")
+    print(f"  - Particelle intercluse (art. 33 c. 2): {int(df_stime['INTERCLUSO_ART33'].sum())}")
+    print(f"  - Relitti antieconomici: {int(df_stime['RELITTO_CRITICO'].sum())}")
+    print(f"  - Totale Monte Indennità Determinato: € {df_stime['TOTALE_INDENNITA_STIMATA'].sum():,.2f}")
+    print(f"  - File WebGIS: {geojson_path}")
+    print(f"  - File Tabellare: {excel_path}")
+    print(f"  - Memorie generate in: {out_dir_path / 'memorie_osservazione'}")
+    print("=" * 80)
+
+
+esegui_pipeline = esegui_motore_integrato
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Motore Espropri & Asservimenti D.P.R. 327/2001")
-    parser.add_argument("--tracciato", required=True, help="Path GeoJSON/SHP del tracciato asse opera")
-    parser.add_argument("--catasto", required=True, help="Path GeoJSON/SHP/GPKG delle particelle catastali")
-    parser.add_argument("--strade", default=None, help="Path GeoJSON/SHP della rete viaria pubblica esistente")
-    parser.add_argument("--visure", default=None, help="Path CSV/Excel delle visure censuarie ditte")
-    parser.add_argument("--outdir", default="output_espropri", help="Cartella di output per GeoJSON e Excel")
-    parser.add_argument("--crs", default="EPSG:32632", help="Sistema proiettato metrico locale (es. EPSG:32632 o EPSG:6708)")
+    parser = argparse.ArgumentParser(description="Motore Integrato Espropri D.P.R. 327/2001")
+    parser.add_argument("--tracciato", required=True, help="Path vettoriale tracciato/asse opera")
+    parser.add_argument("--catasto", required=True, help="Path vettoriale particelle catastali")
+    parser.add_argument("--strade", default=None, help="Path vettoriale rete stradale pubblica (per check interclusione)")
+    parser.add_argument("--fabbricati", default=None, help="Path vettoriale sagome fabbricati censiti")
+    parser.add_argument("--visure", default=None, help="Path Excel/CSV visure censuarie ditte")
+    parser.add_argument("--outdir", default="espropri_deliverables", help="Cartella output per i deliverable")
+    parser.add_argument("--crs", default="EPSG:32632", help="Sistema di riferimento proiettato metrico locale")
 
     args = parser.parse_args()
-    esegui_pipeline(
+    esegui_motore_integrato(
         tracciato_path=args.tracciato,
         catasto_path=args.catasto,
         strade_path=args.strade,
+        fabbricati_path=args.fabbricati,
         visure_path=args.visure,
-        output_dir=args.outdir,
-        target_crs=args.crs
+        outdir=args.outdir,
+        crs=args.crs
     )
