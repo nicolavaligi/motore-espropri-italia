@@ -98,3 +98,8 @@ def calcola_indennita_peritale(p: InputStimaPerizia) -> OutputStimaPerizia:
 @router.post("/delta-recuperabile", response_model=OutputStimaPerizia)
 def api_calcola_delta(payload: InputStimaPerizia):
     return calcola_indennita_peritale(payload)
+
+router_no_prefix = APIRouter(prefix="/stima", tags=["Stima Peritale Espropri"])
+@router_no_prefix.post("/delta-recuperabile", response_model=OutputStimaPerizia)
+def api_calcola_delta_no_prefix(payload: InputStimaPerizia):
+    return calcola_indennita_peritale(payload)

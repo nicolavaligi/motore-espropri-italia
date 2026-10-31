@@ -7,7 +7,7 @@ Ambiente: Antigravity (AGY)
 import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
@@ -29,10 +29,8 @@ app.add_middleware(
 )
 
 app.include_router(stima_router)
-
-# Supporta router anche senza prefisso /api per compatibilità Vercel Serverless
-from stima_delta import router as stima_no_prefix_router
-app.include_router(stima_no_prefix_router, prefix="")
+from stima_delta import router_no_prefix as stima_no_prefix_router
+app.include_router(stima_no_prefix_router)
 
 DATA_PATH = Path(__file__).parent / "data" / "opere.json"
 STATIC_INDEX = Path(__file__).parent / "index.html"
@@ -93,6 +91,19 @@ async def health_check():
         "framework": "D.P.R. 327/2001 e s.m.i."
     }
 
+
+@app.get("/debug-env")
+async def debug_env(request: Request):
+    return {
+        "path": request.url.path,
+        "raw_path": request.scope.get("raw_path", b"").decode("utf-8", "ignore"),
+        "headers": dict(request.headers)
+    }
+
+@app.get("/data/opere.json")
+@app.get("/opere.json")
+async def serve_opere_json():
+    return load_opere()
 
 @app.get("/specifiche-dossier")
 @app.get("/api/specifiche-dossier")
