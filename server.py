@@ -28,7 +28,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.include_router(stima_router)
+app.include_router(stima_router)
 
 # Supporta router anche senza prefisso /api per compatibilità Vercel Serverless
 from stima_delta import router as stima_no_prefix_router
