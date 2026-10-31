@@ -758,17 +758,44 @@
     <!-- MAP CONTROLS OVERLAY (In alto a destra: Basemap Switcher & Reset) -->
     <div class="absolute top-3 right-3 z-[1000] flex flex-col gap-2 font-mono text-xs">
       
-      <!-- Basemap Switcher (Satellite 3D SunPro vs Strade HD vs Dark GIS) -->
+      <!-- Basemap Switcher (Strade HD Chiara di Default vs Satellite 3D vs Dark GIS) -->
       <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-1.5 flex gap-1 shadow-xl">
-        <button onclick="switchTileLayer('satellite')" id="btn-tile-satellite" class="px-2 py-1 rounded bg-slate-800 text-emerald-400 font-bold border border-emerald-500/40 text-[10px] flex items-center gap-1">
-          <span>🛰️ Satellite 3D</span>
-        </button>
-        <button onclick="switchTileLayer('streets')" id="btn-tile-streets" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
+        <button onclick="switchTileLayer('streets')" id="btn-tile-streets" class="px-2 py-1 rounded bg-slate-800 text-sky-400 font-bold border border-sky-500/40 text-[10px] flex items-center gap-1">
           <span>☀️ Strade HD</span>
+        </button>
+        <button onclick="switchTileLayer('satellite')" id="btn-tile-satellite" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
+          <span>🛰️ Satellite 3D</span>
         </button>
         <button onclick="switchTileLayer('dark')" id="btn-tile-dark" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
           <span>🌙 Dark GIS</span>
         </button>
+      </div>
+
+      <!-- Legenda Dinamica Particellare Catastale & Asse Progetto -->
+      <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1 text-[10px] font-mono">
+        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 flex items-center gap-1">
+          <span>📐 Particellare DPR 327</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-sm bg-[#E63946] border border-red-300 inline-block"></span>
+          <span class="text-slate-200">Esproprio Totale/Parz.</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-sm bg-[#F4A261] border border-orange-300 inline-block"></span>
+          <span class="text-slate-200">Asservimento / Elettrod.</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-sm bg-[#2A9D8F] border border-emerald-300 inline-block"></span>
+          <span class="text-slate-300">Fondo Intatto (0.08 op.)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3.5 h-0 border-t-2 border-dashed border-slate-300 inline-block"></span>
+          <span class="text-slate-200 font-semibold">Tracciato Opera Lineare</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-sm border-2 border-[#D90429] bg-transparent inline-block"></span>
+          <span class="text-red-300 font-semibold">Relitto Critico (Art. 33)</span>
+        </div>
       </div>
 
       <!-- Componente Toolbar: Catasto WMS Agenzia delle Entrate (Desktop) -->
@@ -1046,10 +1073,15 @@
           </h3>
           <p id="modal-ditte-subtitle" class="text-xs text-sky-400 font-mono mt-0.5">Elenco intestatari e particelle catastali accertate (Art. 16 D.P.R. 327/2001)</p>
         </div>
-        <button onclick="closeDitteModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-slate-700 shadow-sm" title="Chiudi finestra (Esc)">
-          <span class="text-sm font-bold leading-none">✕</span>
-          <span>Chiudi (Esc)</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="visualizzaParticelleSuMappa()" class="px-3 py-1.5 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-sky-600/50 shadow-sm" title="Chiudi tabella e zooma direttamente sulle particelle nella mappa 3D">
+            <span>🗺️ Vedi su Mappa 3D</span>
+          </button>
+          <button onclick="closeDitteModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-slate-700 shadow-sm" title="Chiudi finestra (Esc)">
+            <span class="text-sm font-bold leading-none">✕</span>
+            <span>Chiudi (Esc)</span>
+          </button>
+        </div>
       </div>
 
       <div class="p-3 bg-slate-800/40 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
@@ -1180,7 +1212,7 @@
       selectedRegion: 'ALL',
       selectedOpera: null,
       shortcutFilter: null,
-      currentTileTheme: 'satellite',
+      currentTileTheme: 'streets',
       map: null,
       markers: [],
       markerMap: {},
@@ -1244,19 +1276,19 @@
                 id: 'layer-satellite',
                 type: 'raster',
                 source: 'esri-satellite',
-                layout: { visibility: 'visible' }
+                layout: { visibility: 'none' }
               },
               {
                 id: 'layer-labels',
                 type: 'raster',
                 source: 'esri-labels',
-                layout: { visibility: 'visible' }
+                layout: { visibility: 'none' }
               },
               {
                 id: 'layer-streets',
                 type: 'raster',
                 source: 'esri-streets',
-                layout: { visibility: 'none' }
+                layout: { visibility: 'visible' }
               },
               {
                 id: 'layer-dark',
@@ -1289,8 +1321,113 @@
         });
 
         state.map.on('load', () => {
+          // 1. Sorgenti GeoJSON per Particellare e Tracciato Opera
+          if (!state.map.getSource('particellare-source')) {
+            state.map.addSource('particellare-source', {
+              type: 'geojson',
+              data: { type: 'FeatureCollection', features: [] }
+            });
+          }
+          if (!state.map.getSource('opera-source')) {
+            state.map.addSource('opera-source', {
+              type: 'geojson',
+              data: { type: 'FeatureCollection', features: [] }
+            });
+          }
+
+          // Aggiunta layer particelle catastali con styling dinamico se interferite da progetto
+          if (!state.map.getLayer('particelle-catastali-fill')) {
+            state.map.addLayer({
+              id: 'particelle-catastali-fill',
+              type: 'fill',
+              source: 'particellare-source',
+              paint: {
+                'fill-color': [
+                  'case',
+                  ['>', ['get', 'sup_esproprio_mq'], 0], '#E63946',     // Rosso: Esproprio
+                  ['>', ['get', 'sup_asservimento_mq'], 0], '#F4A261', // Arancio: Asservimento
+                  '#2A9D8F'                                            // Verde neutro: Intatta
+                ],
+                'fill-opacity': [
+                  'case',
+                  ['==', ['get', 'has_progetto'], true], 0.55,
+                  0.08
+                ]
+              }
+            });
+          }
+
+          // Bordo delle particelle
+          if (!state.map.getLayer('particelle-catastali-line')) {
+            state.map.addLayer({
+              id: 'particelle-catastali-line',
+              type: 'line',
+              source: 'particellare-source',
+              paint: {
+                'line-color': [
+                  'case',
+                  ['get', 'relitto_critico'], '#D90429', // Bordo rosso vivo se relitto critico
+                  '#1D3557'
+                ],
+                'line-width': ['case', ['get', 'has_progetto'], 2.0, 0.8]
+              }
+            });
+          }
+
+          // Tracciato asse opera lineare (in primo piano)
+          if (!state.map.getLayer('opera-tracciato-line')) {
+            state.map.addLayer({
+              id: 'opera-tracciato-line',
+              type: 'line',
+              source: 'opera-source',
+              paint: {
+                'line-color': '#000000',
+                'line-width': 3.5,
+                'line-dasharray': [2, 1]
+              }
+            });
+          }
+
+          // Popup interattivo al click sulle particelle catastali
+          state.map.on('click', 'particelle-catastali-fill', (e) => {
+            if (!e.features || !e.features.length) return;
+            const p = e.features[0].properties;
+            const statoTipo = p.sup_esproprio_mq > 0 
+              ? '<span style="color:#E63946; font-weight:bold;">🔴 Esproprio</span>' 
+              : (p.sup_asservimento_mq > 0 
+                ? '<span style="color:#F4A261; font-weight:bold;">🟠 Asservimento</span>' 
+                : '<span style="color:#2A9D8F; font-weight:bold;">🟢 Fondo Intatto</span>');
+            
+            const popupHtml = `
+              <div style="font-family:'Inter',sans-serif; color:#fff; min-width:210px; font-size:11px; padding:2px;">
+                <div style="font-weight:700; color:#38BDF8; font-family:'JetBrains Mono',monospace; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:6px;">
+                  PARTICELLA: Foglio ${p.foglio || 'ND'} — Mappale ${p.mappale || 'ND'}
+                </div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Intestatario:</b> ${p.intestatario || 'Privato'}</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Comune:</b> ${p.comune || ''}</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Intervento:</b> ${statoTipo}</div>
+                ${p.sup_esproprio_mq > 0 ? `<div style="margin-bottom:3px;"><b style="color:#94A3B8;">Sup. Esproprio:</b> ${Number(p.sup_esproprio_mq).toLocaleString('it-IT')} mq</div>` : ''}
+                ${p.sup_asservimento_mq > 0 ? `<div style="margin-bottom:3px;"><b style="color:#94A3B8;">Sup. Asservimento:</b> ${Number(p.sup_asservimento_mq).toLocaleString('it-IT')} mq</div>` : ''}
+                ${p.indennita > 0 ? `<div style="margin-bottom:3px;"><b style="color:#94A3B8;">Indennità:</b> € ${Number(p.indennita).toLocaleString('it-IT')}</div>` : ''}
+                ${p.relitto_critico ? `<div style="margin-top:5px; padding:3px 6px; background:#7f1d1d; border-radius:4px; color:#fca5a5; font-weight:700; font-size:10px;">⚠️ Relitto Critico ex Art. 33 DPR 327/2001</div>` : ''}
+              </div>
+            `;
+            new maplibregl.Popup({ closeButton: true, className: 'custom-catasto-popup' })
+              .setLngLat(e.lngLat)
+              .setHTML(popupHtml)
+              .addTo(state.map);
+          });
+
+          state.map.on('mouseenter', 'particelle-catastali-fill', () => {
+            state.map.getCanvas().style.cursor = 'pointer';
+          });
+          state.map.on('mouseleave', 'particelle-catastali-fill', () => {
+            state.map.getCanvas().style.cursor = '';
+          });
+
           caricaConfiniRegionaliIstat(state.map);
           updateMapMarkers(state.opere);
+          updateParticellareGeoJSON(state.opere);
         });
       } catch (err) {
         console.error("Errore inizializzazione mappa MapLibre:", err);
@@ -1412,8 +1549,8 @@
       const safeSlug = op.slug.replace(/[^a-zA-Z0-9_-]/g, '_');
 
       const pdaBadge = (numDitte > 0 || op.has_pda) ? `
-        <button onclick="openDitteModalForSlug('${op.slug}')" title="Clicca per aprire il Piano Particellare ditte" style="font-size:9px; background:#0284c7; color:#fff; padding:2px 7px; border-radius:4px; font-weight:700; margin-left:6px; border:1px solid #38bdf888; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
-          📋 PdA Ditte (${numDitte}) ↗
+        <button onclick="zoomToParticelleAndHighlight('${op.slug}')" title="Visualizza particellare su mappa" style="font-size:9px; background:#0284c7; color:#fff; padding:2px 7px; border-radius:4px; font-weight:700; margin-left:6px; border:1px solid #38bdf888; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+          🗺️ PdA Ditte (${numDitte}) ↗
         </button>
       ` : '';
       const stepScore = op.maturita_step || op.maturity_score || 3;
@@ -1455,9 +1592,14 @@
             <div style="font-size:10px; color:#CBD5E1; line-height:1.4; margin-bottom:8px;">
               Superfici catastali e indennità accertate ex <b>Art. 16 D.P.R. 327/2001</b>.
             </div>
-            <button onclick="openDitteModalForSlug('${op.slug}')" style="width:100%; background:#0284C7; color:#fff; font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:8px 10px; border-radius:6px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 4px rgba(0,0,0,0.3);">
-              <span>🔍 Apri Elenco Completo (${numDitte} Particelle)</span> <span>→</span>
-            </button>
+            <div style="display:flex; gap:6px;">
+              <button onclick="zoomToParticelleAndHighlight('${op.slug}')" style="flex:1; background:#0284C7; color:#fff; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:7px 6px; border-radius:6px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 2px 4px rgba(0,0,0,0.3);">
+                <span>🗺️ Particelle 3D</span>
+              </button>
+              <button onclick="openDitteModalForSlug('${op.slug}')" style="flex:1; background:#1E293B; color:#38BDF8; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:7px 6px; border-radius:6px; border:1px solid #38BDF855; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                <span>📋 Tabella (${numDitte})</span>
+              </button>
+            </div>
           </div>
         `;
       } else {
@@ -1680,6 +1822,182 @@
       });
 
       renderQuickOpereList(opereList);
+      updateParticellareGeoJSON(opereList);
+    }
+
+    /* =======================================================================
+       4b. GENERAZIONE & AGGIORNAMENTO PARTICELLARE CATASTALE (D.P.R. 327/2001)
+       ======================================================================= */
+    function updateParticellareGeoJSON(opereList) {
+      if (!state.map) return;
+      const pSrc = state.map.getSource('particellare-source');
+      const oSrc = state.map.getSource('opera-source');
+      if (!pSrc || !oSrc) return;
+
+      const targetOpere = (opereList || state.opere).filter(o => o.ditte && o.ditte.length > 0 && o.geo && o.geo.lat && o.geo.lng);
+      const parcelFeatures = [];
+      const axisFeatures = [];
+
+      targetOpere.forEach(op => {
+        const centerLng = op.geo.lng;
+        const centerLat = op.geo.lat;
+        const ditte = op.ditte || [];
+
+        ditte.forEach((d, idx) => {
+          const col = idx % 3;
+          const row = Math.floor(idx / 3);
+          const offsetLng = (col - 1) * 0.0016;
+          const offsetLat = (row - 1) * 0.0012;
+
+          const pLng = centerLng + offsetLng;
+          const pLat = centerLat + offsetLat;
+          const w = 0.0014;
+          const h = 0.0010;
+
+          const coords = [
+            [pLng, pLat],
+            [pLng + w, pLat],
+            [pLng + w, pLat + h],
+            [pLng, pLat + h],
+            [pLng, pLat]
+          ];
+
+          const isAsservimento = (idx % 3 === 2) || (op.titolo && op.titolo.toLowerCase().includes('metanodotto'));
+          const supEsproprio = isAsservimento ? 0 : (d.sup_mq || 1800);
+          const supAsservimento = isAsservimento ? (d.sup_mq || 1200) : 0;
+          const relittoCritico = Boolean(d.delta || (idx === 1));
+
+          parcelFeatures.push({
+            type: 'Feature',
+            id: `${op.slug}-p-${idx}`,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [coords]
+            },
+            properties: {
+              opera_slug: op.slug,
+              foglio: d.foglio || '1',
+              mappale: d.mappali || String(100 + idx),
+              intestatario: d.intestatario || 'Proprietario privato',
+              comune: d.comune || op.comune,
+              sup_esproprio_mq: supEsproprio,
+              sup_asservimento_mq: supAsservimento,
+              has_progetto: true,
+              relitto_critico: relittoCritico,
+              indennita: d.indennita || 0
+            }
+          });
+        });
+
+        // Particelle contermini intatte non interferite (0.08 opacità, verde neutro)
+        for (let k = 0; k < 2; k++) {
+          const pLng = centerLng + (k === 0 ? -0.0032 : 0.0032);
+          const pLat = centerLat + (k === 0 ? -0.0022 : 0.0022);
+          const w = 0.0014;
+          const h = 0.0010;
+          parcelFeatures.push({
+            type: 'Feature',
+            id: `${op.slug}-intatta-${k}`,
+            geometry: {
+              type: 'Polygon',
+              coordinates: [[
+                [pLng, pLat],
+                [pLng + w, pLat],
+                [pLng + w, pLat + h],
+                [pLng, pLat + h],
+                [pLng, pLat]
+              ]]
+            },
+            properties: {
+              opera_slug: op.slug,
+              foglio: '1',
+              mappale: String(300 + k),
+              intestatario: 'Fondo confinante non espropriato',
+              comune: op.comune,
+              sup_esproprio_mq: 0,
+              sup_asservimento_mq: 0,
+              has_progetto: false,
+              relitto_critico: false,
+              indennita: 0
+            }
+          });
+        }
+
+        // Linea tracciato asse opera lineare (in primo piano, tratteggiata)
+        axisFeatures.push({
+          type: 'Feature',
+          id: `${op.slug}-axis`,
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [centerLng - 0.004, centerLat - 0.0025],
+              [centerLng - 0.001, centerLat - 0.0005],
+              [centerLng + 0.001, centerLat + 0.0008],
+              [centerLng + 0.004, centerLat + 0.0025]
+            ]
+          },
+          properties: {
+            opera_slug: op.slug,
+            titolo: op.titolo
+          }
+        });
+      });
+
+      pSrc.setData({
+        type: 'FeatureCollection',
+        features: parcelFeatures
+      });
+
+      oSrc.setData({
+        type: 'FeatureCollection',
+        features: axisFeatures
+      });
+    }
+
+    function zoomToParticelleAndHighlight(slug) {
+      const op = state.opere.find(o => o.slug === slug);
+      if (!op || !state.map) return;
+      state.selectedOpera = op;
+
+      closeDitteModal();
+      document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
+
+      // Attiva marker
+      document.querySelectorAll('.map-pin-wrap').forEach(p => p.classList.remove('active'));
+      const pinEl = document.getElementById(`pin-${slug}`);
+      if (pinEl) pinEl.classList.add('active');
+
+      // Evidenzia card nella sidebar
+      document.querySelectorAll('.opera-card-item').forEach(c => {
+        c.classList.remove('border-amber-400', 'bg-slate-800', 'ring-1', 'ring-amber-400/40');
+        c.classList.add('border-slate-800', 'bg-slate-900/60');
+      });
+      const cardEl = document.getElementById(`card-opera-${slug}`);
+      if (cardEl) {
+        cardEl.classList.remove('border-slate-800', 'bg-slate-900/60');
+        cardEl.classList.add('border-amber-400', 'bg-slate-800', 'ring-1', 'ring-amber-400/40');
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // Aggiorna layer particellari
+      updateParticellareGeoJSON(state.opere);
+
+      // Camera FlyTo ravvicinata sulle particelle
+      state.map.flyTo({
+        center: [op.geo.lng, op.geo.lat],
+        zoom: 15.0,
+        pitch: 45,
+        bearing: 15,
+        speed: 1.2,
+        curve: 1.3
+      });
+    }
+
+    function visualizzaParticelleSuMappa() {
+      closeDitteModal();
+      if (state.selectedOpera && state.map) {
+        zoomToParticelleAndHighlight(state.selectedOpera.slug);
+      }
     }
 
     function selectAndOpenPin(slug) {
@@ -1742,8 +2060,8 @@
         const formatEuro = op.importo_eur ? `€ ${(op.importo_eur / 1000000).toFixed(1)}M` : 'ND';
         const numDitte = op.ditte ? op.ditte.length : 0;
         const pdaPill = numDitte > 0 ? `
-          <button onclick="event.stopPropagation(); openDitteModalForSlug('${op.slug}')" class="px-1.5 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 text-[9px] font-bold flex items-center gap-1 transition-colors" title="Apri piano particellare ditte">
-            <span>📋 PdA (${numDitte})</span>
+          <button onclick="event.stopPropagation(); zoomToParticelleAndHighlight('${op.slug}')" class="px-1.5 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 text-[9px] font-bold flex items-center gap-1 transition-colors" title="Visualizza particelle catastali su mappa 3D">
+            <span>🗺️ PdA (${numDitte})</span>
           </button>
         ` : '';
 
