@@ -70,7 +70,12 @@ def save_opere(opere: List[Dict[str, Any]]) -> None:
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
     if STATIC_INDEX.exists():
-        return FileResponse(STATIC_INDEX)
+        headers = {
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        }
+        return FileResponse(STATIC_INDEX, headers=headers)
     return HTMLResponse("<h1>Motore Espropri Italia API attivo</h1><p>Visita <a href='/api/opere'>/api/opere</a></p>")
 
 

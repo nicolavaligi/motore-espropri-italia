@@ -5586,5 +5586,27 @@
       "vincolo_preordinato_pgt": false,
       "bando_aggiudicazione_anac": false
     }
+  },
+  {
+    "slug": "opera-202610-ficato",
+    "titolo": "AVVISO DI DEPOSITO DEL PIANO PARTICELLARE D'ESPROPRIO EX ART. 16 D.P.R. 327/2001",
+    "cup": "NON_SPECIFICATO",
+    "ente_promotore": "Terna Rete Italia S.p.A.",
+    "data_pubblicazione": "2026-10-31",
+    "termini_osservazioni": {
+      "giorni_concessi": 30,
+      "data_scadenza": "2026-11-30",
+      "giorni_residui": 30,
+      "in_scadenza": false
+    },
+    "giorni_residui": 30,
+    "stato_codice": "PDA",
+    "fase_procedimento": 4,
+    "lat": 45.6983,
+    "lng": 9.6773,
+    "sup_totale_esproprio_mq": 0,
+    "sup_totale_asservimento_mq": 0,
+    "particelle": [],
+    "fonte_atto_url": "https://bur.regione.lombardia.it/avvisi/2026/10/atto-12345"
   }
 ]
