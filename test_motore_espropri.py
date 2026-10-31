@@ -304,3 +304,34 @@ def test_filtro_settimana_scadenze_imminenti(mock_dataset_opere):
     assert "opera-metanodotto-snam" in slugs # giorni_residui = 3
     assert "opera-anas-tangenziale" not in slugs # giorni_residui = 28
     assert "opera-ferrovia-rfi" not in slugs
+
+
+# ============================================================================
+# 4. TEST UNITARI: PARSER TABELLE PARTICELLARI PDF (extract_particellare.py)
+# ============================================================================
+
+def test_parser_estrazione_particellare_righe_tabellari():
+    """Verifica il corretto parsing e normalizzazione delle righe di tabelle PDF."""
+    from extract_particellare import parse_raw_table_rows
+
+    mock_table = [
+        ["Comune", "Fg.", "Mapp.", "Sub", "Ditta Intestataria", "Sup. Esproprio (mq)", "Sup. Asservimento", "Sup. Totale"],
+        ["Dervio", "12", "145", "1", "ROSSI MARIO RSSMRA80A01E507X", "450,50", "0", "1.200,00"],
+        ["Dervio", "12", "146", "", "BIANCHI LUIGI (01234567890)", "0", "800,00", "2.500"]
+    ]
+
+    records = parse_raw_table_rows(mock_table)
+    assert len(records) == 2
+    assert records[0]["foglio"] == "12"
+    assert records[0]["mappale"] == "145"
+    assert records[0]["sub"] == "1"
+    assert records[0]["codice_fiscale"] == "RSSMRA80A01E507X"
+    assert records[0]["superfici_mq"]["esproprio"] == 450.50
+    assert records[0]["superfici_mq"]["totale"] == 1200.0
+
+    assert records[1]["foglio"] == "12"
+    assert records[1]["mappale"] == "146"
+    assert records[1]["codice_fiscale"] == "01234567890"
+    assert records[1]["superfici_mq"]["asservimento"] == 800.0
+    assert records[1]["superfici_mq"]["totale"] == 2500.0
+
