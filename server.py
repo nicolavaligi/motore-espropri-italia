@@ -10,12 +10,12 @@ from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 app = FastAPI(
     title="Motore Espropri Italia API",
     description="Feed REST e intelligence per piani particellari e procedure D.P.R. 327/2001",
-    version="1.0.0"
+    version="1.1.0"
 )
 
 # CORS Middleware aperto per chiamate locali e dashboard
@@ -29,6 +29,26 @@ app.add_middleware(
 
 DATA_PATH = Path(__file__).parent / "data" / "opere.json"
 STATIC_INDEX = Path(__file__).parent / "index.html"
+DOSSIER_PATH = Path(__file__).parent / "DOSSIER_ARCHITETTURALE.md"
+
+
+class StimaPeriziaRequest(BaseModel):
+    tipologia: str = Field("agricola", description="'edificabile' oppure 'agricola'")
+    valore_venale_unitario: float = Field(..., gt=0, description="Valore venale a metro quadro (€/mq)")
+    superficie_mq: float = Field(..., gt=0, description="Superficie catastale espropriata (mq)")
+    soprassuoli_eur: float = Field(0.0, ge=0, description="Valore soprassuoli/piantumazioni/fabbricati rurali (€)")
+    coltivatore_diretto: bool = Field(False, description="Proprietario coltivatore diretto o IAP")
+    cessione_volontaria: bool = Field(True, description="Accettazione cessione volontaria ex art. 45")
+    vam_unitario: Optional[float] = Field(None, ge=0, description="Valore Agricolo Medio di zona (€/mq) ex art. 40 c. 4")
+
+
+class StimaPeriziaResponse(BaseModel):
+    indennita_base_eur: float
+    indennita_finale_eur: float
+    maggiorazione_eur: float
+    maggiorazione_descrizione: str
+    normativa_riferimento: str
+    dettagli_calcolo: Dict[str, Any]
 
 
 def load_opere() -> List[Dict[str, Any]]:
@@ -53,7 +73,115 @@ async def serve_index():
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "ok", "service": "Motore Espropri Italia", "owner": "Nicola Valigi (Houdinick)"}
+    return {
+        "status": "ok",
+        "service": "Motore Espropri Italia",
+        "owner": "Nicola Valigi (Houdinick)",
+        "framework": "D.P.R. 327/2001 e s.m.i."
+    }
+
+
+@app.get("/api/specifiche-dossier")
+async def get_specifiche_dossier():
+    return {
+        "titolo": "Motore Espropri Italia — Dossier Architetturale & Specifiche di Sistema",
+        "quadro_giuridico": "D.P.R. 8 giugno 2001, n. 327 e s.m.i.",
+        "autore": "Nicola Valigi (Houdinick)",
+        "scala_maturita": [
+            {"step": 1, "fase": "VINCOLO_PREORDINATO", "descrizione": "Vincolo preordinato all'esproprio (artt. 9-10)"},
+            {"step": 2, "fase": "AVVISO_AVVIO_PROCEDIMENTO", "descrizione": "Avviso avvio procedimento e comunicazione ex art. 11 c. 2"},
+            {"step": 3, "fase": "DICHIARAZIONE_PU", "descrizione": "Dichiarazione di Pubblica Utilità (art. 12)"},
+            {"step": 4, "fase": "DEPOSITO_PIANO_PARTICELLARE", "descrizione": "Deposito piano particellare grafico e ditte (art. 16)"},
+            {"step": 5, "fase": "DETERMINA_INDENNITA_PROVVISORIA", "descrizione": "Determina indennità provvisoria (art. 20)"},
+            {"step": 6, "fase": "CONCORDAMENTO_ACCORDO_CESSIONE", "descrizione": "Accordo di cessione volontaria o deposito CDP (artt. 21, 26)"},
+            {"step": 7, "fase": "DECRETO_ESPROPRIO", "descrizione": "Decreto di esproprio e immissione in possesso (artt. 23-24)"}
+        ],
+        "dossier_disponibile": DOSSIER_PATH.exists()
+    }
+
+
+@app.post("/api/stima-perizia", response_model=StimaPeriziaResponse)
+async def calcola_stima_perizia(req: StimaPeriziaRequest):
+    """
+    Motore di stima peritale D.P.R. 327/2001:
+    - Edificabili: art. 37 + Corte Cost. 348/2007 (+10% cessione volontaria art. 45 c. 2 lett. a)
+    - Agricole: art. 40 + Corte Cost. 181/2011 (Valore venale effettivo + soprassuoli)
+    - Coltivatore Diretto / IAP: indennità aggiuntiva VAM (art. 40 c. 4)
+    - Cessione Volontaria Agricola: 1.5x non coltivatore, 3.0x coltivatore diretto (art. 45 c. 2 lett. c)
+    """
+    sup = req.superficie_mq
+    v_unit = req.valore_venale_unitario
+    soprassuoli = req.soprassuoli_eur
+    v_base = sup * v_unit
+
+    if req.tipologia.lower() == "edificabile":
+        indennita_base = v_base
+        normativa = "Art. 37 D.P.R. 327/2001 (Corte Cost. sent. 348/2007)"
+        
+        if req.cessione_volontaria:
+            maggiorazione = indennita_base * 0.10
+            indennita_finale = indennita_base + maggiorazione
+            desc = "+10% Cessione Volontaria (art. 45 c. 2 lett. a D.P.R. 327/2001)"
+        else:
+            maggiorazione = 0.0
+            indennita_finale = indennita_base
+            desc = "Valore Venale Puro (art. 37 D.P.R. 327/2001)"
+
+        dettagli = {
+            "tipologia": "Edificabile",
+            "superficie_mq": sup,
+            "valore_unitario_mq": v_unit,
+            "valore_venale_totale": v_base,
+            "soprassuoli": 0.0,
+            "maggiorazione_cessione_percentuale": 10 if req.cessione_volontaria else 0
+        }
+
+    else:
+        # Agricola / Non edificabile
+        normativa = "Art. 40 D.P.R. 327/2001 (Corte Cost. sent. 181/2011)"
+        indennita_base = v_base + soprassuoli
+
+        if req.cessione_volontaria:
+            if req.coltivatore_diretto:
+                # Triplo del valore agricolo effettivo (art. 45 c. 2 lett. c)
+                indennita_finale = (v_base * 3.0) + soprassuoli
+                maggiorazione = indennita_finale - indennita_base
+                desc = "Triplo Valore Agricolo per Coltivatore Diretto/IAP (art. 45 c. 2 lett. c D.P.R. 327/2001)"
+            else:
+                # 1.5x valore agricolo effettivo (art. 45 c. 2 lett. c)
+                indennita_finale = (v_base * 1.5) + soprassuoli
+                maggiorazione = indennita_finale - indennita_base
+                desc = "+50% per Cessione Volontaria Non Coltivatore (art. 45 c. 2 lett. c D.P.R. 327/2001)"
+        else:
+            # Senza cessione volontaria: se coltivatore diretto, spetta VAM aggiuntivo art. 40 c. 4
+            if req.coltivatore_diretto:
+                vam_val = (req.vam_unitario or v_unit) * sup
+                indennita_finale = indennita_base + vam_val
+                maggiorazione = vam_val
+                desc = "Indennità base + Indennità Aggiuntiva VAM Coltivatore Diretto (art. 40 c. 4 D.P.R. 327/2001)"
+            else:
+                indennita_finale = indennita_base
+                maggiorazione = 0.0
+                desc = "Valore Agricolo Effettivo + Soprassuoli (art. 40 D.P.R. 327/2001)"
+
+        dettagli = {
+            "tipologia": "Agricola",
+            "superficie_mq": sup,
+            "valore_unitario_mq": v_unit,
+            "valore_agricolo_terreno": v_base,
+            "soprassuoli": soprassuoli,
+            "coltivatore_diretto": req.coltivatore_diretto,
+            "cessione_volontaria": req.cessione_volontaria
+        }
+
+    return StimaPeriziaResponse(
+        indennita_base_eur=round(indennita_base, 2),
+        indennita_finale_eur=round(indennita_finale, 2),
+        maggiorazione_eur=round(maggiorazione, 2),
+        maggiorazione_descrizione=desc,
+        normativa_riferimento=normativa,
+        dettagli_calcolo=dettagli
+    )
 
 
 @app.get("/api/opere")

@@ -385,7 +385,7 @@
       </div>
 
       <div class="p-4 space-y-4 font-mono">
-        <div class="grid grid-cols-2 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
             <label class="block text-slate-400 text-[10px] font-bold mb-1">Superficie Espropriata (mq)</label>
             <input type="number" id="calc-mq" value="3500" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
@@ -393,11 +393,19 @@
           <div>
             <label class="block text-slate-400 text-[10px] font-bold mb-1">Destinazione Urbanistica</label>
             <select id="calc-tipo" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-              <option value="agricolo">Agricolo Ordinario (Seminativo)</option>
-              <option value="specializzato">Agricolo Specializzato (Vigneto/Frutteto)</option>
+              <option value="agricola">Agricolo Ordinario (Seminativo)</option>
+              <option value="agricola_spec">Agricolo Specializzato (Vigneto/Frutteto)</option>
               <option value="edificabile">Edificabile / Residenziale</option>
-              <option value="commerciale">Produttivo / Commerciale D</option>
+              <option value="edificabile_ind">Produttivo / Commerciale D</option>
             </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Valore Mercato Reale (€/mq)</label>
+            <input type="number" id="calc-reale" value="12.00" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Soprassuoli / Manufatti (€)</label>
+            <input type="number" id="calc-soprassuoli" value="3000" step="500" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
           </div>
         </div>
 
@@ -407,14 +415,17 @@
             <input type="number" id="calc-vam" value="4.50" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
           </div>
           <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Valore Mercato Reale (€/mq)</label>
-            <input type="number" id="calc-reale" value="12.00" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-          </div>
-          <div>
             <label class="block text-slate-400 text-[10px] font-bold mb-1">Qualifica Coltivatore Diretto / IAP</label>
             <select id="calc-cd" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-              <option value="si">Sì (+ indennità aggiuntiva VAM art. 40)</option>
+              <option value="si">Sì (Coltivatore Diretto / IAP)</option>
               <option value="no">No (Proprietario non coltivatore)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-slate-400 text-[10px] font-bold mb-1">Cessione Volontaria (art. 45)</label>
+            <select id="calc-cessione" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+              <option value="si">Sì (Accettazione bonaria maggiorata)</option>
+              <option value="no">No (Contenzioso / Terzo Perito art. 21)</option>
             </select>
           </div>
         </div>
@@ -422,16 +433,19 @@
         <!-- Risultati Simulazione -->
         <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2">
           <div class="flex justify-between items-center text-slate-400">
-            <span>Offerta Base Provvisoria dell'Ente:</span>
+            <span>Offerta Base Provvisoria dell'Ente (VAM tabellare):</span>
             <span id="res-offerta" class="font-bold text-rose-400 text-sm">€ 15.750</span>
           </div>
           <div class="flex justify-between items-center text-slate-300">
-            <span>Stima con Perizia Giurata D.P.R. 327 (Venale + Maggiorazioni):</span>
+            <span>Stima con Perizia D.P.R. 327 (Venale + Maggiorazioni Legge):</span>
             <span id="res-perizia" class="font-bold text-emerald-400 text-base">€ 57.750</span>
           </div>
           <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-amber-400 font-bold">
             <span>Delta Recuperabile per il Proprietario:</span>
             <span id="res-delta" class="text-base font-bold">+ € 42.000 (+266%)</span>
+          </div>
+          <div class="text-[10px] text-slate-500 pt-1" id="res-normativa">
+            Normativa: Art. 40 D.P.R. 327/2001 (Corte Cost. sent. 181/2011) — Maggiorazione triplo art. 45 c. 2 lett. c
           </div>
         </div>
       </div>
@@ -751,23 +765,31 @@
       const numDitte = op.ditte ? op.ditte.length : 0;
       const safeSlug = op.slug.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-      const signals = op.maturity_signals || {};
-      const signalItems = [
-        { key: 'conferenza_servizi_chiusa', label: 'Conferenza Servizi chiusa' },
-        { key: 'progetto_def_esec_approvato', label: 'Progetto approvato' },
-        { key: 'pubblica_utilita_emessa', label: 'Dichiarazione Pubblica Utilità (art. 12)' },
-        { key: 'cup_attivo_finanziamento', label: 'CUP con finanziamento coperto' },
-        { key: 'avviso_art11_dpr327', label: 'Avviso avvio procedimento (art. 11)' },
-        { key: 'vincolo_preordinato_pgt', label: 'Vincolo esproprio PGT' },
-        { key: 'bando_aggiudicazione_anac', label: 'Bando / Aggiudicazione ANAC' }
+      const pdaBadge = op.has_pda ? `<span style="font-size:9px; background:#0284C7; color:#fff; padding:1px 5px; border-radius:3px; font-weight:bold; margin-left:4px;">PdA DITTE</span>` : '';
+      const stepScore = op.maturita_step || op.maturity_score || 3;
+      
+      const procedureSteps = [
+        { step: 1, fase: 'VINCOLO_PREORDINATO', label: '1. Vincolo preordinato esproprio (artt. 9-10)', desc: 'Conformità urbanistica o variante PGT' },
+        { step: 2, fase: 'AVVISO_AVVIO_PROCEDIMENTO', label: '2. Avviso avvio procedimento (art. 11 c. 2)', desc: 'Notifica personale o pubblicazione BUR' },
+        { step: 3, fase: 'DICHIARAZIONE_PU', label: '3. Dichiarazione di Pubblica Utilità (art. 12)', desc: 'Approvazione progetto definitivo / esecutivo' },
+        { step: 4, fase: 'DEPOSITO_PIANO_PARTICELLARE', label: '4. Deposito Piano Particellare ditte (art. 16)', desc: 'Consultazione fascicolo ed elenchi particellari' },
+        { step: 5, fase: 'DETERMINA_INDENNITA_PROVVISORIA', label: '5. Determina indennità provvisoria (art. 20)', desc: 'Offerta dell\'Ente e 30 gg per osservazioni' },
+        { step: 6, fase: 'CONCORDAMENTO_ACCORDO_CESSIONE', label: '6. Cessione volontaria / Deposito CDP (artt. 21, 26)', desc: 'Maggiorazione art. 45 o terna arbitrale' },
+        { step: 7, fase: 'DECRETO_ESPROPRIO', label: '7. Decreto di esproprio & possesso (artt. 23-24)', desc: 'Passaggio definitivo proprietà all\'Ente' }
       ];
 
-      const signalsHtml = signalItems.map(s => {
-        const active = !!signals[s.key];
+      const signalsHtml = procedureSteps.map(s => {
+        const completed = stepScore >= s.step;
+        const current = stepScore === s.step;
+        const iconColor = completed ? '#34D399' : '#475569';
+        const txtColor = current ? '#FBBF24' : (completed ? '#F1F5F9' : '#64748B');
         return `
-          <div style="display:flex; align-items:center; gap:6px; font-size:10px; color:${active ? '#34D399' : '#64748B'}; padding:2px 0;">
-            <span style="font-weight:bold;">${active ? '✓' : '○'}</span>
-            <span style="${active ? 'font-weight:600;' : ''}">${s.label}</span>
+          <div style="display:flex; align-items:flex-start; gap:6px; font-size:10px; color:${txtColor}; padding:3px 0; border-bottom:1px solid #1E293B33;">
+            <span style="font-weight:bold; color:${iconColor}; margin-top:1px;">${completed ? '✓' : '○'}</span>
+            <div>
+              <div style="${current ? 'font-weight:700;' : (completed ? 'font-weight:600;' : '')}">${s.label}</div>
+              <div style="font-size:9px; color:#64748B;">${s.desc}</div>
+            </div>
           </div>
         `;
       }).join('');
@@ -813,9 +835,12 @@
           <!-- Header Popup -->
           <div style="padding:10px 12px; border-bottom:1px solid #1E293B; background:#090D14;">
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-              <span style="font-size:9px; font-weight:800; text-transform:uppercase; font-family:'JetBrains Mono',monospace; padding:2px 6px; border-radius:4px; background:${color}22; color:${color}; border:1px solid ${color}44;">
-                ${op.stato_opera.replace(/_/g, ' ')}
-              </span>
+              <div style="display:flex; align-items:center;">
+                <span style="font-size:9px; font-weight:800; text-transform:uppercase; font-family:'JetBrains Mono',monospace; padding:2px 6px; border-radius:4px; background:${color}22; color:${color}; border:1px solid ${color}44;">
+                  ${op.stato_opera.replace(/_/g, ' ')}
+                </span>
+                ${pdaBadge}
+              </div>
               <span style="font-size:10px; font-family:'JetBrains Mono',monospace; color:#94A3B8;">${op.comune} (${op.provincia || 'ND'})</span>
             </div>
             <div style="font-size:12px; font-weight:700; color:#F8FAFC; line-height:1.3; max-height:42px; overflow:hidden;">
@@ -829,7 +854,7 @@
               📑 Scheda
             </button>
             <button onclick="switchPopupTab('${safeSlug}', 'tab-signals')" id="btn-tab-signals-${safeSlug}" style="flex:1; padding:7px 2px; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; border:none; background:transparent; color:#94A3B8; border-bottom:2px solid transparent; cursor:pointer;">
-              🎯 Maturità (${op.maturity_score || 0}/7)
+              🎯 Maturità (${stepScore}/7)
             </button>
             <button onclick="switchPopupTab('${safeSlug}', 'tab-ditte')" id="btn-tab-ditte-${safeSlug}" style="flex:1; padding:7px 2px; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; border:none; background:transparent; color:#94A3B8; border-bottom:2px solid transparent; cursor:pointer;">
               👥 Ditte (${numDitte})
@@ -853,8 +878,20 @@
                 <span style="color:#E2E8F0; max-width:200px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${op.ente}</span>
               </div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="color:#64748B;">RUP:</span>
+                <span style="color:#94A3B8; max-width:200px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${op.rup || 'Ufficio Espropri'}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="color:#64748B;">Fase Procedurale:</span>
+                <span style="color:#34D399; font-weight:600;">${op.fase_procedurale || 'DEPOSITO_PIANO_PARTICELLARE'}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
                 <span style="color:#64748B;">Importo Lavori:</span>
                 <span style="color:#38BDF8; font-weight:bold;">${formatEuro}</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                <span style="color:#64748B;">Scadenza Osservazioni:</span>
+                <span style="color:#F43F5E; font-weight:bold;">${op.scadenza_osservazioni || 'In corso'}</span>
               </div>
               <div style="display:flex; justify-content:space-between;">
                 <span style="color:#64748B;">Pubblicazione:</span>
@@ -864,8 +901,8 @@
 
             <!-- TAB 2: MATURITY SIGNALS -->
             <div id="content-tab-signals-${safeSlug}" style="display:none;">
-              <div style="margin-bottom:4px; font-size:10px; color:#94A3B8; font-family:'Inter',sans-serif;">
-                Score di Qualificazione: <strong style="color:#F59E0B;">${op.maturity_score || 0} su 7</strong> requisiti accertati
+              <div style="margin-bottom:6px; font-size:10px; color:#94A3B8; font-family:'Inter',sans-serif;">
+                Scala di Qualificazione Procedurale: <strong style="color:#F59E0B;">${stepScore} su 7</strong> step D.P.R. 327/2001
               </div>
               ${signalsHtml}
             </div>
@@ -1162,27 +1199,64 @@
       const tipo = document.getElementById('calc-tipo').value;
       const vam = parseFloat(document.getElementById('calc-vam').value) || 0;
       const reale = parseFloat(document.getElementById('calc-reale').value) || 0;
+      const soprassuoli = parseFloat(document.getElementById('calc-soprassuoli')?.value) || 0;
       const isCD = document.getElementById('calc-cd').value === 'si';
+      const isCessione = document.getElementById('calc-cessione').value === 'si';
 
-      let offEnte = mq * vam;
-      let stimaPeritale = mq * reale;
+      const isEdificabile = (tipo === 'edificabile' || tipo === 'edificabile_ind');
+      const offEnte = Math.round(mq * vam);
+      let indennitaBase = 0;
+      let indennitaFinale = 0;
+      let normativaTesto = '';
 
-      // Maggiorazione coltivatore diretto (art. 40 - indennità aggiuntiva pari al VAM)
-      if (isCD) {
-        stimaPeritale += (mq * vam);
+      if (isEdificabile) {
+        // Art. 37 D.P.R. 327/2001 (Corte Cost. 348/2007)
+        indennitaBase = mq * reale;
+        if (isCessione) {
+          // +10% ex art. 45 c. 2 lett. a
+          indennitaFinale = indennitaBase * 1.10;
+          normativaTesto = 'Art. 37 D.P.R. 327/2001 (Corte Cost. sent. 348/2007) — +10% Cessione Volontaria (art. 45 c. 2 lett. a)';
+        } else {
+          indennitaFinale = indennitaBase;
+          normativaTesto = 'Art. 37 D.P.R. 327/2001 (Corte Cost. sent. 348/2007) — Valore Venale Puro di mercato';
+        }
+      } else {
+        // Art. 40 D.P.R. 327/2001 (Corte Cost. 181/2011)
+        const vBaseTerreno = mq * reale;
+        indennitaBase = vBaseTerreno + soprassuoli;
+
+        if (isCessione) {
+          if (isCD) {
+            // Triplo del valore agricolo effettivo ex art. 45 c. 2 lett. c
+            indennitaFinale = (vBaseTerreno * 3.0) + soprassuoli;
+            normativaTesto = 'Art. 40 D.P.R. 327/2001 — Triplo Valore Agricolo per Coltivatore Diretto / IAP (art. 45 c. 2 lett. c)';
+          } else {
+            // 1.5x valore agricolo effettivo ex art. 45 c. 2 lett. c
+            indennitaFinale = (vBaseTerreno * 1.5) + soprassuoli;
+            normativaTesto = 'Art. 40 D.P.R. 327/2001 — Maggiorazione +50% Cessione Volontaria Non Coltivatore (art. 45 c. 2 lett. c)';
+          }
+        } else {
+          if (isCD) {
+            // Indennità base + indennità aggiuntiva VAM ex art. 40 c. 4
+            const indennitaAggiuntivaVam = mq * (vam || reale);
+            indennitaFinale = indennitaBase + indennitaAggiuntivaVam;
+            normativaTesto = 'Art. 40 c. 4 D.P.R. 327/2001 — Valore Agricolo + Indennità Aggiuntiva VAM Coltivatore Diretto';
+          } else {
+            indennitaFinale = indennitaBase;
+            normativaTesto = 'Art. 40 D.P.R. 327/2001 (Corte Cost. sent. 181/2011) — Valore Agricolo Effettivo + Soprassuoli';
+          }
+        }
       }
 
-      // Se edificabile, cessione volontaria art. 45 maggiorata del 10%
-      if (tipo === 'edificabile' || tipo === 'commerciale') {
-        stimaPeritale *= 1.10;
-      }
-
+      const stimaPeritale = Math.round(indennitaFinale);
       const delta = stimaPeritale - offEnte;
       const perc = offEnte > 0 ? Math.round((delta / offEnte) * 100) : 0;
 
-      document.getElementById('res-offerta').textContent = `€ ${Math.round(offEnte).toLocaleString('it-IT')}`;
-      document.getElementById('res-perizia').textContent = `€ ${Math.round(stimaPeritale).toLocaleString('it-IT')}`;
-      document.getElementById('res-delta').textContent = `+ € ${Math.round(delta).toLocaleString('it-IT')} (+${perc}%)`;
+      document.getElementById('res-offerta').textContent = `€ ${offEnte.toLocaleString('it-IT')}`;
+      document.getElementById('res-perizia').textContent = `€ ${stimaPeritale.toLocaleString('it-IT')}`;
+      document.getElementById('res-delta').textContent = `+ € ${delta.toLocaleString('it-IT')} (+${perc}%)`;
+      const elNorm = document.getElementById('res-normativa');
+      if (elNorm) elNorm.textContent = `Normativa applicata: ${normativaTesto}`;
     }
 
     /* =======================================================================
