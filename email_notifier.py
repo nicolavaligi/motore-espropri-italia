@@ -2,10 +2,11 @@
 """
 Modulo Notifiche Email Settimanali — Motore Espropri Italia
 Autore: Nicola Valigi (Houdinick)
+
 Invia un riepilogo a n.valig@gmail.com con:
-- Testo riassuntivo delle procedure in Fase 4 (Art. 16 DPR 327/2001) e target 🟡
-- Allegato CSV generato dinamicamente con tutte le ditte/particelle censite
-- Allegati PDF dei piani particellari scaricati negli ultimi 7 giorni (con limite di dimensione)
+1. Riepilogo testuale delle procedure target (Fase 4 / Art. 16 DPR 327/2001).
+2. Esportazione CSV formattata (ditte, mappali, indennità stimate).
+3. Archivio compresso .ZIP con tutti i PDF particellari scaricati negli ultimi 7 giorni.
 """
 
 from __future__ import annotations
@@ -15,35 +16,35 @@ import io
 import json
 import os
 import smtplib
-from datetime import date, datetime, timedelta
-from email import encoders
-from email.mime.base import MIMEBase
+import time
+import zipfile
+from datetime import date, datetime
+from email.header import Header
+from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
-from typing import List, Tuple
 
-DESTINATARIO_DEFAULT = "n.valig@gmail.com"
-BASE_DIR = Path(__file__).parent
+DESTINATARIO = "n.valig@gmail.com"
+BASE_DIR = Path(__file__).resolve().parent
 DATA_OPERE = BASE_DIR / "data" / "opere.json" if (BASE_DIR / "data" / "opere.json").exists() else BASE_DIR / "opere.json"
-PDF_ARCHIVIO_DIR = BASE_DIR / "data" / "pdf_archivio"
+PDF_DIR = BASE_DIR / "data" / "pdf_archivio"
 
-# Soglia massima per singolo allegato o batch (20 MB per rispetto limiti provider SMTP)
+# Soglia massima complessiva allegati per policy SMTP (20 MB)
 MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024
 
 
-def genera_report_testo() -> Tuple[str, int, list]:
-    """Legge opere.json e restituisce il report testuale, il conteggio target e le opere filtrate."""
+def genera_report_testo() -> tuple[str, list[dict], int]:
+    """Genera il corpo testuale del messaggio e isola le opere target."""
     if not DATA_OPERE.exists():
-        return "Nessun archivio opere.json trovato.", 0, []
+        return "Nessun archivio opere.json trovato.", [], 0
 
     try:
         with open(DATA_OPERE, "r", encoding="utf-8") as f:
             opere = json.load(f)
     except Exception as e:
-        return f"Errore lettura opere.json: {e}", 0, []
+        return f"Errore lettura opere.json: {e}", [], 0
 
-    # Seleziona le opere avanzate / Fase 4
     target = [
         o for o in opere 
         if o.get("stato_opera") in ("AVANZATA_SENZA_ELENCO", "ELENCO_PUBBLICATO")
@@ -65,165 +66,170 @@ def genera_report_testo() -> Tuple[str, int, list]:
         ente = op.get("ente") or "N.D."
         scadenza = op.get("scadenza_osservazioni") or op.get("scadenza") or "30 gg da pubblicazione"
         stato = op.get("stato_opera", "FASE 4")
-        n_ditte = len(op.get("ditte", []))
 
         linee.append(f"{i}. [{stato}] {titolo}")
         linee.append(f"   Ente: {ente} | CUP: {cup}")
-        linee.append(f"   Scadenza termini: {scadenza} | Ditte censite: {n_ditte}")
-        if op.get("azione") and isinstance(op["azione"], dict) and op["azione"].get("deposito_presso"):
-            linee.append(f"   Deposito: {op['azione']['deposito_presso']}")
-        elif op.get("deposito_presso"):
-            linee.append(f"   Deposito: {op['deposito_presso']}")
+        linee.append(f"   Scadenza termini: {scadenza}")
+        if op.get("ditte"):
+            linee.append(f"   Ditte censite nel piano: {len(op['ditte'])}")
         linee.append("-" * 68)
 
     if not target:
-        linee.append("Nessuna nuova opera avanzata o piano particellare rilevato negli ultimi 7 giorni.")
+        linee.append("Nessuna nuova opera avanzata o piano particellare rilevato questa settimana.")
 
-    return "\n".join(linee), len(target), target
+    return "\n".join(linee), target, len(target)
 
 
-def genera_csv_particelle(opere: list) -> Tuple[str, bytes]:
-    """
-    Estrae tutte le ditte e particelle catastali accertate dalle opere target
-    e produce un payload CSV codificato in UTF-8 con BOM per compatibilità Excel.
-    """
-    output = io.StringIO()
-    writer = csv.writer(output, delimiter=";", quoting=csv.QUOTE_MINIMAL)
+def genera_csv_particelle(opere_target: list[dict]) -> tuple[str, bytes]:
+    """Genera un CSV in-memory con intestatari, particelle e valori economici."""
+    buffer = io.StringIO()
+    # Scrive BOM UTF-8 per compatibilità nativa con Excel su Windows/macOS
+    buffer.write("\ufeff")
 
-    # Intestazione Colonne Standard Catasto DPR 327/2001
+    writer = csv.writer(buffer, delimiter=";", quoting=csv.QUOTE_MINIMAL)
     writer.writerow([
-        "Codice Opera / Slug",
+        "Opera_Slug",
         "CUP",
-        "Ente Espropriante",
-        "Intestatario / Ditta",
-        "Codice Fiscale / P.IVA",
-        "Comune Catastale",
+        "Ente_Espropriante",
+        "Comune",
+        "Intestatario_Ditta",
         "Foglio",
         "Mappali",
-        "Sub",
-        "Superficie Esproprio (mq)",
-        "Indennità Provvisoria (€)",
-        "Stima Delta Attivo"
+        "Superficie_mq",
+        "Indennita_Stimata_EUR",
+        "Delta_Potenziale",
+        "Note"
     ])
 
-    righe_totali = 0
-    for op in opere:
-        slug = op.get("slug") or op.get("id") or "ND"
-        cup = op.get("cup") or ""
-        ente = op.get("ente") or ""
+    righe_scritte = 0
+    for op in opere_target:
+        slug = op.get("slug", "")
+        cup = op.get("cup", "")
+        ente = op.get("ente", "")
+        ditte = op.get("ditte", [])
 
-        for d in op.get("ditte", []):
+        for d in ditte:
             writer.writerow([
                 slug,
                 cup,
                 ente,
-                d.get("intestatario") or d.get("nome") or "",
-                d.get("cf") or d.get("codice_fiscale") or "",
-                d.get("comune") or op.get("comune") or "",
-                d.get("foglio") or "",
-                d.get("mappali") or d.get("mappale") or "",
-                d.get("sub") or "",
-                d.get("sup_mq") or d.get("superficie") or "",
-                d.get("indennita") or d.get("indennita_eur") or "",
-                "SÌ" if d.get("delta") else "NO"
+                d.get("comune", op.get("comune", "")),
+                d.get("intestatario", ""),
+                d.get("foglio", ""),
+                d.get("mappali", ""),
+                str(d.get("sup_mq", "")).replace(".", ","),
+                str(d.get("indennita", "")).replace(".", ","),
+                "Sì" if d.get("delta") else "No",
+                d.get("note", "")
             ])
-            righe_totali += 1
+            righe_scritte += 1
 
-    nome_file = f"estrazione_particelle_{date.today().strftime('%Y%m%d')}.csv"
-    # Aggiunge UTF-8 BOM per apertura immediata in Excel senza problemi di caratteri accentati
-    payload = ("\ufeff" + output.getvalue()).encode("utf-8")
-    return nome_file, payload
+    filename = f"estrazione_particelle_{date.today().strftime('%Y%m%d')}.csv"
+    return filename, buffer.getvalue().encode("utf-8")
 
 
-def raccogli_pdf_recenti(giorni: int = 7) -> List[Path]:
-    """Cerca nella cartella archivio i PDF modificati o scaricati negli ultimi N giorni."""
-    if not PDF_ARCHIVIO_DIR.exists():
-        return []
+def crea_zip_pdf_settimana(giorni: int = 7) -> tuple[str, bytes, int]:
+    """
+    Raccoglie tutti i PDF scaricati negli ultimi N giorni in data/pdf_archivio
+    e li comprime in un archivio ZIP in-memory.
+    """
+    if not PDF_DIR.exists():
+        return "", b"", 0
 
-    cutoff = datetime.now() - timedelta(days=giorni)
-    pdf_trovati = []
+    adesso = time.time()
+    limite_temporale = adesso - (giorni * 86400)
+    pdf_files = []
 
-    for file_path in PDF_ARCHIVIO_DIR.glob("*.pdf"):
+    for file_path in PDF_DIR.glob("**/*.pdf"):
         if file_path.is_file():
-            mtime = datetime.fromtimestamp(file_path.stat().st_mtime)
-            if mtime >= cutoff:
-                pdf_trovati.append(file_path)
+            # Controlla data di modifica o creazione
+            mtime = file_path.stat().st_mtime
+            if mtime >= limite_temporale:
+                pdf_files.append(file_path)
 
-    # Ordina dai più recenti
-    pdf_trovati.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    return pdf_trovati
+    if not pdf_files:
+        return "", b"", 0
+
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zip_file:
+        for p in pdf_files:
+            # Archivia solo il nome del file senza la struttura assoluta dei percorsi
+            zip_file.write(p, arcname=p.name)
+
+    zip_data = zip_buffer.getvalue()
+    zip_filename = f"piani_particellari_settimana_{date.today().strftime('%Y%m%d')}.zip"
+    return zip_filename, zip_data, len(pdf_files)
 
 
-def allega_file(msg: MIMEMultipart, nome_file: str, payload_bytes: bytes, maintype: str = "application", subtype: str = "octet-stream"):
-    """Allega un flusso di byte al messaggio MIME."""
-    part = MIMEBase(maintype, subtype)
-    part.set_payload(payload_bytes)
-    encoders.encode_base64(part)
-    part.add_header("Content-Disposition", f'attachment; filename="{nome_file}"')
-    msg.attach(part)
-
-
-def invia_email(oggetto: str, corpo: str, opere_target: list, destinatario: str = DESTINATARIO_DEFAULT) -> bool:
+def invia_email(oggetto: str, corpo: str, allegati: list[tuple[str, bytes]], destinatario: str = DESTINATARIO) -> bool:
     smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
     smtp_port = int(os.getenv("SMTP_PORT", "587"))
-    smtp_user = os.getenv("SMTP_USER", destinatario)
+    smtp_user = os.getenv("SMTP_USER", DESTINATARIO)
     smtp_pass = os.getenv("SMTP_PASS")
 
+    # Verifica dimensioni totali allegati
+    totale_peso = sum(len(d) for _, d in allegati)
+    if totale_peso > MAX_ATTACHMENT_BYTES:
+        mb_tot = totale_peso / (1024 * 1024)
+        print(f"[EMAIL NOTIFIER] AVVISO: Allegati troppo pesanti ({mb_tot:.2f} MB > 20 MB). Archivio PDF escluso per sicurezza.")
+        allegati = [a for a in allegati if not a[0].endswith(".zip")]
+
     if not smtp_pass:
-        print("[EMAIL NOTIFIER] AVVISO: Variabile d'ambiente SMTP_PASS non rilevata.")
-        print("--- ANTEPRIMA DEL REPORT CHE SAREBBE STATO INVIATO ---")
+        print("[EMAIL NOTIFIER] AVVISO: SMTP_PASS non configurato in ambiente.")
+        print(f"-> Destinatario: {destinatario}")
+        print(f"-> Allegati pronti ({len(allegati)}): {[a[0] for a in allegati]}")
+        print("\n--- ANTEPRIMA TESTO REPORT ---\n")
         print(corpo)
         return False
 
     msg = MIMEMultipart()
     msg["From"] = smtp_user
     msg["To"] = destinatario
-    msg["Subject"] = oggetto
-
-    # Corpo del messaggio
+    msg["Subject"] = Header(oggetto, "utf-8").encode()
     msg.attach(MIMEText(corpo, "plain", "utf-8"))
 
-    dimensione_totale = len(corpo.encode("utf-8"))
+    # Aggiunta allegati
+    for nome_file, byte_data in allegati:
+        part = MIMEApplication(byte_data)
+        part.add_header("Content-Disposition", "attachment", filename=Header(nome_file, "utf-8").encode())
+        msg.attach(part)
 
-    # 1. Allega CSV Particelle Estratte
-    csv_nome, csv_bytes = genera_csv_particelle(opere_target)
-    allega_file(msg, csv_nome, csv_bytes, "text", "csv")
-    dimensione_totale += len(csv_bytes)
-    print(f"[EMAIL NOTIFIER] Allegato generato: {csv_nome} ({len(csv_bytes) / 1024:.1f} KB)")
-
-    # 2. Allega PDF recenti (fino al limite consentito)
-    pdf_recenti = raccogli_pdf_recenti(giorni=7)
-    pdf_allegati = 0
-
-    for pdf_path in pdf_recenti:
-        pdf_size = pdf_path.stat().st_size
-        if dimensione_totale + pdf_size > MAX_ATTACHMENT_BYTES:
-            print(f"[EMAIL NOTIFIER] Limite dimensione raggiunto. Salto: {pdf_path.name}")
-            continue
-
-        try:
-            with open(pdf_path, "rb") as f:
-                allega_file(msg, pdf_path.name, f.read(), "application", "pdf")
-            dimensione_totale += pdf_size
-            pdf_allegati += 1
-            print(f"[EMAIL NOTIFIER] Allegato PDF aggiunto: {pdf_path.name} ({pdf_size / 1024:.1f} KB)")
-        except Exception as e:
-            print(f"[EMAIL NOTIFIER] Errore lettura PDF {pdf_path.name}: {e}")
-
-    # Invio SMTP
     try:
         with smtplib.SMTP(smtp_host, smtp_port) as server:
             server.starttls()
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
-        print(f"[EMAIL NOTIFIER] Report settimanale inviato con successo a {destinatario} ({pdf_allegati} PDF + 1 CSV allegati).")
+        print(f"[EMAIL NOTIFIER] Email inviata con successo a {destinatario} ({len(allegati)} allegati)")
         return True
     except Exception as e:
-        print(f"[EMAIL NOTIFIER] Errore durante l'invio SMTP: {e}")
+        print(f"[EMAIL NOTIFIER] Errore invio email: {e}")
         return False
 
 
+def run():
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Avvio aggregazione report e compressione...")
+    report_text, target, n_opere = genera_report_testo()
+
+    allegati = []
+
+    # 1. Genera CSV
+    csv_nome, csv_bytes = genera_csv_particelle(target)
+    if csv_bytes:
+        allegati.append((csv_nome, csv_bytes))
+        print(f"-> Generato allegato: {csv_nome} ({len(csv_bytes)} bytes)")
+
+    # 2. Genera archivio ZIP compresso con i PDF degli ultimi 7 giorni
+    zip_nome, zip_bytes, n_pdf = crea_zip_pdf_settimana(giorni=7)
+    if n_pdf > 0:
+        allegati.append((zip_nome, zip_bytes))
+        mb_zip = len(zip_bytes) / (1024 * 1024)
+        print(f"-> Creato archivio compresso: {zip_nome} ({n_pdf} PDF, {mb_zip:.2f} MB)")
+    else:
+        print("-> Nessun nuovo PDF scaricato negli ultimi 7 giorni da comprimere.")
+
+    titolo = f"🏛 [Motore Espropri Italia] Report Settimanale Espropri: {n_opere} target | {n_pdf} nuovi PDF"
+    invia_email(titolo, report_text, allegati)
+
+
 if __name__ == "__main__":
-    report, n_opere, target = genera_report_testo()
-    titolo = f"🏛 [Motore Espropri Italia] Report Settimanale Espropri: {n_opere} target rilevati ({date.today().strftime('%d/%m/%Y')})"
-    invia_email(titolo, report, target)
+    run()
