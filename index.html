@@ -703,6 +703,17 @@
     <!-- MAPPA FULLSCREEN -->
     <div id="gis-map" class="w-full h-full"></div>
 
+    <!-- BANNER TOAST FILTRO ATTIVO (Centrato in alto sulla mappa) -->
+    <div id="toast-filtro-attivo" class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-[1001] bg-slate-950/95 border border-sky-400 text-sky-100 px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-3 font-mono text-xs backdrop-blur-md transition-all animate-in fade-in">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
+        <span id="toast-filtro-testo">📋 <b>Filtro Attivo:</b> Mostrate le opere con Piano Particellare Ditte</span>
+      </div>
+      <button onclick="triggerShortcutFilter(state.shortcutFilter)" class="px-2 py-0.5 rounded bg-sky-900/80 hover:bg-sky-800 text-sky-200 hover:text-white border border-sky-500/40 text-[10px] font-bold transition-colors">
+        ✕ Disattiva
+      </button>
+    </div>
+
     <!-- MAP CONTROLS OVERLAY (In alto a destra: Basemap Switcher & Reset) -->
     <div class="absolute top-3 right-3 z-[1000] flex flex-col gap-2 font-mono text-xs">
       
@@ -788,7 +799,12 @@
             <span class="subtitle">D.P.R. 327/2001 • Sentenze Consulta 348/2007 e 181/2011</span>
           </div>
         </div>
-        <button id="btn-close-stima" class="btn-close-modal" title="Chiudi">&times;</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button type="button" id="btn-torna-ditte" onclick="window.tornaAdElencoDitte()" style="display:none; background:#0284c7; color:#fff; border:none; border-radius:4px; padding:4px 9px; font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:600; cursor:pointer;" title="Torna alla tabella intestatari dell'opera">
+            ← Torna a Ditte
+          </button>
+          <button id="btn-close-stima" class="btn-close-modal" title="Chiudi (Esc)">&times;</button>
+        </div>
       </div>
 
       <!-- Corpo a Due Colonne: Input Form vs Report Live -->
@@ -974,17 +990,18 @@
   <!-- =======================================================================
        MODALE 3: PIANO PARTICELLARE DITTE COMPLETO
        ======================================================================= -->
-  <div id="modal-ditte" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-4xl rounded-xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
-      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+  <div id="modal-ditte" onclick="if(event.target === this) closeDitteModal()" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[10050] flex items-center justify-center p-3 md:p-6 hidden">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-4xl rounded-xl shadow-2xl flex flex-col max-h-[88vh] overflow-hidden">
+      <div class="p-3 md:p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
         <div>
-          <h3 id="modal-ditte-title" class="text-sm font-bold text-slate-100 flex items-center gap-2 font-mono">
-            Piano Particellare d'Esproprio
+          <h3 id="modal-ditte-title" class="text-sm md:text-base font-bold text-slate-100 flex items-center gap-2 font-mono">
+            📋 Piano Particellare d'Esproprio
           </h3>
-          <p id="modal-ditte-subtitle" class="text-xs text-slate-400 font-mono">Elenco intestatari e particelle catastali accertate</p>
+          <p id="modal-ditte-subtitle" class="text-xs text-sky-400 font-mono mt-0.5">Elenco intestatari e particelle catastali accertate (Art. 16 D.P.R. 327/2001)</p>
         </div>
-        <button onclick="closeDitteModal()" class="text-slate-400 hover:text-slate-200 p-1 rounded hover:bg-slate-800">
-          <i data-lucide="x" class="w-5 h-5"></i>
+        <button onclick="closeDitteModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-slate-700 shadow-sm" title="Chiudi finestra (Esc)">
+          <span class="text-sm font-bold leading-none">✕</span>
+          <span>Chiudi (Esc)</span>
         </button>
       </div>
 
@@ -1207,6 +1224,14 @@
       // Applica Dark come predefinito
       state.tileLayers.dark.addTo(state.map);
 
+      // Prevenzione freeze rotella mouse / blocco scroll su popup Leaflet
+      state.map.on('popupopen', (e) => {
+        if (e.popup && e.popup._container) {
+          L.DomEvent.disableScrollPropagation(e.popup._container);
+          L.DomEvent.disableClickPropagation(e.popup._container);
+        }
+      });
+
       state.markersGroup = L.featureGroup().addTo(state.map);
       updateMapMarkers(state.opere);
     }
@@ -1300,7 +1325,11 @@
       const numDitte = op.ditte ? op.ditte.length : 0;
       const safeSlug = op.slug.replace(/[^a-zA-Z0-9_-]/g, '_');
 
-      const pdaBadge = op.has_pda ? `<span style="font-size:9px; background:#0284C7; color:#fff; padding:1px 5px; border-radius:3px; font-weight:bold; margin-left:4px;">PdA DITTE</span>` : '';
+      const pdaBadge = (numDitte > 0 || op.has_pda) ? `
+        <button onclick="openDitteModalForSlug('${op.slug}')" title="Clicca per aprire il Piano Particellare ditte" style="font-size:9px; background:#0284c7; color:#fff; padding:2px 7px; border-radius:4px; font-weight:700; margin-left:6px; border:1px solid #38bdf888; cursor:pointer; display:inline-flex; align-items:center; gap:3px;">
+          📋 PdA Ditte (${numDitte}) ↗
+        </button>
+      ` : '';
       const stepScore = op.maturita_step || op.maturity_score || 3;
       
       const procedureSteps = [
@@ -1332,29 +1361,18 @@
       let dittePreviewHtml = '';
       if (numDitte > 0) {
         dittePreviewHtml = `
-          <div style="max-height:130px; overflow-y:auto; border:1px solid #1E293B; border-radius:6px; background:#0B0F17;">
-            <table style="width:100%; border-collapse:collapse; font-size:10px; text-align:left;">
-              <thead>
-                <tr style="border-bottom:1px solid #1E293B; color:#94A3B8; background:#111827;">
-                  <th style="padding:4px 6px;">Intestatario</th>
-                  <th style="padding:4px 6px;">Fg/Mapp</th>
-                  <th style="padding:4px 6px; text-align:right;">Indennità</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${op.ditte.slice(0, 4).map(d => `
-                  <tr style="border-bottom:1px solid #1E293B;">
-                    <td style="padding:4px 6px; color:#F1F5F9; font-weight:500; max-width:140px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${d.intestatario}</td>
-                    <td style="padding:4px 6px; color:#38BDF8;">${d.foglio}/${d.mappali}</td>
-                    <td style="padding:4px 6px; text-align:right; color:#10B981; font-weight:bold;">${d.indennita ? '€ ' + d.indennita.toLocaleString('it-IT') : 'Stima'}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
+          <div style="background:#0B0F17; border:1px solid #1E293B; border-radius:6px; padding:10px; margin-bottom:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <span style="font-size:11px; font-weight:700; color:#38BDF8;">📋 Piano Particellare Depositato</span>
+              <span style="font-size:10px; color:#94A3B8; font-weight:bold;">${numDitte} ditte censite</span>
+            </div>
+            <div style="font-size:10px; color:#CBD5E1; line-height:1.4; margin-bottom:8px;">
+              Superfici catastali e indennità accertate ex <b>Art. 16 D.P.R. 327/2001</b>.
+            </div>
+            <button onclick="openDitteModalForSlug('${op.slug}')" style="width:100%; background:#0284C7; color:#fff; font-size:11px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:8px 10px; border-radius:6px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 2px 4px rgba(0,0,0,0.3);">
+              <span>🔍 Apri Elenco Completo (${numDitte} Particelle)</span> <span>→</span>
+            </button>
           </div>
-          <button onclick="openDitteModalForSlug('${op.slug}')" style="margin-top:6px; width:100%; background:#0284C7; color:#fff; font-size:11px; font-weight:600; padding:6px 8px; border-radius:6px; border:none; cursor:pointer;">
-            Apri Piano Completo (${numDitte} intestatari / particelle)
-          </button>
         `;
       } else {
         dittePreviewHtml = `
@@ -1575,6 +1593,13 @@
       container.innerHTML = opere.map(op => {
         const color = getPinColor(op.stato_opera);
         const formatEuro = op.importo_eur ? `€ ${(op.importo_eur / 1000000).toFixed(1)}M` : 'ND';
+        const numDitte = op.ditte ? op.ditte.length : 0;
+        const pdaPill = numDitte > 0 ? `
+          <button onclick="event.stopPropagation(); openDitteModalForSlug('${op.slug}')" class="px-1.5 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 text-[9px] font-bold flex items-center gap-1 transition-colors" title="Apri piano particellare ditte">
+            <span>📋 PdA (${numDitte})</span>
+          </button>
+        ` : '';
+
         return `
           <div onclick="selectAndOpenPin('${op.slug}')" class="p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all">
             <div class="flex items-center justify-between gap-1 mb-1 font-mono text-[10px]">
@@ -1582,7 +1607,10 @@
                 <span class="w-2 h-2 rounded-full inline-block shrink-0" style="background:${color};"></span>
                 <span class="text-slate-300 font-semibold truncate">${op.regione} · ${op.provincia || 'ND'}</span>
               </div>
-              <span class="text-amber-400 font-bold ml-auto shrink-0">${formatEuro}</span>
+              <div class="flex items-center gap-1 ml-auto shrink-0">
+                ${pdaPill}
+                <span class="text-amber-400 font-bold">${formatEuro}</span>
+              </div>
             </div>
             <div class="text-[11px] font-semibold text-slate-100 line-clamp-1">${op.titolo}</div>
             <div class="text-[10px] text-slate-400 font-mono flex justify-between mt-1 pt-1 border-t border-slate-800/60">
@@ -1614,18 +1642,47 @@
     }
 
     function triggerShortcutFilter(type) {
+      const btnPda = document.getElementById('sc-pda');
+      const btnSettimana = document.getElementById('sc-settimana');
+      const toast = document.getElementById('toast-filtro-attivo');
+      const toastText = document.getElementById('toast-filtro-testo');
+
       if (state.shortcutFilter === type) {
         state.shortcutFilter = null;
-        document.getElementById('sc-pda').classList.remove('bg-sky-950', 'border-sky-400');
-        document.getElementById('sc-settimana').classList.remove('bg-amber-950', 'border-amber-400');
+        if (btnPda) {
+          btnPda.className = 'px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-sky-500/50 text-slate-300 hover:text-sky-300 transition-colors flex items-center gap-1 text-[11px]';
+          btnPda.innerHTML = '<span class="font-bold text-sky-400">PdA</span> <span class="text-slate-500">→</span>';
+        }
+        if (btnSettimana) {
+          btnSettimana.className = 'px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1 text-[11px]';
+        }
+        if (toast) toast.classList.add('hidden');
       } else {
         state.shortcutFilter = type;
         if (type === 'PDA') {
-          document.getElementById('sc-pda').classList.add('bg-sky-950', 'border-sky-400');
-          document.getElementById('sc-settimana').classList.remove('bg-amber-950', 'border-amber-400');
+          if (btnPda) {
+            btnPda.className = 'px-2.5 py-1 rounded bg-sky-600 text-white font-bold border border-sky-300 shadow-md shadow-sky-600/30 flex items-center gap-1 text-[11px]';
+            btnPda.innerHTML = '<span>📋 PdA Attivo</span> <span class="text-sky-200">✕</span>';
+          }
+          if (btnSettimana) {
+            btnSettimana.className = 'px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-amber-500/50 text-slate-300 hover:text-amber-300 transition-colors flex items-center gap-1 text-[11px]';
+          }
+          if (toast && toastText) {
+            toastText.innerHTML = '📋 <b>Filtro PdA Attivo:</b> Mostrate solo le opere con <b>Piano Particellare Ditte</b> depositato (Art. 16 DPR 327/2001)';
+            toast.classList.remove('hidden');
+          }
         } else if (type === 'SETTIMANA') {
-          document.getElementById('sc-settimana').classList.add('bg-amber-950', 'border-amber-400');
-          document.getElementById('sc-pda').classList.remove('bg-sky-950', 'border-sky-400');
+          if (btnSettimana) {
+            btnSettimana.className = 'px-2.5 py-1 rounded bg-amber-600 text-white font-bold border border-amber-300 shadow-md shadow-amber-600/30 flex items-center gap-1 text-[11px]';
+          }
+          if (btnPda) {
+            btnPda.className = 'px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-sky-500/50 text-slate-300 hover:text-sky-300 transition-colors flex items-center gap-1 text-[11px]';
+            btnPda.innerHTML = '<span class="font-bold text-sky-400">PdA</span> <span class="text-slate-500">→</span>';
+          }
+          if (toast && toastText) {
+            toastText.innerHTML = '⏳ <b>Filtro Settimana:</b> Mostrate le procedure con termini di opposizione/osservazione in scadenza imminente';
+            toast.classList.remove('hidden');
+          }
         }
       }
       applyFilters();
@@ -1647,7 +1704,17 @@
       document.getElementById('chk-st-elenco').checked = true;
       document.getElementById('chk-st-preliminare').checked = false;
       document.getElementById('chk-st-chiusa').checked = false;
+      const toast = document.getElementById('toast-filtro-attivo');
+      if (toast) toast.classList.add('hidden');
+      const btnPda = document.getElementById('sc-pda');
+      if (btnPda) {
+        btnPda.className = 'px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-sky-500/50 text-slate-300 hover:text-sky-300 transition-colors flex items-center gap-1 text-[11px]';
+        btnPda.innerHTML = '<span class="font-bold text-sky-400">PdA</span> <span class="text-slate-500">→</span>';
+      }
       toggleRegionFilter('ALL');
+      if (state.map) {
+        state.map.setView([43.20, 12.50], 6.5);
+      }
     }
 
     function applyFilters() {
@@ -1678,6 +1745,30 @@
         if (op.stato_opera === 'AVANZATA_SENZA_ELENCO' && !stAvanzata) return false;
         if (op.stato_opera === 'ELENCO_PUBBLICATO' && !stElenco) return false;
         if (op.stato_opera === 'PRELIMINARE' && !stPrelim) return false;
+        if (op.stato_opera === 'CHIUSA' && !stChiusa) return false;
+
+        // Ricerca testuale
+        if (q) {
+          const hay = `${op.titolo} ${op.ente} ${op.comune} ${op.cup || ''} ${op.rup || ''}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+
+        return true;
+      });
+
+      updateMapMarkers(filtered);
+      updateGlobalMetrics(filtered);
+
+      // Auto-inquadra i risultati se è attivo un filtro shortcut
+      if (state.shortcutFilter && filtered.length > 0 && state.markersGroup && state.map) {
+        try {
+          const bounds = state.markersGroup.getBounds();
+          if (bounds.isValid()) {
+            state.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 9 });
+          }
+        } catch (e) {}
+      }
+    }
         if (op.stato_opera === 'CHIUSA' && !stChiusa) return false;
 
         // Ricerca testuale
@@ -1900,7 +1991,20 @@
 
     window.innescaCalcoloParticellaByIndex = function(idx) {
       if (state.selectedOpera && state.selectedOpera.ditte && state.selectedOpera.ditte[idx]) {
+        // Chiudi modale ditte per evitare finestre sovrapposte
+        closeDitteModal();
+        // Mostra il pulsante per tornare a ditte
+        const btnTorna = document.getElementById('btn-torna-ditte');
+        if (btnTorna) btnTorna.style.display = 'inline-block';
         window.innescaCalcoloDaParticella(state.selectedOpera.ditte[idx], state.selectedOpera);
+      }
+    };
+
+    window.tornaAdElencoDitte = function() {
+      const modalStima = document.getElementById('modal-stima');
+      if (modalStima) modalStima.style.display = 'none';
+      if (state.selectedOpera) {
+        window.openDitteModalForSlug(state.selectedOpera.slug);
       }
     };
 
@@ -1919,8 +2023,13 @@
       if (!op) return;
       state.selectedOpera = op;
 
-      document.getElementById('modal-ditte-title').textContent = `Piano Particellare: ${op.titolo}`;
-      document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune}`;
+      // Chiudi eventuale popup mappa per non affollare la visuale
+      if (state.map) {
+        state.map.closePopup();
+      }
+
+      document.getElementById('modal-ditte-title').textContent = `📋 Piano Particellare: ${op.titolo}`;
+      document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune} (${op.provincia || 'ND'})`;
 
       const ditte = op.ditte || [];
       document.getElementById('mod-tot-ditte').textContent = ditte.length;
@@ -2136,8 +2245,18 @@
       }
 
       window.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && modal && modal.style.display === "flex") {
-          closeStimaModal();
+        if (e.key === "Escape") {
+          const modDitte = document.getElementById("modal-ditte");
+          if (modDitte && !modDitte.classList.contains("hidden")) {
+            closeDitteModal();
+            return;
+          }
+          if (modal && modal.style.display === "flex") {
+            closeStimaModal();
+            return;
+          }
+          closeGuidaModal();
+          closeQuickAddModal();
         }
       });
 
