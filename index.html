@@ -796,8 +796,12 @@
           <span class="text-slate-300">Fascia Cantiere Temporaneo (±35m)</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="w-3.5 h-0 border-t-2 border-dashed border-slate-200 inline-block" style="outline: 1px solid #000;"></span>
-          <span class="text-slate-200 font-semibold">Asse Opera (con Casing)</span>
+          <span class="w-3.5 h-2 rounded-sm bg-[#1E293B] border border-slate-400 inline-block"></span>
+          <span class="text-slate-200 font-semibold">Sede Opera da Progetto (Piattaforma)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="w-3.5 h-2 rounded-sm bg-[#64748B] border border-slate-300 inline-block"></span>
+          <span class="text-slate-200 font-semibold">Manufatti (Viadotti, Gallerie)</span>
         </div>
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-sky-500 border border-white inline-block"></span>
@@ -1414,6 +1418,9 @@
           bearing: 0
         });
 
+        window.map = state.map;
+        window.state = state;
+
         // Controlli 3D SunPro con visualizzazione Pitch e bussola
         state.map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
 
@@ -1479,13 +1486,12 @@
               filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
               paint: {
                 'line-color': '#CA8A04',
-                'line-width': 1.2,
-                'line-dasharray': [3, 2]
+                'line-width': 1.4
               }
             });
           }
 
-          // Fascia Asservimento / Rispetto (±25m)
+          // Fascia Asservimento / Rispetto (±25m) - Contorno Continuo Solido da Progetto
           if (!state.map.getLayer('opera-buffer-asservimento-fill')) {
             state.map.addLayer({
               id: 'opera-buffer-asservimento-fill',
@@ -1506,13 +1512,12 @@
               filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
               paint: {
                 'line-color': '#E76F51',
-                'line-width': 1.6,
-                'line-dasharray': [2, 1]
+                'line-width': 1.8
               }
             });
           }
 
-          // Fascia Esproprio Sede Permanente (±12m)
+          // Fascia Esproprio Sede Permanente (±12m) - Contorno Continuo Solido da Progetto
           if (!state.map.getLayer('opera-buffer-esproprio-fill')) {
             state.map.addLayer({
               id: 'opera-buffer-esproprio-fill',
@@ -1533,7 +1538,7 @@
               filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
               paint: {
                 'line-color': '#D90429',
-                'line-width': 2.0
+                'line-width': 2.2
               }
             });
           }
@@ -1577,54 +1582,87 @@
             });
           }
 
-          // C. SORGENTE WMS AGENZIA DELLE ENTRATE (Catasto Ufficiale AdE)
+          // C. SORGENTE WMS AGENZIA DELLE ENTRATE (Catasto Ufficiale AdE con fallback proxy)
           if (!state.map.getSource('wms-catasto-ade')) {
+            const wmsTileEndpoint = (!window.location.hostname.includes('github.io'))
+              ? '/api/catasto/wms?bbox={bbox-epsg-3857}'
+              : 'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?service=WMS&request=GetMap&version=1.3.0&layers=CP.CadastralParcel,BU.Building&styles=&format=image/png&transparent=true&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}';
             state.map.addSource('wms-catasto-ade', {
               type: 'raster',
-              tiles: [
-                'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?' +
-                'service=WMS&request=GetMap&version=1.3.0' +
-                '&layers=CP.CadastralParcel,BU.Building' +
-                '&styles=' +
-                '&format=image/png' +
-                '&transparent=true' +
-                '&crs=EPSG:3857' +
-                '&width=256&height=256' +
-                '&bbox={bbox-epsg-3857}'
-              ],
+              tiles: [wmsTileEndpoint],
               tileSize: 256
             });
           }
 
-          // Casing bianco/nero di contrasto per l'asse opera
-          if (!state.map.getLayer('opera-tracciato-casing')) {
+          // TRACCIATO DI PROGETTO REALE: SEDIME PIATTAFORMA POLIGONALE (Niente linee o tratteggi)
+          if (!state.map.getLayer('opera-piattaforma-fill')) {
             state.map.addLayer({
-              id: 'opera-tracciato-casing',
-              type: 'line',
+              id: 'opera-piattaforma-fill',
+              type: 'fill',
               source: 'opera-source',
+              filter: ['==', ['get', 'tipo_feature'], 'PIATTAFORMA_PROGETTO'],
               paint: {
-                'line-color': '#FFFFFF',
-                'line-width': 5.5,
-                'line-opacity': 0.85
+                'fill-color': ['coalesce', ['get', 'colore'], '#1E293B'],
+                'fill-opacity': 0.92
               }
             });
           }
 
-          // Tracciato asse opera lineare (in primo piano con tratto ingegneristico)
-          if (!state.map.getLayer('opera-tracciato-line')) {
+          // Ciglio esterno piattaforma di progetto (bordo continuo solido)
+          if (!state.map.getLayer('opera-piattaforma-ciglio')) {
             state.map.addLayer({
-              id: 'opera-tracciato-line',
+              id: 'opera-piattaforma-ciglio',
               type: 'line',
               source: 'opera-source',
+              filter: ['==', ['get', 'tipo_feature'], 'PIATTAFORMA_PROGETTO'],
               paint: {
                 'line-color': '#0F172A',
-                'line-width': 3.2,
-                'line-dasharray': [3, 1]
+                'line-width': 2.0
               }
             });
           }
 
-          // D. LAYER RASTER CATASTO ADE (posizionato sotto il tracciato)
+          // Manufatti strutturali reali: Impalcati Viadotti e Ponti (calcestruzzo armato)
+          if (!state.map.getLayer('opera-manufatti-viadotto-fill')) {
+            state.map.addLayer({
+              id: 'opera-manufatti-viadotto-fill',
+              type: 'fill',
+              source: 'opera-source',
+              filter: ['==', ['get', 'tipo_feature'], 'MANUFATTO_VIADOTTO'],
+              paint: {
+                'fill-color': '#64748B',
+                'fill-opacity': 0.96
+              }
+            });
+          }
+          if (!state.map.getLayer('opera-manufatti-viadotto-ciglio')) {
+            state.map.addLayer({
+              id: 'opera-manufatti-viadotto-ciglio',
+              type: 'line',
+              source: 'opera-source',
+              filter: ['==', ['get', 'tipo_feature'], 'MANUFATTO_VIADOTTO'],
+              paint: {
+                'line-color': '#0F172A',
+                'line-width': 2.5
+              }
+            });
+          }
+
+          // Asse mezzeria di progetto continuo solido (segnaletica / binario continuo, no tratteggio)
+          if (!state.map.getLayer('opera-tracciato-asse')) {
+            state.map.addLayer({
+              id: 'opera-tracciato-asse',
+              type: 'line',
+              source: 'opera-source',
+              filter: ['==', ['get', 'tipo_feature'], 'ASSE_TRACCIATO'],
+              paint: {
+                'line-color': '#F8FAFC',
+                'line-width': 1.6
+              }
+            });
+          }
+
+          // D. LAYER RASTER CATASTO ADE (posizionato sotto la piattaforma di progetto)
           if (!state.map.getLayer('catasto-ade-layer')) {
             state.map.addLayer(
               {
@@ -1638,7 +1676,7 @@
                   'raster-opacity': 0.85
                 }
               },
-              'opera-tracciato-casing'
+              'opera-piattaforma-fill'
             );
           }
 
@@ -1775,8 +1813,31 @@
             });
           });
 
+          // Eventi click su Sede Opera di Progetto (Piattaforma Reale)
+          state.map.on('click', 'opera-piattaforma-fill', (e) => {
+            if (!e.features || !e.features.length) return;
+            const p = e.features[0].properties;
+            const popupHtml = `
+              <div style="font-family:'Inter',sans-serif; color:#fff; min-width:240px; font-size:11px; padding:2px;">
+                <div style="font-weight:700; color:#38BDF8; font-family:'JetBrains Mono',monospace; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:6px;">
+                  🛣️ SEDE OPERA DA PROGETTO
+                </div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Infrastruttura:</b> ${p.tipologia || 'Sede di Progetto'}</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Larghezza Piattaforma:</b> ${p.larghezza_m} metri</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Opera:</b> ${p.titolo || ''}</div>
+                <div style="color:#CBD5E1; font-size:10px; margin-top:4px; padding-top:4px; border-top:1px dashed #334155;">
+                  Sedime fisico reale dell'infrastruttura (Piano Particellare d'Esproprio)
+                </div>
+              </div>
+            `;
+            new maplibregl.Popup({ closeButton: true })
+              .setLngLat(e.lngLat)
+              .setHTML(popupHtml)
+              .addTo(state.map);
+          });
+
           // Cursori interattivi
-          ['opera-pk-circle', 'opera-opere-arte-circle', 'opera-buffer-esproprio-fill', 'opera-buffer-asservimento-fill'].forEach(lid => {
+          ['opera-pk-circle', 'opera-opere-arte-circle', 'opera-buffer-esproprio-fill', 'opera-buffer-asservimento-fill', 'opera-piattaforma-fill', 'opera-manufatti-viadotto-fill'].forEach(lid => {
             state.map.on('mouseenter', lid, () => { state.map.getCanvas().style.cursor = 'pointer'; });
             state.map.on('mouseleave', lid, () => { state.map.getCanvas().style.cursor = ''; });
           });
@@ -2324,11 +2385,13 @@
           });
         }
 
-        // Generazione Suite Tracciato Ingegneristico: Asse + Buffer Fasce (12m/25m/35m) + Picchetti PK
+        // Generazione Suite Tracciato Ingegneristico: Sedime Piattaforma + Manufatti + Limiti di Esproprio Solidi + PK
         if (window.TracciatoSuite) {
           const suite = window.TracciatoSuite.generaSuiteGeoJsonPerOpera(op);
           if (suite) {
-            axisFeatures.push(suite.asse);
+            if (suite.piattaforma) axisFeatures.push(suite.piattaforma);
+            if (suite.manufatti && suite.manufatti.length) axisFeatures.push(...suite.manufatti);
+            if (suite.asse) axisFeatures.push(suite.asse);
             if (suite.buffer_cantiere) bufferFeatures.push(suite.buffer_cantiere);
             if (suite.buffer_asservimento) bufferFeatures.push(suite.buffer_asservimento);
             if (suite.buffer_esproprio) bufferFeatures.push(suite.buffer_esproprio);
@@ -2352,7 +2415,8 @@
             },
             properties: {
               opera_slug: op.slug,
-              titolo: op.titolo
+              titolo: op.titolo,
+              tipo_feature: 'ASSE_TRACCIATO'
             }
           });
         }
@@ -2361,6 +2425,8 @@
       // Integra eventuali tracciati caricati dall'utente
       if (state.userTracciati && state.userTracciati.length) {
         state.userTracciati.forEach(ut => {
+          if (ut.piattaforma) axisFeatures.push(ut.piattaforma);
+          if (ut.manufatti) axisFeatures.push(...ut.manufatti);
           if (ut.asse) axisFeatures.push(ut.asse);
           if (ut.buffer_cantiere) bufferFeatures.push(ut.buffer_cantiere);
           if (ut.buffer_asservimento) bufferFeatures.push(ut.buffer_asservimento);
@@ -2406,7 +2472,9 @@
         'opera-buffer-cantiere-fill', 'opera-buffer-cantiere-line',
         'opera-buffer-asservimento-fill', 'opera-buffer-asservimento-line',
         'opera-buffer-esproprio-fill', 'opera-buffer-esproprio-line',
-        'opera-tracciato-casing', 'opera-tracciato-line'
+        'opera-piattaforma-fill', 'opera-piattaforma-ciglio',
+        'opera-manufatti-viadotto-fill', 'opera-manufatti-viadotto-ciglio',
+        'opera-tracciato-asse'
       ];
       layers.forEach(l => {
         if (state.map.getLayer(l)) state.map.setLayoutProperty(l, 'visibility', vis);
@@ -3371,8 +3439,7 @@
             paint: {
               'line-color': '#38BDF8',
               'line-width': 1.2,
-              'line-opacity': 0.65,
-              'line-dasharray': [2, 2]
+              'line-opacity': 0.70
             }
           });
         }

@@ -89,3 +89,11 @@ def test_quadro_interferenze_html_served():
     assert resp.status_code == 200
     assert "Quadro Territoriale delle Interferenze" in resp.text
     assert "tracciato_suite.js" in resp.text
+
+def test_api_catasto_wms_proxy():
+    # Test proxying with fallback PNG
+    resp = client.get("/api/catasto/wms?bbox=1284142,5706482,1284753,5707094")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"] == "image/png"
+    assert resp.headers["access-control-allow-origin"] == "*"
+    assert len(resp.content) > 0

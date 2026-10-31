@@ -295,8 +295,26 @@
     const bufEsp = tr.buffer_esproprio_m || 12.0;
     const bufAss = tr.buffer_asservimento_m || 25.0;
     const bufCant = tr.buffer_cantiere_m || 35.0;
+    const semiLarghezza = (tr.larghezza_piattaforma_m || 12.0) / 2.0;
 
-    // 1. Asse Opera
+    // 1. Piattaforma Fisica di Progetto (Sedime Sede d'Opera Poligonale Reale)
+    const geomPiattaforma = calcolaBufferPoligono(coords, semiLarghezza);
+    const piattaformaFeature = {
+      type: 'Feature',
+      id: `${op.slug}-piattaforma`,
+      geometry: geomPiattaforma,
+      properties: {
+        opera_slug: op.slug,
+        titolo: op.titolo,
+        tipo_feature: 'PIATTAFORMA_PROGETTO',
+        tipologia: tr.tipologia,
+        larghezza_m: tr.larghezza_piattaforma_m || 12.0,
+        colore: (tr.tipologia || '').toLowerCase().includes('ferrovia') ? '#334155' : '#1E293B',
+        desc: `Sede d'opera reale di progetto (Piattaforma ${tr.tipologia}, larghezza ${tr.larghezza_piattaforma_m || 12.0}m)`
+      }
+    };
+
+    // 1b. Asse di mezzeria di progetto (linea continua solida)
     const axisFeature = {
       type: 'Feature',
       id: `${op.slug}-asse`,
@@ -360,7 +378,37 @@
       }
     };
 
-    // 5. Progressive Chilometriche (PK) e Punti Notevoli
+    // 5. Opere d'Arte: Manufatti Poligonali Reali (Viadotti e Gallerie)
+    const manufattiFeatures = [];
+    if (tr.opere_arte) {
+      tr.opere_arte.forEach((oa, idx) => {
+        if (oa.tipo === 'Viadotto' || oa.tipo === 'Ponte') {
+          const wViadotto = (tr.larghezza_piattaforma_m || 12.0) * 1.25;
+          const deltaX = 0.0014;
+          const deltaY = 0.0009;
+          const boxCoords = [
+            [oa.coords[0] - deltaX, oa.coords[1] - deltaY],
+            [oa.coords[0] + deltaX, oa.coords[1] + deltaY]
+          ];
+          const geomBox = calcolaBufferPoligono(boxCoords, wViadotto / 2.0);
+          manufattiFeatures.push({
+            type: 'Feature',
+            id: `${op.slug}-viadotto-${idx}`,
+            geometry: geomBox,
+            properties: {
+              opera_slug: op.slug,
+              nome_opera_arte: oa.nome,
+              tipo_feature: 'MANUFATTO_VIADOTTO',
+              tipo: 'OPERA_ARTE',
+              sottotipo: oa.tipo,
+              desc: `Impalcato strutturale ${oa.nome} (${oa.pk})`
+            }
+          });
+        }
+      });
+    }
+
+    // 6. Progressive Chilometriche (PK) e Punti Notevoli
     const pkFeatures = [];
     let cumDistM = 0;
     const pkStepM = 500; // ogni 500 metri un picchetto
@@ -437,6 +485,8 @@
     return {
       tracciato: tr,
       lunghezza_km: totalKm,
+      piattaforma: piattaformaFeature,
+      manufatti: manufattiFeatures,
       asse: axisFeature,
       buffer_cantiere: cantiereFeature,
       buffer_asservimento: asservimentoFeature,
@@ -530,6 +580,8 @@
         suite.buffer_cantiere,
         suite.buffer_asservimento,
         suite.buffer_esproprio,
+        suite.piattaforma,
+        ...(suite.manufatti || []),
         suite.asse,
         ...suite.picchetti
       ]

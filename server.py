@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from pydantic import BaseModel, Field
 from stima_delta import router as stima_router
 
@@ -191,6 +191,64 @@ def get_particelle_sotto_tracciato(req: TracciatoInterferenzeRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/catasto/wms")
+@app.get("/catasto/wms")
+def proxy_catasto_wms(
+    bbox: str = Query(..., description="BBOX in EPSG:3857 (minx,miny,maxx,maxy)"),
+    service: str = "WMS",
+    request: str = "GetMap",
+    version: str = "1.3.0",
+    layers: str = "CP.CadastralParcel,BU.Building",
+    styles: str = "",
+    format: str = "image/png",
+    transparent: bool = True,
+    crs: str = "EPSG:3857",
+    width: int = 256,
+    height: int = 256
+):
+    """
+    Proxy resiliente WMS per il Catasto Agenzia delle Entrate con CORS headers aperti.
+    Risolve il blocco di sicurezza del browser sulle richieste verso i geoportali statali.
+    """
+    import requests
+
+    ade_url = (
+        f"https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?"
+        f"service={service}&request={request}&version={version}"
+        f"&layers={layers}&styles={styles}&format={format}&transparent={str(transparent).lower()}"
+        f"&crs={crs}&width={width}&height={height}&bbox={bbox}"
+    )
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko)"
+    }
+    try:
+        r = requests.get(ade_url, headers=headers, timeout=8)
+        content_type = r.headers.get("content-type", "")
+        if r.status_code == 200 and content_type.startswith("image/"):
+            return Response(
+                content=r.content,
+                media_type="image/png",
+                headers={
+                    "Access-Control-Allow-Origin": "*",
+                    "Cache-Control": "public, max-age=86400"
+                }
+            )
+    except Exception:
+        pass
+
+    # 1x1 transparent PNG fallback resiliente in caso di timeout o errore del server AdE
+    import base64
+    transparent_png_1x1 = base64.b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGBgAAAABQABpfZFQAAAAABJRU5ErkJggg=="
+    )
+    return Response(
+        content=transparent_png_1x1,
+        media_type="image/png",
+        headers={"Access-Control-Allow-Origin": "*"}
+    )
+
 
 
 @app.get("/health")
