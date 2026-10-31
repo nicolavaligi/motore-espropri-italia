@@ -97,6 +97,350 @@
     .pin-pulse {
       animation: pin-ping-kf 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
     }
+
+    /* Layout Overlay Modale Stima Delta DPR 327/2001 */
+    .modal-stima-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.80);
+      backdrop-filter: blur(5px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Finestra Flottante */
+    .modal-stima-window {
+      width: 900px;
+      max-width: 95vw;
+      max-height: 90vh;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: #f8fafc;
+      font-family: 'Inter', -apple-system, sans-serif;
+    }
+
+    /* Header & Drag Area */
+    .modal-stima-header {
+      padding: 12px 18px;
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: grab;
+      user-select: none;
+    }
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .header-title .icon {
+      font-size: 22px;
+    }
+    .header-title h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .header-title .subtitle {
+      font-size: 11px;
+      color: #94a3b8;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .btn-close-modal {
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .btn-close-modal:hover { color: #f8fafc; }
+
+    /* Corpo a 2 Colonne */
+    .modal-stima-body {
+      display: flex;
+      padding: 16px;
+      gap: 18px;
+      overflow-y: auto;
+    }
+
+    /* Form Styles */
+    .form-stima-grid {
+      flex: 1.15;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .form-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #38bdf8;
+      margin-top: 4px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 3px;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .flex-1 { flex: 1; }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .form-group label {
+      font-size: 10px;
+      color: #cbd5e1;
+    }
+    .form-group input, .form-group select {
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 6px 9px;
+      color: #ffffff;
+      font-size: 12px;
+      outline: none;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: #38bdf8;
+    }
+    .form-group-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #cbd5e1;
+      margin-top: 2px;
+    }
+    .btn-calcola-submit {
+      margin-top: 6px;
+      background: #0284c7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 9px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-calcola-submit:hover { background: #0369a1; }
+
+    /* Pannello Risultati Destro */
+    .modal-stima-kpi-panel {
+      flex: 0.95;
+      background: #1e293b;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .kpi-card-highlight {
+      background: #091322;
+      border: 1.5px solid #0284c7;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+    .kpi-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #94a3b8;
+    }
+    .kpi-value {
+      font-size: 26px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      margin: 4px 0;
+    }
+    .text-accent { color: #38bdf8; }
+    .kpi-badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.15);
+      color: #38bdf8;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+    .kpi-comparison-grid {
+      display: flex;
+      gap: 8px;
+    }
+    .kpi-box {
+      flex: 1;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .kpi-box .box-title { font-size: 9px; color: #94a3b8; }
+    .kpi-box .box-value { font-size: 13px; font-weight: 700; }
+    .box-ente .box-value { color: #f87171; }
+    .box-perizia .box-value { color: #4ade80; }
+
+    .breakdown-table {
+      background: #0f172a;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .breakdown-title {
+      color: #94a3b8;
+      font-weight: 700;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 2px;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      color: #cbd5e1;
+    }
+    .breakdown-row strong {
+      color: #f8fafc;
+    }
+
+    .fee-recommendation-box {
+      background: #091322;
+      border: 1px dashed #0284c7;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .fee-title {
+      font-size: 10px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    .fee-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #4ade80;
+      margin: 2px 0;
+    }
+    .fee-note {
+      font-size: 9px;
+      color: #94a3b8;
+    }
+
+    /* Confini Regionali ISTAT & Tooltip */
+    .regioni-border-layer {
+      stroke: #38bdf8;
+      stroke-width: 1.2px;
+      stroke-dasharray: 4, 3;
+      fill: rgba(56, 189, 248, 0.02);
+      transition: all 0.2s ease;
+    }
+    .regioni-border-layer:hover {
+      fill: rgba(56, 189, 248, 0.12);
+      stroke-width: 2px;
+    }
+    .tooltip-regione-istat {
+      background: #0f172a !important;
+      border: 1px solid #38bdf8 !important;
+      color: #38bdf8 !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.5px;
+      font-family: 'JetBrains Mono', monospace !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+    }
+
+    /* Marker Vettoriali e LED */
+    .custom-pin-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .pin-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: #090d16;
+      border: 1.5px solid #334155;
+      border-radius: 14px;
+      padding: 3px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+    }
+    .custom-pin-container:hover .pin-badge {
+      transform: scale(1.08) translateY(-2px);
+      border-color: #f8fafc;
+      z-index: 1000;
+    }
+    .pin-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .status-urgente .pin-led {
+      background: #ef4444;
+      box-shadow: 0 0 10px #ef4444;
+    }
+    .status-urgente .pin-badge { border-color: #ef4444; }
+    .status-dpu .pin-led {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+    .status-pda .pin-led {
+      background: #38bdf8;
+      box-shadow: 0 0 8px #38bdf8;
+    }
+    .status-pda .pin-badge { border-color: #38bdf8; }
+    .status-decreto .pin-led {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+    .pulse-ring {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      left: 2px;
+      pointer-events: none;
+    }
+    .status-urgente .pulse-ring {
+      background: rgba(239, 68, 68, 0.5);
+      animation: pin-ping-kf 1.8s infinite ease-out;
+    }
+
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col overflow-hidden text-slate-100 select-none">
@@ -131,8 +475,8 @@
         <span class="font-bold text-amber-400">Settimana</span> <span class="text-slate-500">→</span>
       </button>
 
-      <button onclick="openPeriziaCalculatorModal()" class="px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 transition-colors flex items-center gap-1 text-[11px]" title="Calcolatore rapido indennità D.P.R. 327/2001 e VAM">
-        <span class="font-bold text-emerald-400">Stima perizia</span> <span class="text-slate-500">→</span>
+      <button id="btn-open-stima" class="px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-emerald-500/50 text-slate-300 hover:text-emerald-300 transition-colors flex items-center gap-1 text-[11px]" title="Calcola Delta Indennità D.P.R. 327/2001">
+        <span class="font-bold text-emerald-400">⚖ Stima perizia</span> <span class="text-slate-500">→</span>
       </button>
 
       <button onclick="openGuidaModal()" class="hidden lg:flex px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-indigo-500/50 text-slate-300 hover:text-indigo-300 transition-colors items-center gap-1 text-[11px]" title="Guida procedurale e strategia pre-decreto">
@@ -389,117 +733,164 @@
   </div>
 
   <!-- =======================================================================
-       MODALE 1: CALCOLATORE RAPIDO STIMA PERIZIA (D.P.R. 327/2001)
+       MODALE FLOTTANTE CALCOLATORE PERIZIA & DELTA RECUPERABILE
        ======================================================================= -->
-  <div id="modal-perizia" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-xl shadow-2xl overflow-hidden text-xs">
+  <div id="modal-stima" class="modal-stima-overlay" style="display: none;">
+    <div class="modal-stima-window">
       
-      <div class="p-4 border-b border-slate-800 bg-slate-950 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i data-lucide="calculator" class="w-4 h-4 text-emerald-400"></i>
+      <!-- Header Modale con Titolo e Drag Handle -->
+      <div class="modal-stima-header" id="modal-stima-drag-handle">
+        <div class="header-title">
+          <span class="icon">⚖</span>
           <div>
-            <h3 class="text-sm font-bold text-slate-100 font-mono">Calcolatore Indennità Esproprio (D.P.R. 327/2001)</h3>
-            <p class="text-[10px] text-slate-400 font-mono">Stima del delta recuperabile rispetto all'offerta base dell'Ente</p>
+            <h3>Calcolatore Delta Indennità</h3>
+            <span class="subtitle">D.P.R. 327/2001 • Sentenze Consulta 348/2007 e 181/2011</span>
           </div>
         </div>
-        <button onclick="closePeriziaCalculatorModal()" class="text-slate-400 hover:text-slate-200">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+        <button id="btn-close-stima" class="btn-close-modal" title="Chiudi">&times;</button>
       </div>
 
-      <div class="p-4 space-y-4 font-mono">
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Superficie (mq)</label>
-            <input type="number" id="calc-mq" value="3500" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+      <!-- Corpo a Due Colonne: Input Form vs Report Live -->
+      <div class="modal-stima-body">
+        
+        <!-- Colonna Sinistra: Parametri Estimativi -->
+        <form id="form-stima" class="form-stima-grid" onsubmit="event.preventDefault();">
+          
+          <div class="form-section-title">Parametri di Base & Tipologia</div>
+          
+          <div class="input-row">
+            <div class="form-group flex-1">
+              <label for="inp-superficie">Superficie (mq)</label>
+              <input type="number" id="inp-superficie" value="3500" min="1" step="0.5" required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="inp-destinazione">Zonizzazione</label>
+              <select id="inp-destinazione">
+                <option value="agricola" selected>Agricola / Non Edificabile</option>
+                <option value="edificabile">Edificabile di Diritto</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Tipologia Intervento</label>
-            <select id="calc-intervento" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+
+          <div class="form-group">
+            <label for="inp-intervento">Titolo d'Intervento</label>
+            <select id="inp-intervento">
+              <option value="asservimento" selected>Asservimento (Metanodotto/Elettrodotto)</option>
               <option value="esproprio_totale">Esproprio Totale</option>
-              <option value="esproprio_parziale">Esproprio Parziale (art. 33)</option>
-              <option value="asservimento">Asservimento (Metanodotti/Elettrodotti)</option>
-              <option value="occupazione_temporanea">Occupazione Temporanea (art. 50)</option>
+              <option value="esproprio_parziale">Esproprio Parziale con Relitto (Art. 33)</option>
+              <option value="occupazione_temporanea">Occupazione Temporanea (Art. 50)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Destinazione Urbanistica</label>
-            <select id="calc-tipo" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-              <option value="agricola">Agricolo Ordinario (Seminativo)</option>
-              <option value="agricola_spec">Agricolo Specializzato (Vigneto/Frutteto)</option>
-              <option value="edificabile">Edificabile / Residenziale</option>
-              <option value="edificabile_ind">Produttivo / Commerciale D</option>
-            </select>
+
+          <div class="form-section-title">Confronto Valori (€/mq)</div>
+
+          <div class="input-row">
+            <div class="form-group flex-1">
+              <label for="inp-offerta-ente">Offerta Ente (€/mq)</label>
+              <input type="number" id="inp-offerta-ente" value="4.50" min="0" step="0.10" required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="inp-valore-mercato">Valore Venale Reale (€/mq)</label>
+              <input type="number" id="inp-valore-mercato" value="18.00" min="0.1" step="0.50" required>
+            </div>
           </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Valore Mercato Reale (€/mq)</label>
-            <input type="number" id="calc-reale" value="12.00" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
+
+          <div class="input-row" id="row-asservimento">
+            <div class="form-group flex-1">
+              <label for="inp-deprezzamento-ass">Saggio Deprezzamento (%)</label>
+              <input type="number" id="inp-deprezzamento-ass" value="50" min="1" max="100" step="5">
+            </div>
+            <div class="form-group flex-1">
+              <label for="inp-danno-relitto">Danno Relitto Residuo (€)</label>
+              <input type="number" id="inp-danno-relitto" value="5000" min="0" step="100">
+            </div>
           </div>
+
+          <div class="form-section-title">Soprassuoli & Maggiorazioni Spettanti</div>
+
+          <div class="input-row">
+            <div class="form-group flex-1">
+              <label for="inp-soprassuoli">Soprassuoli / Opere (€)</label>
+              <input type="number" id="inp-soprassuoli" value="3200" min="0" step="100">
+            </div>
+            <div class="form-group flex-1">
+              <label for="inp-frutti">Frutti Pendenti (Art. 40 c.4) (€)</label>
+              <input type="number" id="inp-frutti" value="800" min="0" step="50">
+            </div>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input type="checkbox" id="chk-coltivatore-diretto" checked>
+            <label for="chk-coltivatore-diretto">Conduttore Coltivatore Diretto o IAP (+ VAM)</label>
+          </div>
+
+          <div class="form-group" id="grp-vam">
+            <label for="inp-vam">VAM Tabellare Provinciale (€/mq)</label>
+            <input type="number" id="inp-vam" value="6.20" min="0" step="0.10">
+          </div>
+
+          <div class="form-group-checkbox">
+            <input type="checkbox" id="chk-cessione-volontaria">
+            <label for="chk-cessione-volontaria">Ipotesi Cessione Volontaria Art. 45 (+50% / +10%)</label>
+          </div>
+
+          <button type="button" id="btn-calcola-delta" class="btn-calcola-submit">
+            Ricalcola Stima Peritale
+          </button>
+        </form>
+
+        <!-- Colonna Destra: Cruscotto Risultati & Delta Recuperabile -->
+        <div class="modal-stima-kpi-panel">
+          
+          <div class="kpi-card-highlight">
+            <div class="kpi-label">DELTA RECUPERABILE RIVENDICABILE</div>
+            <div class="kpi-value text-accent" id="res-delta-valore">€ 0,00</div>
+            <div class="kpi-badge" id="res-delta-percentuale">+0% rispetto all'offerta</div>
+          </div>
+
+          <div class="kpi-comparison-grid">
+            <div class="kpi-box box-ente">
+              <span class="box-title">Offerta Ente Espropriante</span>
+              <span class="box-value" id="res-tot-ente">€ 0,00</span>
+            </div>
+            <div class="kpi-box box-perizia">
+              <span class="box-title">Stima Asseverata Perito</span>
+              <span class="box-value" id="res-tot-perizia">€ 0,00</span>
+            </div>
+          </div>
+
+          <div class="breakdown-table">
+            <div class="breakdown-title">Composizione Analitica Indennizzo</div>
+            <div class="breakdown-row">
+              <span>Indennità base suolo reale:</span>
+              <strong id="res-dett-suolo">€ 0,00</strong>
+            </div>
+            <div class="breakdown-row">
+              <span>Deprezzamento relitto (Art. 33):</span>
+              <strong id="res-dett-relitto">€ 0,00</strong>
+            </div>
+            <div class="breakdown-row">
+              <span>Soprassuoli e frutti pendenti:</span>
+              <strong id="res-dett-soprassuoli">€ 0,00</strong>
+            </div>
+            <div class="breakdown-row">
+              <span>Maggiorazione CD/IAP (Art. 40 c.4):</span>
+              <strong id="res-dett-cd">€ 0,00</strong>
+            </div>
+            <div class="breakdown-row">
+              <span>Maggiorazione cessione (Art. 45):</span>
+              <strong id="res-dett-cessione">€ 0,00</strong>
+            </div>
+          </div>
+
+          <div class="fee-recommendation-box">
+            <div class="fee-title">💼 Compenso Tecnico Suggerito (10% Delta)</div>
+            <div class="fee-value" id="res-compenso-tecnico">€ 0,00</div>
+            <div class="fee-note">Base di trattativa per accordo a successo con la ditta esproprianda.</div>
+          </div>
+
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Offerta Ente (€/mq)</label>
-            <input type="number" id="calc-vam" value="4.50" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-          </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Soprassuoli / Impianti (€)</label>
-            <input type="number" id="calc-soprassuoli" value="3000" step="500" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-          </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Danno Relitto art. 33 (€)</label>
-            <input type="number" id="calc-relitto" value="0" step="500" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-          </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Coltivatore Diretto / IAP</label>
-            <select id="calc-cd" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-              <option value="si">Sì (CD / IAP)</option>
-              <option value="no">No</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Cessione Volontaria (art. 45)</label>
-            <select id="calc-cessione" onchange="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-              <option value="si">Sì (Accettazione bonaria tempestiva)</option>
-              <option value="no">No (Contenzioso / Terna peritale art. 21)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-slate-400 text-[10px] font-bold mb-1">Durata Occupazione Temp. (anni)</label>
-            <input type="number" id="calc-anni-occ" value="1.0" step="0.5" oninput="calculateEstimate()" class="w-full bg-slate-950 border border-slate-700 rounded p-2 text-slate-100 text-xs focus:outline-none focus:border-emerald-400">
-          </div>
-        </div>
-
-        <!-- Risultati Simulazione -->
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-2">
-          <div class="flex justify-between items-center text-slate-400">
-            <span>Offerta Base Provvisoria dell'Ente:</span>
-            <span id="res-offerta" class="font-bold text-rose-400 text-sm">€ 15.750</span>
-          </div>
-          <div class="flex justify-between items-center text-slate-300">
-            <span>Stima Analitica Peritale D.P.R. 327 (Venale + Danni + Maggiorazioni):</span>
-            <span id="res-perizia" class="font-bold text-emerald-400 text-base">€ 57.750</span>
-          </div>
-          <div class="flex justify-between items-center pt-2 border-t border-slate-800 text-amber-400 font-bold">
-            <span>Delta Recuperabile per il Proprietario:</span>
-            <span id="res-delta" class="text-base font-bold">+ € 42.000 (+266%)</span>
-          </div>
-          <div class="flex justify-between items-center text-xs text-sky-400 pt-1">
-            <span>Base Onorario Tecnico Suggerito (10% Success Fee sul Delta):</span>
-            <span id="res-onorario" class="font-bold font-mono">€ 4.200</span>
-          </div>
-          <div class="text-[10px] text-slate-500 pt-1" id="res-normativa">
-            Normativa: Art. 40 D.P.R. 327/2001 (Corte Cost. sent. 181/2011) — Maggiorazione triplo art. 45 c. 2 lett. c
-          </div>
-        </div>
-      </div>
-
-      <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-between items-center text-xs font-mono">
-        <span class="text-slate-500">Applicazione artt. 37, 40, 42 e 45 D.P.R. 327/2001</span>
-        <button onclick="closePeriziaCalculatorModal()" class="px-4 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium">Chiudi</button>
       </div>
 
     </div>
@@ -1287,93 +1678,190 @@
     }
 
     /* =======================================================================
-       6. MODALE STIMA PERIZIA RAPIDA
+       6. MODALE STIMA PERIZIA & CALCOLATORE DELTA RECUPERABILE DPR 327/2001
        ======================================================================= */
-    function openPeriziaCalculatorModal() {
-      document.getElementById('modal-perizia').classList.remove('hidden');
-      calculateEstimate();
-    }
-    function closePeriziaCalculatorModal() {
-      document.getElementById('modal-perizia').classList.add('hidden');
+    const API_STIMA_ENDPOINT = "/api/stima/delta-recuperabile";
+
+    function formatEuro(num) {
+      return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(num || 0);
     }
 
-    function calculateEstimate() {
-      const mq = parseFloat(document.getElementById('calc-mq').value) || 0;
-      const intervento = document.getElementById('calc-intervento')?.value || 'esproprio_totale';
-      const tipo = document.getElementById('calc-tipo').value;
-      const vam = parseFloat(document.getElementById('calc-vam').value) || 0;
-      const reale = parseFloat(document.getElementById('calc-reale').value) || 0;
-      const soprassuoli = parseFloat(document.getElementById('calc-soprassuoli')?.value) || 0;
-      const relitto = parseFloat(document.getElementById('calc-relitto')?.value) || 0;
-      const isCD = document.getElementById('calc-cd').value === 'si';
-      const isCessione = document.getElementById('calc-cessione').value === 'si';
-      const anniOcc = parseFloat(document.getElementById('calc-anni-occ')?.value) || 1.0;
-
-      const isEdificabile = (tipo === 'edificabile' || tipo === 'edificabile_ind');
-      const offEnte = Math.round(mq * vam);
-      let indennitaSuoloReale = 0;
-      let dannoRelitto = (intervento === 'esproprio_parziale' || intervento === 'asservimento') ? relitto : 0;
-      let normativaTesto = '';
-
-      if (intervento === 'esproprio_totale' || intervento === 'esproprio_parziale') {
-        indennitaSuoloReale = mq * reale;
-      } else if (intervento === 'asservimento') {
-        // Saggio medio di deprezzamento fascia asservita (50%)
-        indennitaSuoloReale = mq * reale * 0.50;
-      } else if (intervento === 'occupazione_temporanea') {
-        // Art. 50: 1/12 del valore venale per anno
-        indennitaSuoloReale = (mq * reale / 12.0) * anniOcc;
-        dannoRelitto = 0;
+    function openStimaModal() {
+      const modal = document.getElementById("modal-stima");
+      if (modal) {
+        modal.style.display = "flex";
+        eseguiCalcoloDelta();
       }
+    }
 
-      // Maggiorazione Coltivatore Diretto / IAP (art. 40 c. 4)
-      let indennitaMaggiorazioneCD = 0;
-      if (isCD && !isEdificabile) {
-        indennitaMaggiorazioneCD = mq * (vam > 0 ? vam : (reale * 0.5));
+    function closeStimaModal() {
+      const modal = document.getElementById("modal-stima");
+      if (modal) modal.style.display = "none";
+    }
+
+    async function eseguiCalcoloDelta() {
+      const sup = parseFloat(document.getElementById("inp-superficie")?.value) || 3500;
+      const dest = document.getElementById("inp-destinazione")?.value || "agricola";
+      const inter = document.getElementById("inp-intervento")?.value || "asservimento";
+      const offUnitaria = parseFloat(document.getElementById("inp-offerta-ente")?.value) || 4.5;
+      const valMercato = parseFloat(document.getElementById("inp-valore-mercato")?.value) || 18.0;
+      const deprAss = (parseFloat(document.getElementById("inp-deprezzamento-ass")?.value) || 50) / 100;
+      const dannoRel = parseFloat(document.getElementById("inp-danno-relitto")?.value) || 0;
+      const sopras = parseFloat(document.getElementById("inp-soprassuoli")?.value) || 0;
+      const frutti = parseFloat(document.getElementById("inp-frutti")?.value) || 0;
+      const isCD = Boolean(document.getElementById("chk-coltivatore-diretto")?.checked);
+      const vam = parseFloat(document.getElementById("inp-vam")?.value) || 0;
+      const isCess = Boolean(document.getElementById("chk-cessione-volontaria")?.checked);
+
+      const payload = {
+        superficie_mq: sup,
+        destinazione: dest,
+        intervento: inter,
+        offerta_unitaria_ente: offUnitaria,
+        valore_venale_mercato_mq: valMercato,
+        saggio_deprezzamento_asservimento: deprAss,
+        deprezzamento_relitto_euro: dannoRel,
+        valore_soprassuoli_euro: sopras,
+        frutti_pendenti_euro: frutti,
+        is_coltivatore_diretto_o_iap: isCD,
+        vam_tabellare_mq: vam,
+        adesione_cessione_volontaria: isCess,
+        anni_occupazione: 1.0
+      };
+
+      try {
+        const response = await fetch(API_STIMA_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) throw new Error("Errore API Stima");
+        const data = await response.json();
+        renderStimaRisultati(data);
+      } catch (err) {
+        // Fallback deterministico locale conforme
+        calcolaStimaFallbackLocale(payload);
       }
+    }
 
-      // Maggiorazioni Cessione Volontaria (art. 45)
-      let maggiorazioneCessione = 0;
-      if (isCessione) {
-        if (!isEdificabile) {
-          if (!isCD) {
-            maggiorazioneCessione = indennitaSuoloReale * 0.50; // +50% non coltivatore
-          } else {
-            maggiorazioneCessione = indennitaSuoloReale * 2.0;  // Porta al triplo del valore base
-          }
+    function renderStimaRisultati(data) {
+      const elDelta = document.getElementById("res-delta-valore");
+      const elPerc = document.getElementById("res-delta-percentuale");
+      const elTotEnte = document.getElementById("res-tot-ente");
+      const elTotPerizia = document.getElementById("res-tot-perizia");
+      const elSuolo = document.getElementById("res-dett-suolo");
+      const elRelitto = document.getElementById("res-dett-relitto");
+      const elSoprassuoli = document.getElementById("res-dett-soprassuoli");
+      const elCD = document.getElementById("res-dett-cd");
+      const elCessione = document.getElementById("res-dett-cessione");
+      const elCompenso = document.getElementById("res-compenso-tecnico");
+
+      if (elDelta) elDelta.innerText = formatEuro(data.delta_recuperabile);
+      if (elPerc) elPerc.innerText = `+${Number(data.percentuale_recupero).toFixed(1)}% rispetto all'offerta`;
+      if (elTotEnte) elTotEnte.innerText = formatEuro(data.totale_offerta_ente);
+      if (elTotPerizia) elTotPerizia.innerText = formatEuro(data.totale_stima_peritale);
+
+      if (elSuolo) elSuolo.innerText = formatEuro(data.dettaglio_calcolo?.indennita_suolo_reale || 0);
+      if (elRelitto) elRelitto.innerText = formatEuro(data.dettaglio_calcolo?.deprezzamento_relitto_art33 || 0);
+      if (elSoprassuoli) elSoprassuoli.innerText = formatEuro(data.dettaglio_calcolo?.soprassuoli_e_frutti || 0);
+      if (elCD) elCD.innerText = formatEuro(data.dettaglio_calcolo?.indennita_aggiuntiva_cd_iap_art40 || 0);
+      if (elCessione) elCessione.innerText = formatEuro(data.dettaglio_calcolo?.maggiorazione_cessione_art45 || 0);
+      if (elCompenso) elCompenso.innerText = formatEuro(data.base_onorario_tecnico_consigliato || 0);
+    }
+
+    function calcolaStimaFallbackLocale(p) {
+      const offEnte = p.superficie_mq * p.offerta_unitaria_ente;
+      let suoloReale = p.superficie_mq * p.valore_venale_mercato_mq;
+      if (p.intervento === "asservimento") {
+        suoloReale *= p.saggio_deprezzamento_asservimento;
+      }
+      const relitto = (p.intervento === "esproprio_parziale" || p.intervento === "asservimento") ? p.deprezzamento_relitto_euro : 0;
+      const soprassuoli = p.valore_soprassuoli_euro + p.frutti_pendenti_euro;
+      let cdVal = 0;
+      if (p.is_coltivatore_diretto_o_iap && p.destinazione === "agricola") {
+        cdVal = p.vam_tabellare_mq > 0 ? (p.vam_tabellare_mq * p.superficie_mq) : (suoloReale * 0.5);
+      }
+      let cessione = 0;
+      if (p.adesione_cessione_volontaria) {
+        cessione = p.destinazione === "agricola" ? (p.is_coltivatore_diretto_o_iap ? suoloReale * 2 : suoloReale * 0.5) : (suoloReale * 0.1);
+      }
+      const totPerizia = suoloReale + relitto + soprassuoli + cdVal + cessione;
+      const delta = Math.max(0, totPerizia - offEnte);
+      const perc = offEnte > 0 ? (delta / offEnte * 100) : 100;
+
+      renderStimaRisultati({
+        totale_offerta_ente: offEnte,
+        totale_stima_peritale: totPerizia,
+        delta_recuperabile: delta,
+        percentuale_recupero: perc,
+        dettaglio_calcolo: {
+          indennita_suolo_reale: suoloReale,
+          deprezzamento_relitto_art33: relitto,
+          soprassuoli_e_frutti: soprassuoli,
+          indennita_aggiuntiva_cd_iap_art40: cdVal,
+          maggiorazione_cessione_art45: cessione
+        },
+        base_onorario_tecnico_consigliato: Math.round(delta * 0.10)
+      });
+    }
+
+    // Bridge: precarica particella catastale nel calcolatore e apre il modale
+    window.innescaCalcoloDaParticella = function(p, contestoOpera = {}) {
+      const modal = document.getElementById('modal-stima');
+      if (!modal) return;
+
+      const supEsproprio = parseFloat(p.superficie_occupata || p.superfici_mq?.esproprio || p.sup_mq || 0);
+      const supAsservimento = parseFloat(p.superfici_mq?.asservimento || 0);
+      const supTotaleMq = supEsproprio > 0 ? supEsproprio : (supAsservimento > 0 ? supAsservimento : 1000);
+
+      const inpIntervento = document.getElementById('inp-intervento');
+      if (inpIntervento) {
+        if (supAsservimento > 0 && supEsproprio === 0) {
+          inpIntervento.value = 'asservimento';
+        } else if (p.esproprio_parziale) {
+          inpIntervento.value = 'esproprio_parziale';
         } else {
-          maggiorazioneCessione = indennitaSuoloReale * 0.10; // +10% edificabile
+          inpIntervento.value = 'esproprio_totale';
         }
       }
 
-      const totalePerizia = Math.round(
-        indennitaSuoloReale + dannoRelitto + soprassuoli + indennitaMaggiorazioneCD + maggiorazioneCessione
-      );
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined && val !== null) el.value = val;
+      };
 
-      const delta = Math.max(0, totalePerizia - offEnte);
-      const perc = offEnte > 0 ? Math.round((delta / offEnte) * 100) : 100;
-      const onorario = Math.round(delta * 0.10);
+      setVal('inp-superficie', supTotaleMq);
+      const offertaEnte = p.offerta_proposta_mq || p.indennita_unitaria || 4.50;
+      setVal('inp-offerta-ente', offertaEnte);
 
-      if (isEdificabile) {
-        normativaTesto = `Art. 37 D.P.R. 327/2001 (Corte Cost. sent. 348/2007)${isCessione ? ' — +10% Cessione Volontaria (art. 45 c. 2 lett. a)' : ''}`;
-      } else {
-        normativaTesto = `Art. 40 D.P.R. 327/2001 (Corte Cost. sent. 181/2011)${isCessione ? (isCD ? ' — Triplo Valore Agricolo CD/IAP (art. 45 c. 2 lett. c)' : ' — +50% Cessione Non Coltivatore (art. 45 c. 2 lett. c)') : ''}`;
+      const stimaMercatoZona = p.valore_mercato_stimato_mq || (offertaEnte * 3.5);
+      setVal('inp-valore-mercato', Math.round(stimaMercatoZona * 10) / 10);
+      setVal('inp-soprassuoli', p.indennita_soprassuoli || 0);
+
+      const chkCd = document.getElementById('chk-coltivatore-diretto');
+      if (chkCd) {
+        chkCd.checked = Boolean(p.is_coltivatore_diretto || p.qualifica_professionale === 'CD');
       }
 
-      if (intervento === 'asservimento') {
-        normativaTesto += ' — Asservimento per pubblica utilità (svalutazione 50% fascia)';
-      } else if (intervento === 'occupazione_temporanea') {
-        normativaTesto = `Art. 50 D.P.R. 327/2001 — Occupazione d'urgenza/temporanea (1/12 annuo per ${anniOcc} anni)`;
+      const subtitleEl = modal.querySelector('.modal-stima-header .subtitle');
+      if (subtitleEl) {
+        subtitleEl.innerHTML = `
+          <b>Fg. ${p.foglio || '-'} Mapp. ${p.mappale || '-'}</b> 
+          • Ditta: <i>${p.intestatario || 'Ditta non censita'}</i> 
+          • Opera: ${contestoOpera.sigla || contestoOpera.cup || 'Infrastruttura'}
+        `;
       }
 
-      document.getElementById('res-offerta').textContent = `€ ${offEnte.toLocaleString('it-IT')}`;
-      document.getElementById('res-perizia').textContent = `€ ${totalePerizia.toLocaleString('it-IT')}`;
-      document.getElementById('res-delta').textContent = `+ € ${delta.toLocaleString('it-IT')} (+${perc}%)`;
-      const elOnorario = document.getElementById('res-onorario');
-      if (elOnorario) elOnorario.textContent = `€ ${onorario.toLocaleString('it-IT')}`;
-      const elNorm = document.getElementById('res-normativa');
-      if (elNorm) elNorm.textContent = `Normativa applicata: ${normativaTesto}`;
-    }
+      modal.style.display = 'flex';
+      eseguiCalcoloDelta();
+    };
+
+    window.innescaCalcoloParticellaByIndex = function(idx) {
+      if (state.selectedOpera && state.selectedOpera.ditte && state.selectedOpera.ditte[idx]) {
+        window.innescaCalcoloDaParticella(state.selectedOpera.ditte[idx], state.selectedOpera);
+      }
+    };
 
     /* =======================================================================
        7. MODALE GUIDA & MODALE DITTE
@@ -1420,7 +1908,7 @@
         return;
       }
 
-      tbody.innerHTML = ditte.map(d => `
+      tbody.innerHTML = ditte.map((d, idx) => `
         <tr class="hover:bg-slate-800/40 text-slate-300">
           <td class="p-2 font-medium text-slate-100">${d.intestatario}</td>
           <td class="p-2 text-slate-400">${d.comune}</td>
@@ -1432,8 +1920,8 @@
             ${d.delta ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">ACCERTARE</span>' : '<span class="text-slate-600">-</span>'}
           </td>
           <td class="p-2 text-center">
-            <button onclick="alert('Generazione memoria tecnica / perizia rapida DPR 327 per: ${d.intestatario}')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 text-[10px] border border-slate-700">
-              Perizia
+            <button onclick="window.innescaCalcoloParticellaByIndex(${idx})" class="px-2 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-400 text-[10px] font-bold border border-sky-500/40" title="Calcola Delta Indennità D.P.R. 327/2001">
+              ⚖ Stima Delta
             </button>
           </td>
         </tr>
@@ -1571,19 +2059,114 @@
     /* =======================================================================
        9. BOOTSTRAP APPLICAZIONE (FETCH REST API VERBATIM)
        ======================================================================= */
+    async function caricaConfiniRegionaliIstat(map) {
+      try {
+        const res = await fetch('https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_regions.geojson');
+        if (!res.ok) return;
+        const geojsonData = await res.json();
+        L.geoJSON(geojsonData, {
+          style: { className: 'regioni-border-layer' },
+          onEachFeature: (feature, layer) => {
+            if (feature.properties && feature.properties.reg_name) {
+              layer.bindTooltip(feature.properties.reg_name.toUpperCase(), {
+                sticky: true,
+                className: 'tooltip-regione-istat'
+              });
+            }
+          }
+        }).addTo(map);
+      } catch (err) {
+        console.warn("Impossibile caricare confini regionali:", err);
+      }
+    }
+
+    function initStimaModalBindings() {
+      const modal = document.getElementById("modal-stima");
+      const btnOpen = document.getElementById("btn-open-stima");
+      const btnClose = document.getElementById("btn-close-stima");
+      const btnCalcola = document.getElementById("btn-calcola-delta");
+      const form = document.getElementById("form-stima");
+
+      if (btnOpen) {
+        btnOpen.addEventListener("click", () => openStimaModal());
+      }
+      if (btnClose) {
+        btnClose.addEventListener("click", () => closeStimaModal());
+      }
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal && modal.style.display === "flex") {
+          closeStimaModal();
+        }
+      });
+
+      if (modal) {
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) closeStimaModal();
+        });
+      }
+
+      if (form) {
+        form.querySelectorAll("input, select").forEach((elem) => {
+          elem.addEventListener("input", eseguiCalcoloDelta);
+          elem.addEventListener("change", eseguiCalcoloDelta);
+        });
+      }
+
+      if (btnCalcola) {
+        btnCalcola.addEventListener("click", eseguiCalcoloDelta);
+      }
+
+      // Drag Handle semplice
+      const handle = document.getElementById("modal-stima-drag-handle");
+      const windowEl = modal?.querySelector(".modal-stima-window");
+      if (handle && windowEl) {
+        let isDragging = false;
+        let startX, startY, origX, origY;
+
+        handle.addEventListener("mousedown", (e) => {
+          if (e.target.closest("button")) return;
+          isDragging = true;
+          startX = e.clientX;
+          startY = e.clientY;
+          const rect = windowEl.getBoundingClientRect();
+          origX = rect.left;
+          origY = rect.top;
+          windowEl.style.position = "absolute";
+          windowEl.style.margin = "0";
+        });
+
+        window.addEventListener("mousemove", (e) => {
+          if (!isDragging) return;
+          const dx = e.clientX - startX;
+          const dy = e.clientY - startY;
+          windowEl.style.left = `${origX + dx}px`;
+          windowEl.style.top = `${origY + dy}px`;
+        });
+
+        window.addEventListener("mouseup", () => {
+          isDragging = false;
+        });
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       startClock();
+      initStimaModalBindings();
+
       fetch('http://127.0.0.1:8000/api/opere')
         .then(res => res.json())
         .then(data => {
           state.opere = data;
           initMap();
+          caricaConfiniRegionaliIstat(state.map);
           applyFilters();
         })
         .catch(err => {
           console.warn("API locale non raggiungibile, uso fallback locale:", err);
           initMap();
+          caricaConfiniRegionaliIstat(state.map);
           applyFilters();
         });
     });
