@@ -11,11 +11,12 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
+from stima_delta import router as stima_router
 
 app = FastAPI(
     title="Motore Espropri Italia API",
     description="Feed REST e intelligence per piani particellari e procedure D.P.R. 327/2001",
-    version="1.1.0"
+    version="1.2.0"
 )
 
 # CORS Middleware aperto per chiamate locali e dashboard
@@ -26,6 +27,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(stima_router)
 
 DATA_PATH = Path(__file__).parent / "data" / "opere.json"
 STATIC_INDEX = Path(__file__).parent / "index.html"
