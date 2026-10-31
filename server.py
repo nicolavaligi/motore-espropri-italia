@@ -84,6 +84,7 @@ async def serve_index():
 
 @app.get("/quadro-interferenze", response_class=HTMLResponse)
 @app.get("/interferenze", response_class=HTMLResponse)
+@app.get("/quadro_interferenze.html", response_class=HTMLResponse)
 async def serve_quadro_interferenze():
     if QUADRO_INTERFERENZE_HTML.exists():
         return FileResponse(QUADRO_INTERFERENZE_HTML)
