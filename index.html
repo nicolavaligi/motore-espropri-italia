@@ -794,11 +794,17 @@
         <span id="catasto-zoom-alert" style="display: none; color: #f59e0b; font-size: 10px; font-weight: bold;">⚠️ Zoom ≥ 15 per particelle</span>
       </div>
 
-      <!-- Quick Reset View Button -->
-      <button onclick="zoomNordItalia()" class="bg-slate-950/90 hover:bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 text-[11px] shadow-lg flex items-center justify-center gap-1.5">
-        <i data-lucide="compass" class="w-3.5 h-3.5 text-sky-400"></i>
-        <span>Reset Vista Italia</span>
-      </button>
+      <!-- Controlli Inclinazione 3D e Reset Centratura -->
+      <div class="flex gap-1.5">
+        <button onclick="togglePitch3D()" id="btn-toggle-pitch" class="flex-1 bg-slate-950/90 hover:bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-300 text-[10px] shadow-lg flex items-center justify-center gap-1 transition-colors" title="Inverti tra prospettiva 3D cinematografica (35-50°) e vista zenitale 2D (0°)">
+          <i data-lucide="box" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>3D / 2D</span>
+        </button>
+        <button onclick="zoomNordItalia()" class="flex-1 bg-slate-950/90 hover:bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-300 text-[10px] shadow-lg flex items-center justify-center gap-1 transition-colors" title="Centra la vista sull'Italia">
+          <i data-lucide="compass" class="w-3.5 h-3.5 text-sky-400"></i>
+          <span>Centra IT</span>
+        </button>
+      </div>
 
       <!-- Legenda Rapida Trasparente (Desktop) -->
       <div class="hidden lg:block bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 text-[10px] text-slate-300 space-y-1.5 shadow-xl">
@@ -1360,6 +1366,19 @@
       }
     }
 
+    function togglePitch3D() {
+      if (!state.map) return;
+      const currentPitch = state.map.getPitch();
+      const btn = document.getElementById('btn-toggle-pitch');
+      if (currentPitch > 15) {
+        state.map.easeTo({ pitch: 0, bearing: 0, duration: 600 });
+        if (btn) btn.classList.remove('text-amber-400');
+      } else {
+        state.map.easeTo({ pitch: 45, bearing: 20, duration: 600 });
+        if (btn) btn.classList.add('text-amber-400');
+      }
+    }
+
     function toggleSidebar() {
       state.sidebarOpen = !state.sidebarOpen;
       const el = document.getElementById('floating-sidebar');
@@ -1669,9 +1688,22 @@
       if (op && marker && state.map) {
         state.selectedOpera = op;
 
+        // Attiva visivamente il pin vettoriale sulla mappa
         document.querySelectorAll('.map-pin-wrap').forEach(p => p.classList.remove('active'));
         const pinEl = document.getElementById(`pin-${slug}`);
         if (pinEl) pinEl.classList.add('active');
+
+        // Sincronizza ed evidenzia la card nella sidebar
+        document.querySelectorAll('.opera-card-item').forEach(c => {
+          c.classList.remove('border-amber-400', 'bg-slate-800', 'ring-1', 'ring-amber-400/40');
+          c.classList.add('border-slate-800', 'bg-slate-900/60');
+        });
+        const cardEl = document.getElementById(`card-opera-${slug}`);
+        if (cardEl) {
+          cardEl.classList.remove('border-slate-800', 'bg-slate-900/60');
+          cardEl.classList.add('border-amber-400', 'bg-slate-800', 'ring-1', 'ring-amber-400/40');
+          cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
 
         // Camera FlyTo 3D cinematografica con pitch e inclinazione
         state.map.flyTo({
@@ -1699,7 +1731,7 @@
       if (opere.length === 0) {
         container.innerHTML = `
           <div class="p-4 text-center text-slate-500 font-mono text-[11px]">
-            Nessuna opera corrispondente.
+            Nessuna opera corrispondente ai filtri attivi.
           </div>
         `;
         return;
@@ -1716,7 +1748,7 @@
         ` : '';
 
         return `
-          <div onclick="selectAndOpenPin('${op.slug}')" class="p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all">
+          <div id="card-opera-${op.slug}" onclick="selectAndOpenPin('${op.slug}')" class="opera-card-item p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all">
             <div class="flex items-center justify-between gap-1 mb-1 font-mono text-[10px]">
               <div class="flex items-center gap-1.5 truncate">
                 <span class="w-2 h-2 rounded-full inline-block shrink-0" style="background:${color};"></span>
@@ -1872,6 +1904,7 @@
         return true;
       });
 
+      state.filteredOpere = filtered;
       updateMapMarkers(filtered);
       updateGlobalMetrics(filtered);
 
@@ -1891,17 +1924,20 @@
     function updateGlobalMetrics(filteredList) {
       const pool = filteredList || state.opere;
       
-      const nostreCount = state.opere.filter(o => o.nostra_opera).length;
+      const nostreCount = pool.filter(o => o.nostra_opera).length;
       const inVista = pool.length;
-      const avanzate = state.opere.filter(o => o.stato_opera === 'AVANZATA_SENZA_ELENCO').length;
-      const elenchi = state.opere.filter(o => o.stato_opera === 'ELENCO_PUBBLICATO').length;
-      const totEurMln = Math.round(state.opere.reduce((acc, o) => acc + (o.importo_eur || 0), 0) / 1000000);
+      const avanzate = pool.filter(o => o.stato_opera === 'AVANZATA_SENZA_ELENCO').length;
+      const elenchi = pool.filter(o => o.stato_opera === 'ELENCO_PUBBLICATO').length;
+      const totEurMln = Math.round(pool.reduce((acc, o) => acc + (o.importo_eur || 0), 0) / 1000000);
       
       const allComuni = new Set();
-      state.opere.forEach(o => {
-        (o.comune || '').split(',').forEach(c => allComuni.add(c.trim()));
+      pool.forEach(o => {
+        (o.comune || '').split(',').forEach(c => {
+          const t = c.trim();
+          if (t) allComuni.add(t);
+        });
       });
-      const allRegioni = new Set(state.opere.map(o => o.regione));
+      const allRegioni = new Set(pool.map(o => o.regione).filter(Boolean));
 
       document.getElementById('stat-nostre').textContent = nostreCount;
       document.getElementById('stat-in-vista').textContent = inVista;
@@ -2061,16 +2097,31 @@
         }
       }
 
+      // Zonizzazione stimata (Edificabile vs Agricola)
+      const isEdificabile = p.destinazione && p.destinazione.toLowerCase().includes('edificabile');
+      const inpDest = document.getElementById('inp-destinazione');
+      if (inpDest) {
+        inpDest.value = isEdificabile ? 'edificabile' : 'agricola';
+      }
+
       const setVal = (id, val) => {
         const el = document.getElementById(id);
         if (el && val !== undefined && val !== null) el.value = val;
       };
 
       setVal('inp-superficie', supTotaleMq);
-      const offertaEnte = p.offerta_proposta_mq || p.indennita_unitaria || 4.50;
+      
+      // Calcolo offerta ente unitaria dedotta da indennità e superficie
+      let offertaEnte = 4.50;
+      if (p.indennita && supTotaleMq > 0) {
+        offertaEnte = Math.round((p.indennita / supTotaleMq) * 100) / 100;
+      } else if (p.offerta_proposta_mq) {
+        offertaEnte = p.offerta_proposta_mq;
+      }
       setVal('inp-offerta-ente', offertaEnte);
 
-      const stimaMercatoZona = p.valore_mercato_stimato_mq || (offertaEnte * 3.5);
+      // Valore venale peritale di mercato realistico
+      const stimaMercatoZona = p.valore_mercato_stimato_mq || (isEdificabile ? Math.max(offertaEnte * 2.5, 45.0) : Math.max(offertaEnte * 3.5, 18.0));
       setVal('inp-valore-mercato', Math.round(stimaMercatoZona * 10) / 10);
       setVal('inp-soprassuoli', p.indennita_soprassuoli || 0);
 
@@ -2082,9 +2133,9 @@
       const subtitleEl = modal.querySelector('.modal-stima-header .subtitle');
       if (subtitleEl) {
         subtitleEl.innerHTML = `
-          <b>Fg. ${p.foglio || '-'} Mapp. ${p.mappale || '-'}</b> 
+          <b>Fg. ${p.foglio || '-'} Mapp. ${p.mappali || p.mappale || '-'}</b> 
           • Ditta: <i>${p.intestatario || 'Ditta non censita'}</i> 
-          • Opera: ${contestoOpera.sigla || contestoOpera.cup || 'Infrastruttura'}
+          • Opera: ${contestoOpera.titolo || contestoOpera.cup || 'Infrastruttura'}
         `;
       }
 
@@ -2159,7 +2210,11 @@
         return;
       }
 
-      tbody.innerHTML = ditte.map((d, idx) => `
+      tbody.innerHTML = ditte.map((d, idx) => {
+        const originalIndex = (state.selectedOpera && state.selectedOpera.ditte) 
+          ? state.selectedOpera.ditte.indexOf(d) 
+          : idx;
+        return `
         <tr class="hover:bg-slate-800/40 text-slate-300">
           <td class="p-2 font-medium text-slate-100">${d.intestatario}</td>
           <td class="p-2 text-slate-400">${d.comune}</td>
@@ -2171,12 +2226,13 @@
             ${d.delta ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">ACCERTARE</span>' : '<span class="text-slate-600">-</span>'}
           </td>
           <td class="p-2 text-center">
-            <button onclick="window.innescaCalcoloParticellaByIndex(${idx})" class="px-2 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-400 text-[10px] font-bold border border-sky-500/40" title="Calcola Delta Indennità D.P.R. 327/2001">
+            <button onclick="window.innescaCalcoloParticellaByIndex(${originalIndex})" class="px-2 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-400 text-[10px] font-bold border border-sky-500/40 transition-colors" title="Calcola Delta Indennità D.P.R. 327/2001">
               ⚖ Stima Delta
             </button>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function filterDitteTable() {
@@ -2282,29 +2338,42 @@
     }
 
     function exportCSV() {
-      const headers = ["Slug", "CUP", "Titolo", "Ente", "Regione", "Comuni", "Stato", "MaturityScore", "ImportoEUR", "DataPubblicazione", "Azione"];
-      const rows = state.opere.map(o => [
-        `"${o.slug}"`,
+      const list = (state.filteredOpere && state.filteredOpere.length > 0) ? state.filteredOpere : state.opere;
+      const headers = [
+        "Slug", "CUP", "Titolo", "Ente", "Regione", "Provincia", "Comune", 
+        "StatoOpera", "FaseProcedurale", "StepMaturita", "ImportoEUR", 
+        "DitteCensite", "ScadenzaOsservazioni", "DataPubblicazione", "AzioneStrategica", "FonteAtto"
+      ];
+      const rows = list.map(o => [
+        `"${o.slug || ''}"`,
         `"${o.cup || ''}"`,
-        `"${o.titolo.replace(/"/g, '""')}"`,
-        `"${o.ente}"`,
-        `"${o.regione}"`,
-        `"${o.comune}"`,
-        `"${o.stato_opera}"`,
-        o.maturity_score,
+        `"${(o.titolo || '').replace(/"/g, '""')}"`,
+        `"${(o.ente || '').replace(/"/g, '""')}"`,
+        `"${o.regione || ''}"`,
+        `"${o.provincia || ''}"`,
+        `"${(o.comune || '').replace(/"/g, '""')}"`,
+        `"${o.stato_opera || ''}"`,
+        `"${o.fase_procedurale || ''}"`,
+        o.maturita_step || o.maturity_score || 3,
         o.importo_eur || 0,
-        o.data_pubblicazione,
-        `"${o.azione ? o.azione.verbo : ''}"`
+        o.ditte ? o.ditte.length : 0,
+        `"${o.scadenza_osservazioni || ''}"`,
+        `"${o.data_pubblicazione || ''}"`,
+        `"${(o.azione ? o.azione.verbo : '').replace(/"/g, '""')}"`,
+        `"${(o.fonte_atto_url || o.fonte_url || '').replace(/"/g, '""')}"`
       ]);
 
-      const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-      const encodedUri = encodeURI(csvContent);
+      // Prefisso UTF-8 BOM (\uFEFF) e separatore punto e virgola (;) per apertura diretta in Microsoft Excel
+      const csvString = "\uFEFF" + [headers.join(';'), ...rows.map(e => e.join(';'))].join('\r\n');
+      const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", url);
       link.setAttribute("download", `motore_espropri_italia_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
 
     /* =======================================================================
