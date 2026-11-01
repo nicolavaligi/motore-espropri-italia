@@ -2102,7 +2102,7 @@
           🗺️ PdA Ditte (${numDitte}) ↗
         </button>
       ` : '';
-      const stepScore = op.maturita_step || op.maturity_score || 3;
+      const stepScore = op.maturita_step ?? op.maturity_score ?? null;
       
       const procedureSteps = [
         { step: 1, fase: 'VINCOLO_PREORDINATO', label: '1. Vincolo preordinato esproprio (artt. 9-10)', desc: 'Conformità urbanistica o variante PGT' },
@@ -2311,7 +2311,7 @@
         const hasPda = op.ditte && op.ditte.length > 0;
         const isAvanzata = op.stato_opera === 'AVANZATA_SENZA_ELENCO';
         const numDitte = op.ditte ? op.ditte.length : 0;
-        const step = op.maturita_step || 3;
+        const step = op.maturita_step ?? null;
 
         // Palette Teardrop Pin 3D SunPro
         let outerColor = getPinColor(op.stato_opera);
@@ -3153,10 +3153,8 @@
       const ditte = op.ditte || [];
       document.getElementById('mod-tot-ditte').textContent = `${countMapIntestatari(ditte)} (${ditte.length} righe)`;
 
-      const totMq = ditte.reduce((acc, d) => acc + (d.sup_mq || 0), 0);
-      const totEur = ditte.reduce((acc, d) => acc + (d.indennita || 0), 0);
-
-      document.getElementById('mod-tot-mq').textContent = ditte.some(d => d.sup_mq != null) ? `${totMq.toLocaleString('it-IT')} mq` : 'Non verificata';
+      // Più intestazioni possono riferirsi alla stessa particella: nessuna somma per riga.
+      document.getElementById('mod-tot-mq').textContent = 'Da riconciliare per particella';
       document.getElementById('mod-tot-indennita').textContent = (op.documenti || []).length;
 
       renderDitteTableRows(ditte);
