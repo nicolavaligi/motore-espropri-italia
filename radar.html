@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opere Radar · Motore Espropri Italia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
+<link rel="stylesheet" href="/static/radar.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<script defer src="/radar_model.js"></script><script defer src="/radar.js"></script>
+</head>
+<body>
+<header class="hero"><div class="radar" aria-hidden="true"></div><div class="txt" style="min-width:0"><h1>Opere Radar — <span>Motore Espropri Italia</span></h1><div class="eyebrow">Italia · opere, elenchi e fonti documentali</div></div><nav class="dx" aria-label="Navigazione"><a class="navlink-pda" href="/quadro-interferenze">Archivio e particelle ↗</a><a class="navlink-pda" href="/mappa">Mappa e strumenti ↗</a><span class="badge">Copertura documentata</span><time class="clock" id="clock">— ora IT</time></nav></header>
+<section class="kpis" aria-label="Indicatori dei risultati filtrati">
+<div class="kpi" style="--k:#38bdf8"><div class="n" id="k-total">—</div><div class="l">Opere nel radar</div></div>
+<div class="kpi" style="--k:#22c55e"><div class="n" id="k-lists">—</div><div class="l">Con elenco disponibile</div></div>
+<div class="kpi" style="--k:#a78bfa"><div class="n" id="k-documents">—</div><div class="l">Documenti collegati</div></div>
+<div class="kpi" style="--k:#22d3ee"><div class="n" id="k-located">—</div><div class="l">Opere localizzate</div></div>
+<div class="kpi" style="--k:#2dd4bf"><div class="n" id="k-parcels">—</div><div class="l">Particelle distinte</div></div>
+<div class="kpi" style="--k:#f59e0b"><div class="n" id="k-unknown">—</div><div class="l">Fase da verificare</div></div>
+<div class="kpi" style="--k:#f472b6"><div class="n" id="k-regions">—</div><div class="l">Regioni</div></div>
+</section>
+<div class="crawler crawler-ritardo" id="acquisition-status" role="status"><span class="sem"></span><b>Archivio</b><span id="acquisition-text">Caricamento delle evidenze…</span></div>
+<div class="toolbar" role="search"><label for="origin">Origine</label><select id="origin"><option value="">Tutte le origini</option></select><label for="region">Territorio</label><select id="region"><option value="">Tutte le regioni</option></select><select id="availability" aria-label="Disponibilità documenti"><option value="">Tutti i documenti</option><option value="ELENCO_DISPONIBILE">Elenco disponibile</option><option value="DOCUMENTI_DA_VERIFICARE">Documenti da verificare</option><option value="DA_ACQUISIRE">Documenti da acquisire</option></select><select id="location" aria-label="Localizzazione"><option value="">Tutte le posizioni</option><option value="located">Con posizione documentata</option><option value="missing">Posizione da acquisire</option></select><div class="spacer"></div><input id="query" type="search" aria-label="Cerca opera, ente, comune o CUP" placeholder="Cerca opera, comune, CUP…"><button class="mt" id="clear-filters" type="button">Azzera filtri</button></div>
+<div class="funnel" id="phases" aria-label="Fase procedurale"><span class="lb">Fase espropriativa</span><span class="hint">La disponibilità di un documento non determina la fase dell’opera.</span></div>
+<div class="app"><main aria-label="Mappa delle posizioni documentate"><div id="radar-map"></div><div class="maptools"><button class="mt on" id="basemap" type="button" aria-pressed="true">◉ Satellite</button><button class="mt" id="fit-results" type="button">⌖ Inquadra risultati</button><button class="mt" id="export-csv" type="button">↓ Esporta CSV</button></div><div class="mapctl"><button class="btn-back" id="overview" type="button">⤡ Panoramica <kbd>esc</kbd></button></div><div class="map-failure" id="map-error" hidden>Cartografia non disponibile. I fascicoli e le fonti restano consultabili nella lista.</div><div class="overlay" id="map-coverage" role="status" aria-live="polite">Le frecce aprono le posizioni documentate. Caricamento del catalogo…</div></main><aside aria-label="Catalogo opere"><div class="panel-h"><span>Copertura del catalogo</span><span class="c" id="coverage-count">—</span></div><div class="coverage" id="coverage-text">Le lacune verranno mostrate senza completamenti presunti.</div><div class="panel-h"><span>Disponibilità degli elenchi</span></div><div class="chart" id="chart"></div><div class="panel-h"><span>Elenco opere</span><span class="c" id="list-count" aria-live="polite">—</span></div><div class="list" id="list"><div class="empty">Caricamento opere documentate…</div></div><div class="pagination"><button id="previous" type="button" disabled>← Precedenti</button><span id="page-status">—</span><button id="next" type="button" disabled>Successive →</button></div></aside></div>
+</body></html>

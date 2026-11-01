@@ -28,7 +28,7 @@ function app() {
   class Marker {
     constructor(options){this.options=options;this.removed=false;}
     setLngLat(p){this.position=p;return this;}setPopup(p){this.popup=p;return this;}
-    addTo(){return this;}remove(){this.removed=true;return this;}getPopup(){return this.popup;}
+    addTo(){return this;}remove(){this.removed=true;return this;}getPopup(){return this.popup;}togglePopup(){return this;}
   }
   class Bounds {constructor(){this.points=[];}extend(p){this.points.push(p);return this;}}
   const window = {innerWidth:1440, location:{href:'https://example.test/',hostname:'example.test',pathname:'/'},
@@ -36,6 +36,7 @@ function app() {
   const context = vm.createContext({window, document, maplibregl:{Popup,Marker,LngLatBounds:Bounds},
     console, setTimeout, clearTimeout, setInterval, requestAnimationFrame:fn=>setTimeout(fn,0),
     URL, AbortSignal});
+  vm.runInContext(fs.readFileSync(path.join(root,'radar_model.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(root,'map_workspace.js'),'utf8'),context);
   vm.runInContext(inline, context);
   context.map=map;
@@ -152,4 +153,13 @@ test('apertura geometrie effettive non richiede un asse di progetto',()=>{
  a.run("applyFilters();selectAndOpenPin('vicenza')");
  assert.equal(a.run('state.selectedOpera.slug'),'vicenza');
  assert.equal(a.map.lastFit.bounds.points.length,4);
+});
+
+test('la freccia catastale torna visibile su un vertice documentato senza creare geo',()=>{
+ const a=app();const geometry={type:'Polygon',coordinates:[[[11,45],[11.01,45],[11.01,45.01],[11,45]]]};
+ dataset(a,[{...opere[0],tipo_dati:'documentale',geo:null,ditte:[{geometry}]}]);a.run('applyFilters()');
+ assert.equal(a.run('state.markers.length'),1);
+ assert.deepEqual(Array.from(a.run('state.markers[0].position')),[11,45]);
+ assert.equal(a.run('state.opere[0].geo'),null);
+ assert.match(a.run('state.markers[0].popup.html'),/vertice della geometria documentata/);
 });

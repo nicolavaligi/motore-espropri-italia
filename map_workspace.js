@@ -175,7 +175,7 @@ function buildDocumentedOperaPopup(opera) {
     <h3 style="font-size:15px;font-weight:700;margin:8px 0">${escapeMapHtml(opera.titolo)}</h3>
     <p>${escapeMapHtml(opera.ente_promotore || '')}</p>
     <p>${opera.documenti?.length || 0} documenti · ${opera.righe_catastali || 0} righe estratte · ${opera.particelle_localizzate || 0} localizzate</p>
-    <p style="color:#fbbf24">Il pin indica la posizione registrata dell'opera: non identifica né sostituisce la geometria delle singole particelle.</p>
+    <p style="color:#fbbf24">${validMapCoordinates(opera) ? 'Punto generale documentato dell’opera; non sostituisce le geometrie delle particelle.' : 'Freccia di accesso alle particelle: ancorata a un vertice della geometria documentata, non al centro o all’asse dell’opera.'}</p>
     <p style="color:#fbbf24">Copertura non certificata. Le trascrizioni OCR richiedono verifica sull’originale.</p>
     <a href="/quadro-interferenze?opera=${encodeURIComponent(opera.slug)}" style="color:#7dd3fc;text-decoration:underline">Apri documenti, ditte e mappa →</a></div>`;
 }

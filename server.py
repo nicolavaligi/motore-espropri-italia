@@ -136,7 +136,7 @@ def save_opere(opere: List[Dict[str, Any]]) -> None:
                 os.unlink(temporary)
 
 
-@app.get("/", response_class=HTMLResponse)
+@app.get("/mappa", response_class=HTMLResponse)
 async def serve_index():
     if STATIC_INDEX.exists():
         headers = {
@@ -146,6 +146,23 @@ async def serve_index():
         }
         return FileResponse(STATIC_INDEX, headers=headers)
     return HTMLResponse("<h1>Motore Espropri Italia API attivo</h1><p>Visita <a href='/api/opere'>/api/opere</a></p>")
+
+
+@app.get("/", response_class=HTMLResponse)
+@app.get("/radar.html", response_class=HTMLResponse)
+@app.get("/radar", response_class=HTMLResponse)
+async def serve_radar():
+    return FileResponse(Path(__file__).parent / 'radar.html', headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/radar")
+def get_radar():
+    from radar_catalogue import radar_catalogue
+    try:
+        status = archive_store().status()
+    except HTTPException:
+        status = {}
+    return radar_catalogue(load_opere(copia=False), status)
 
 
 @app.get("/quadro-interferenze", response_class=HTMLResponse)

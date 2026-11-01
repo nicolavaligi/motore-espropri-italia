@@ -675,6 +675,7 @@
         <span class="text-slate-500 text-[9px]">ora IT</span>
       </div>
 
+      <a href="/radar" class="text-sky-300 text-xs px-3 py-2 rounded border border-slate-700">Radar opere</a>
       <a href="/quadro-interferenze" class="text-sky-300 text-xs px-3 py-2 rounded border border-slate-700">Archivio fonti</a>
     </div>
   </header>
@@ -1294,6 +1295,7 @@
   <!-- =======================================================================
        CORE LOGIC JAVASCRIPT
        ======================================================================= */ -->
+  <script src="radar_model.js"></script>
   <script src="map_workspace.js"></script>
   <script>
     // Stato globale
@@ -2305,7 +2307,8 @@
       if (state.selectedOpera && !wanted.has(state.selectedOpera.slug)) state.selectedOpera = null;
 
       opereList.forEach(op => {
-        if (!validMapCoordinates(op)) return;
+        const markerAnchor = RadarModel.markerAnchor(op);
+        if (!markerAnchor) return;
         const existing = state.markerMap[op.slug];
         if (existing && existing._operaData === op) return;
         if (existing) existing.remove();
@@ -2320,7 +2323,7 @@
         let ringColor = '#334155';
         let badgeStroke = 'stroke="rgba(0,0,0,0.12)" stroke-width="1.2"';
         let topAccent = '';
-        let badgeContent = step;
+        let badgeContent = step ?? '↗';
 
         if (hasPda) {
           outerColor = '#10B981'; // Smeraldo Fase 4
@@ -2336,6 +2339,7 @@
           badgeContent = '★';
         }
 
+        if (markerAnchor.type === 'particelle') { outerColor = '#22d3ee'; ringColor = '#155e75'; badgeContent = '↗'; }
         const el = document.createElement('div');
         el.className = `map-pin-wrap${hasPda ? ' pda-ready' : ''}${isAvanzata ? ' target-lead' : ''}`;
         el.id = `pin-${op.slug}`;
@@ -2345,7 +2349,7 @@
         el.addEventListener('keydown', e => {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectAndOpenPin(op.slug); }
         });
-        el.title = `${op.titolo}\nEnte: ${op.ente}\nCUP: ${op.cup || 'N.D.'}\nStato: ${op.stato_opera}\nDitte: ${numDitte}`;
+        el.title = `${op.titolo}\n${markerAnchor.type === 'particelle' ? 'Accesso alle particelle localizzate; non posizione generale dell’opera' : 'Punto documentato dell’opera'}`;
 
         el.innerHTML = `
           <svg viewBox="0 0 100 142" xmlns="http://www.w3.org/2000/svg">
@@ -2372,7 +2376,7 @@
         };
 
         const marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([op.geo.lng, op.geo.lat])
+          .setLngLat(markerAnchor.coordinates)
           .setPopup(popup)
           .addTo(state.map);
 
@@ -2722,9 +2726,11 @@
           cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // Camera FlyTo 3D cinematografica con pitch e inclinazione
-        state.map.flyTo({
-          center: [op.geo.lng, op.geo.lat],
+        // Le frecce sulle particelle inquadrano i poligoni reali, non un centro opera.
+        if (RadarModel.markerAnchor(op).type === 'particelle') {
+          zoomToParticelleAndHighlight(slug);
+        } else state.map.flyTo({
+          center: RadarModel.markerAnchor(op).coordinates,
           zoom: Math.max(state.map.getZoom(), 11.5),
           padding: mapCameraPadding(),
           duration: mapAnimationDuration(650)
