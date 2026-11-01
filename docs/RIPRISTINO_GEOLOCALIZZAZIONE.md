@@ -20,6 +20,8 @@ In assenza dell’archivio locale e di un percorso esplicito `MOTORE_ARCHIVE_ROO
 
 ## Correzioni cartografiche
 
+Il builder Python di Vercel esclude per impostazione predefinita `**/public/**`, anche se la directory è annidata sotto `data/`. `vercel.json` include quindi esplicitamente `data/public/catalogue.json` nella funzione `server.py`. Il controllo dopo il deploy deve verificare le API online, non soltanto il successo della build.
+
 - Inquadramento iniziale, “Inquadra risultati” e filtro dell’area visibile considerano i poligoni reali anche senza pin.
 - L’apertura delle particelle non richiede un asse di progetto.
 - I subalterni con lo stesso riferimento catastale non duplicano il poligono visualizzato.

@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "server.py": {
+      "includeFiles": "data/public/catalogue.json"
+    }
+  },
   "rewrites": [
     {
       "source": "/(.*)",
