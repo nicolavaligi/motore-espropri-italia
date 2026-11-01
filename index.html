@@ -1332,7 +1332,7 @@
 
     /* =======================================================================
        2. INIZIALIZZAZIONE MAPLIBRE GL 3D (GEO-INTELLIGENCE SUNPRO ENGINE)
-       Nessuna API Key richiesta, zero watermark, 100% WebGL 60 FPS
+       Cartografia di riferimento con attribuzione; overlay solo da fonti documentate
        ======================================================================= */
     function initMap() {
       if (state.map) return;
@@ -1357,15 +1357,15 @@
               },
               'esri-streets': {
                 type: 'raster',
-                tiles: ['https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
+                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256,
-                attribution: '© OpenStreetMap contributors © CARTO'
+                attribution: 'Tiles © Esri — Sources: Esri, HERE, Garmin, USGS, and the GIS User Community'
               },
               'esri-dark': {
                 type: 'raster',
-                tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
+                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256,
-                attribution: '© OpenStreetMap contributors © CARTO'
+                attribution: 'Tiles © Esri — Sources: Esri, HERE, Garmin, USGS, and the GIS User Community'
               }
             },
             layers: [
@@ -1883,18 +1883,19 @@
               ? '<span style="color:#E63946; font-weight:bold;">🔴 Esproprio</span>' 
               : (p.sup_asservimento_mq > 0 
                 ? '<span style="color:#F4A261; font-weight:bold;">🟠 Asservimento</span>' 
-                : '<span style="color:#2A9D8F; font-weight:bold;">🟢 Fondo Intatto</span>');
+                : '<span style="color:#38BDF8; font-weight:bold;">Regime di occupazione da verificare</span>');
             
             const popupHtml = `
               <div style="font-family:'Inter',sans-serif; color:#fff; min-width:210px; font-size:11px; padding:2px;">
                 <div style="font-weight:700; color:#38BDF8; font-family:'JetBrains Mono',monospace; border-bottom:1px solid #334155; padding-bottom:4px; margin-bottom:6px;">
-                  PARTICELLA: Foglio ${p.foglio || 'ND'} — Mappale ${p.mappale || 'ND'}
+                  PARTICELLA: Foglio ${escapeMapHtml(p.foglio || 'ND')} — Mappale ${escapeMapHtml(p.mappale || 'ND')}
                 </div>
-                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Intestatario:</b> ${p.intestatario || 'Privato'}</div>
-                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Comune:</b> ${p.comune || ''}</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Intestatario:</b> ${escapeMapHtml(p.intestatario || 'Non pubblicato')}</div>
+                <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Comune:</b> ${escapeMapHtml(p.comune || '')}</div>
                 <div style="margin-bottom:3px;"><b style="color:#94A3B8;">Intervento:</b> ${statoTipo}</div>
                 ${p.sup_esproprio_mq > 0 ? `<div style="margin-bottom:3px;"><b style="color:#94A3B8;">Sup. Esproprio:</b> ${Number(p.sup_esproprio_mq).toLocaleString('it-IT')} mq</div>` : ''}
                 ${p.sup_asservimento_mq > 0 ? `<div style="margin-bottom:3px;"><b style="color:#94A3B8;">Sup. Asservimento:</b> ${Number(p.sup_asservimento_mq).toLocaleString('it-IT')} mq</div>` : ''}
+                ${p.fonte_geometria ? `<div><a href="${safeSourceLink(p.fonte_geometria)}" target="_blank" rel="noopener" style="color:#7dd3fc">Fonte geometria catastale</a></div><div>${escapeMapHtml(p.licenza_geometria || '')}</div>` : ''}
                 ${p.indennita > 0 ? `<div style="margin-bottom:3px;"><b style="color:#94A3B8;">Indennità:</b> € ${Number(p.indennita).toLocaleString('it-IT')}</div>` : ''}
                 ${p.relitto_critico ? `<div style="margin-top:5px; padding:3px 6px; background:#7f1d1d; border-radius:4px; color:#fca5a5; font-weight:700; font-size:10px;">⚠️ Relitto Critico ex Art. 33 DPR 327/2001</div>` : ''}
               </div>
@@ -1914,6 +1915,7 @@
 
           caricaConfiniRegionaliIstat(state.map);
           updateMapMarkers(state.filteredOpere || state.opere);
+          if (state.opere.length && !state.initialGeometryFit) { fitMapResults(); state.initialGeometryFit = true; }
         });
       } catch (err) {
         state.mapError = true;
@@ -2397,6 +2399,7 @@
 
       const targetOpere = opereList || state.opere;
       const parcelFeatures = [];
+      const parcelKeys = new Set();
       const bufferFeatures = [];
       const axisFeatures = [];
       const pkFeatures = [];
@@ -2408,11 +2411,16 @@
         ditte.forEach((d, idx) => {
           const geometry = d.geometry || d.geojson?.geometry;
           if (!geometry || !['Polygon', 'MultiPolygon'].includes(geometry.type)) return;
+          const parcelKey = `${op.slug}:${d.riferimento_catastale || JSON.stringify([d.comune,d.sezione,d.foglio,d.mappale || d.mappali,geometry])}`;
+          if (parcelKeys.has(parcelKey)) return;
+          parcelKeys.add(parcelKey);
           parcelFeatures.push({
             type: 'Feature', id: `${op.slug}-p-${idx}`, geometry,
             properties: {
               opera_slug: op.slug, foglio: d.foglio || '', mappale: d.mappali || d.mappale || '',
-              intestatario: d.intestatario || 'Non disponibile', comune: d.comune || op.comune,
+              intestatario: d.intestatario || 'Non pubblicato', comune: d.comune || op.comune,
+              riferimento_catastale: d.riferimento_catastale, fonte_geometria: d.fonte_geometria,
+              licenza_geometria: d.licenza_geometria,
               sup_esproprio_mq: d.sup_esproprio_mq ?? null,
               sup_asservimento_mq: d.sup_asservimento_mq ?? null,
               has_progetto: d.has_progetto === true, relitto_critico: d.relitto_critico === true,
@@ -2641,10 +2649,6 @@
     function zoomToParticelleAndHighlight(slug) {
       const op = state.opere.find(o => o.slug === slug);
       if (!op || !state.map) return;
-      if (!hasPreciseTracciato(op)) {
-        window.openDitteModalForSlug(slug);
-        return;
-      }
       state.selectedOpera = op;
 
       closeDitteModal();
@@ -2693,7 +2697,11 @@
     function selectAndOpenPin(slug) {
       const op = state.opere.find(o => o.slug === slug);
       const marker = state.markerMap[slug];
-      if (op && !marker) { window.openDitteModalForSlug(slug); return; }
+      if (op && !marker) {
+        if (state.map && mapOperaCoordinates(op).length) zoomToParticelleAndHighlight(slug);
+        else window.openDitteModalForSlug(slug);
+        return;
+      }
       if (op && marker && state.map) {
         state.selectedOpera = op;
 
@@ -2767,7 +2775,7 @@
             <div class="text-[11px] font-semibold text-slate-100 line-clamp-1">${op.titolo}</div>
             <div class="text-[10px] text-slate-400 font-mono flex justify-between mt-1 pt-1 border-t border-slate-800/60">
               <span class="truncate max-w-[190px]">${op.ente}</span>
-              <span class="text-sky-400 hover:underline">Vedi pin ↗</span>
+              <span class="text-sky-400 hover:underline">${mapOperaCoordinates(op).length ? 'Geometrie ↗' : 'Scheda e fonti ↗'}</span>
             </div>
           </div>
         `;
@@ -2879,7 +2887,7 @@
 
       let filtered = state.opere.filter(op => {
         if (document.getElementById('filter-in-view')?.checked && state.map &&
-            (!validMapCoordinates(op) || !state.map.getBounds().contains([Number(op.geo.lng), Number(op.geo.lat)]))) return false;
+            !mapOperaInView(op, state.map.getBounds())) return false;
         // Regione
         if (state.selectedRegion !== 'ALL' && op.regione !== state.selectedRegion) {
           return false;
@@ -3148,10 +3156,10 @@
       document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
 
       document.getElementById('modal-ditte-title').textContent = `📋 Piano Particellare: ${op.titolo}`;
-      document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune} (${op.provincia || 'ND'}) — Copertura documentale parziale: controllare documenti, pagine e stato di estrazione.`;
+      document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente || op.ente_promotore || 'N.D.'} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune} (${op.provincia || 'ND'}) — Copertura documentale parziale: controllare documenti, pagine e stato di estrazione.`;
 
       const ditte = op.ditte || [];
-      document.getElementById('mod-tot-ditte').textContent = `${countMapIntestatari(ditte)} (${ditte.length} righe)`;
+      document.getElementById('mod-tot-ditte').textContent = op.modalita_archivio === 'catalogo_pubblico_sola_lettura' ? `Non pubblicati (${ditte.length} riferimenti)` : `${countMapIntestatari(ditte)} (${ditte.length} righe)`;
 
       // Più intestazioni possono riferirsi alla stessa particella: nessuna somma per riga.
       document.getElementById('mod-tot-mq').textContent = 'Da riconciliare per particella';
@@ -3168,7 +3176,7 @@
         return;
       }
       tbody.innerHTML = ditte.map(d => `<tr class="text-slate-300 border-b border-slate-800">
-        <td class="p-2">${escapeMapHtml(d.intestatario || 'Intestazione non leggibile')}<small class="block text-amber-300">${d.stato_estrazione === 'ocr_da_verificare' ? 'OCR: da verificare sull’originale' : 'Estratto dal documento'}</small></td>
+        <td class="p-2">${escapeMapHtml(d.intestatario || (state.selectedOpera?.modalita_archivio === 'catalogo_pubblico_sola_lettura' ? 'Nominativo non pubblicato' : 'Intestazione non leggibile'))}<small class="block text-amber-300">${d.stato_estrazione === 'intestazione_non_pubblicata' ? 'Solo riferimento catastale e geometria' : d.stato_estrazione === 'ocr_da_verificare' ? 'OCR: da verificare sull’originale' : 'Estratto dal documento'}</small></td>
         <td class="p-2">${escapeMapHtml(d.comune || '')}</td>
         <td class="p-2">${escapeMapHtml(d.foglio)}</td><td class="p-2">${escapeMapHtml(d.mappali || d.mappale)}</td>
         <td class="p-2">${d.sup_mq == null ? 'Non verificata' : Number(d.sup_mq).toLocaleString('it-IT')}</td>
@@ -3398,6 +3406,7 @@
       const data = await loadOpereDataset();
       state.opere = data;
       applyFilters();
+      if (state.map?.isStyleLoaded() && !state.initialGeometryFit) { fitMapResults(); state.initialGeometryFit = true; }
 
       const notice = document.getElementById('map-notice');
       if (notice) {

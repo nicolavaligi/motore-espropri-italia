@@ -19,8 +19,8 @@
   <p id="opera-source"></p>
   <div id="quality" class="quality" role="status">Caricamento…</div>
   <div id="notice" hidden></div>
-  <h2>Originali archiviati</h2><div id="documents"></div>
-  <h2>Ditte e riferimenti catastali estratti</h2>
+  <h2>Documenti e fonti ufficiali</h2><div id="documents"></div>
+  <h2>Riferimenti catastali e geometrie disponibili</h2>
   <input id="search" aria-label="Cerca intestatario, comune, foglio o particella" placeholder="Cerca nominativo, comune, foglio, mappale…">
   <div class="tools"><button id="export-csv">Esporta righe con fonti</button><button id="export-geo">Esporta geometrie effettive</button></div>
   <div id="rows"></div>
@@ -43,14 +43,14 @@ try {
   parcelMap.addLayer({id:'parcel-line',type:'line',source:'parcels',paint:{'line-color':'#0369a1','line-width':2}});
   parcelMap.on('click','parcel-fill',event=>{
    const p=event.features[0].properties;
-   new maplibregl.Popup().setLngLat(event.lngLat).setHTML(`<strong>${html(p.riferimento_catastale || 'Particella catastale')}</strong><br>${html(p.comune)} · Fg. ${html(p.foglio)} · Mapp. ${html(p.mappale)}${p.sezione_catastale_geometria ? ` · Sez. ${html(p.sezione_catastale_geometria)}` : ''}<br>${Number(p.righe_collegate)} righe/subalterni collegati · identificativi confrontati con l’atto<br>Geometria del catasto corrente; intestazioni OCR ancora da verificare<br><a href="${safeArchiveLink(p.documento_url)}" target="_blank" rel="noopener">Documento originale · pag. ${Number(p.fonte_pagina)}</a>${p.fonte_geometria ? `<br><a href="${safeSourceLink(p.fonte_geometria)}" target="_blank" rel="noopener">Risposta catastale WFS · SHA256 ${html(p.fonte_geometria_sha256)}</a>` : ''}`).addTo(parcelMap);
+   new maplibregl.Popup().setLngLat(event.lngLat).setHTML(`<strong>${html(p.riferimento_catastale || 'Particella catastale')}</strong><br>${html(p.comune)} · Fg. ${html(p.foglio)} · Mapp. ${html(p.mappale)}${p.sezione_catastale_geometria ? ` · Sez. ${html(p.sezione_catastale_geometria)}` : ''}<br>${Number(p.righe_collegate)} righe/subalterni collegati · identificativi confrontati con l’atto<br>Geometria da risposta catastale archiviata; intestazioni consultabili presso l’ente<br><a href="${safeArchiveLink(p.documento_url)}" target="_blank" rel="noopener">Documento originale · pag. ${Number(p.fonte_pagina)}</a>${p.fonte_geometria ? `<br><a href="${safeSourceLink(p.fonte_geometria)}" target="_blank" rel="noopener">Risposta catastale WFS · SHA256 ${html(p.fonte_geometria_sha256)}</a>` : ''}`).addTo(parcelMap);
   });
   element('basemap-toggle').addEventListener('click',()=>{const satellite=parcelMap.getLayoutProperty('satellite-base','visibility')!=='visible';parcelMap.setLayoutProperty('street-base','visibility',satellite?'none':'visible');for(const layer of ['satellite-base','satellite-labels'])parcelMap.setLayoutProperty(layer,'visibility',satellite?'visible':'none');element('basemap-toggle').setAttribute('aria-pressed',String(satellite));element('basemap-toggle').textContent=satellite?'Mostra mappa stradale':'Mostra satellite';});
   drawGeometry();
  });
 } catch(error) {element('map-status').textContent='Cartografia non disponibile. Documenti e righe restano consultabili.';}
 async function request(url){const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error(`Archivio non disponibile (${response.status})`);return response.json();}
-function documentMarkup(doc){return `<div class="document"><a href="/api/documenti/${html(doc.id)}/file" target="_blank" rel="noopener">${html(doc.titolo)}</a><small>${doc.totale_pagine ?? '?'} pagine · ${doc.righe_estratte} righe estratte · ${html(doc.modalita)}</small><small><a href="${safeSourceLink(doc.fonte_url)}" target="_blank" rel="noopener">Fonte dell’ente</a> · SHA256 ${html(doc.sha256)}</small></div>`;}
+function documentMarkup(doc){return `<div class="document"><a href="/api/documenti/${html(doc.id)}/file" target="_blank" rel="noopener">${html(doc.titolo)}${doc.disponibilita === 'presso_ente' ? ' · presso l’ente' : ''}</a><small>${doc.totale_pagine ?? '?'} pagine · ${doc.righe_estratte} righe estratte · ${html(doc.modalita)}</small><small><a href="${safeSourceLink(doc.fonte_url)}" target="_blank" rel="noopener">Fonte dell’ente</a> · SHA256 ${html(doc.sha256)}</small></div>`;}
 async function selectOpera(slug){
  const version=++selectionVersion;selectedSlug=slug;pageIndex=0;currentRows=[];features=[];renderRows();drawGeometry();
  const opera=catalogue.find(o=>o.slug===slug);if(!opera)return;
@@ -65,7 +65,8 @@ async function selectOpera(slug){
   for(const r of localized){const key=r.riferimento_catastale || r.id;const existing=parcels.get(key);if(existing){existing.properties.righe_collegate++;continue;}parcels.set(key,{type:'Feature',id:key,geometry:r.geometry,properties:{id:r.id,comune:r.comune,foglio:r.foglio,mappale:r.mappale,sezione_catastale_geometria:r.sezione_catastale_geometria,riferimento_catastale:r.riferimento_catastale,righe_collegate:1,documento_url:r.documento_url,fonte_pagina:r.fonte_pagina,fonte_geometria:r.fonte_geometria,fonte_geometria_sha256:r.fonte_geometria_sha256}});}
   features=Array.from(parcels.values());
   const review=rows.filter(r=>r.stato_estrazione==='ocr_da_verificare').length;
-  element('quality').textContent=`${rows.length} righe estratte · ${review} trascrizioni OCR da verificare · ${localized.length} righe con geometria. Copertura dell’opera non certificata.`;
+  const publicMode=opera.modalita_archivio==='catalogo_pubblico_sola_lettura';
+  element('quality').textContent=publicMode ? `${rows.length} riferimenti pubblicati · ${features.length} particelle distinte localizzate. Fonti ufficiali collegate; nominativi non pubblicati. Copertura parziale.` : `${rows.length} righe estratte · ${review} trascrizioni OCR da verificare · ${localized.length} righe con geometria. Copertura dell’opera non certificata.`;
   renderRows();drawGeometry();
  }catch(error){element('notice').hidden=false;element('notice').textContent=error.message;}
 }
@@ -73,7 +74,7 @@ function renderRows(){
  const q=normalizeMapSearch(element('search').value);
  filteredRows=currentRows.filter(r=>normalizeMapSearch(`${r.intestatario || ''} ${r.comune || ''} ${r.foglio} ${r.mappale}`).includes(q));
  const pages=Math.max(1,Math.ceil(filteredRows.length/pageSize));pageIndex=Math.min(pageIndex,pages-1);
- element('rows').innerHTML=filteredRows.slice(pageIndex*pageSize,(pageIndex+1)*pageSize).map(r=>`<div class="row"><strong>${html(r.intestatario || 'Intestazione non leggibile')}</strong>${html(r.comune || '')} · Foglio ${html(r.foglio)} · Particella ${html(r.mappale)}${r.sub ? ' · Sub '+html(r.sub):''}<br><small>${r.stato_identificativi==='verificati_su_documento'?'Identificativi catastali verificati sull’atto · nominativi OCR da verificare':r.stato_estrazione==='ocr_da_verificare'?'Trascrizione OCR da verificare sull’originale':'Estratto da documento testuale'}</small><br><a href="${safeArchiveLink(r.documento_url)}" target="_blank" rel="noopener">Originale · pagina ${r.fonte_pagina}</a><a href="${safeSourceLink(r.fonte_url)}" target="_blank" rel="noopener">Fonte ente</a><br><span class="muted">${r.geometry?`Geometria catastale ${html(r.riferimento_catastale || '')} · riscontro attuale`:'Geometria non acquisita: nessuna posizione attribuita'}</span></div>`).join('') || '<p class="muted">Nessuna riga disponibile per questa ricerca.</p>';
+ element('rows').innerHTML=filteredRows.slice(pageIndex*pageSize,(pageIndex+1)*pageSize).map(r=>`<div class="row"><strong>${html(r.intestatario || (r.stato_estrazione === 'intestazione_non_pubblicata' ? 'Nominativo non pubblicato' : 'Intestazione non leggibile'))}</strong>${html(r.comune || '')} · Foglio ${html(r.foglio)} · Particella ${html(r.mappale)}${r.sub ? ' · Sub '+html(r.sub):''}<br><small>${r.stato_estrazione==='intestazione_non_pubblicata'?'Identificativi catastali verificati sull’atto · nominativi non pubblicati':r.stato_identificativi==='verificati_su_documento'?'Identificativi catastali verificati sull’atto · nominativi OCR da verificare':r.stato_estrazione==='ocr_da_verificare'?'Trascrizione OCR da verificare sull’originale':'Estratto da documento testuale'}</small><br><a href="${safeArchiveLink(r.documento_url)}" target="_blank" rel="noopener">Originale · pagina ${r.fonte_pagina}</a><a href="${safeSourceLink(r.fonte_url)}" target="_blank" rel="noopener">Fonte ente</a><br><span class="muted">${r.geometry?`Geometria catastale ${html(r.riferimento_catastale || '')} · riscontro attuale`:'Geometria non acquisita: nessuna posizione attribuita'}</span></div>`).join('') || '<p class="muted">Nessuna riga disponibile per questa ricerca.</p>';
  element('page-count').textContent=`Pagina ${pageIndex+1}/${pages} · ${filteredRows.length} righe`;
  element('previous').disabled=pageIndex===0;element('next').disabled=pageIndex>=pages-1;
  element('export-csv').disabled=filteredRows.length===0;element('export-geo').disabled=features.length===0;
@@ -82,7 +83,7 @@ function drawGeometry(){
  if(!parcelMap)return;
  const source=parcelMap.getSource('parcels');if(!source)return;
  source.setData({type:'FeatureCollection',features});
- element('map-status').textContent=features.length ? `${features.length} particelle uniche localizzate (${features.reduce((n,f)=>n+Number(f.properties.righe_collegate || 1),0)} righe/subalterni collegati). Identificativi confrontati con gli atti; intestazioni OCR da verificare.` : 'Geometrie catastali non ancora acquisite. I nominativi non vengono posizionati sul centro del comune o su un tracciato indicativo.';
+ element('map-status').textContent=features.length ? `${features.length} particelle uniche localizzate (${features.reduce((n,f)=>n+Number(f.properties.righe_collegate || 1),0)} righe/subalterni collegati). Identificativi confrontati con gli atti; consultare le fonti per le intestazioni.` : 'Geometrie catastali non ancora acquisite. I nominativi non vengono posizionati sul centro del comune o su un tracciato indicativo.';
  if(features.length){const bounds=new maplibregl.LngLatBounds();function add(coords){if(typeof coords[0]==='number')bounds.extend(coords);else coords.forEach(add);}features.forEach(f=>add(f.geometry.coordinates));parcelMap.fitBounds(bounds,{padding:70,maxZoom:17,duration:0});}
 }
 function download(content,mime,name){const url=URL.createObjectURL(new Blob([content],{type:mime}));const anchor=document.createElement('a');anchor.href=url;anchor.download=name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
@@ -95,7 +96,7 @@ element('export-csv').onclick=()=>{
  download('\ufeff'+[fields,...filteredRows.map(r=>fields.map(k=>r[k]))].map(row=>row.map(cell).join(';')).join('\r\n'),'text/csv;charset=utf-8',`${selectedSlug}.csv`);
 };
 (async()=>{try{catalogue=await request('/api/opere');element('opera-select').innerHTML=catalogue.map(o=>`<option value="${html(o.slug)}">${html(o.titolo)}</option>`).join('');const chosen=new URLSearchParams(location.search).get('opera');const slug=catalogue.some(o=>o.slug===chosen)?chosen:catalogue.find(o=>o.righe_catastali>0)?.slug || catalogue[0]?.slug;if(slug){element('opera-select').value=slug;await selectOpera(slug);}else{element('quality').textContent='Archivio vuoto: nessun documento di produzione acquisito.';}
- const status=await request('/api/archivio/stato');const errors=status.ultime_acquisizioni.filter(a=>a.stato==='errore_download'||a.stato==='errore_localizzazione').length;element('collection').textContent=`Archivio: ${status.documenti} originali, ${status.righe} righe. Ultimi tentativi di acquisizione con errore: ${errors}. Gli errori di rete non equivalgono ad assenza di documenti pubblicati.`;
+ const status=await request('/api/archivio/stato');const errors=status.ultime_acquisizioni.filter(a=>a.stato==='errore_download'||a.stato==='errore_localizzazione').length;element('collection').textContent=status.modalita==='catalogo_pubblico_sola_lettura' ? `${status.opere} opere · ${status.documenti} documenti collegati alle fonti · ${status.particelle_uniche} particelle distinte. Catalogo aggiornato il ${new Date(status.aggiornato_il).toLocaleDateString('it-IT')}. Nominativi e originali locali non pubblicati.` : `Archivio: ${status.documenti} originali, ${status.righe} righe. Ultimi tentativi di acquisizione con errore: ${errors}. Gli errori di rete non equivalgono ad assenza di documenti pubblicati.`;
 }catch(error){element('quality').textContent=error.message;}})();
 </script>
 </body>

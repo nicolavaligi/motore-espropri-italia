@@ -10,6 +10,34 @@ function validMapCoordinates(opera) {
     Math.abs(Number(geo.lat)) <= 90 && Math.abs(Number(geo.lng)) <= 180;
 }
 
+// Coordinate effettive utilizzate per inquadramento e filtri: mai un centro comunale inventato.
+function mapOperaCoordinates(opera) {
+  const points = [];
+  function visit(coordinates) {
+    if (!Array.isArray(coordinates)) return;
+    if (typeof coordinates[0] === 'number') {
+      if (Number.isFinite(coordinates[0]) && Number.isFinite(coordinates[1]) &&
+          Math.abs(coordinates[0]) <= 180 && Math.abs(coordinates[1]) <= 90)
+        points.push([coordinates[0], coordinates[1]]);
+    } else coordinates.forEach(visit);
+  }
+  for (const row of opera?.ditte || []) {
+    const geometry = row.geometry || row.geojson?.geometry;
+    if (['Polygon', 'MultiPolygon'].includes(geometry?.type)) visit(geometry.coordinates);
+  }
+  if (validMapCoordinates(opera)) points.push([Number(opera.geo.lng), Number(opera.geo.lat)]);
+  return points;
+}
+
+function mapOperaInView(opera, bounds) {
+  const points = mapOperaCoordinates(opera);
+  if (points.some(point => bounds.contains(point))) return true;
+  if (!points.length || typeof bounds.getWest !== 'function') return false;
+  let west=Infinity, east=-Infinity, south=Infinity, north=-Infinity;
+  points.forEach(([x,y]) => {west=Math.min(west,x);east=Math.max(east,x);south=Math.min(south,y);north=Math.max(north,y);});
+  return west <= bounds.getEast() && east >= bounds.getWest() && south <= bounds.getNorth() && north >= bounds.getSouth();
+}
+
 function normalizeMapSearch(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('it').trim();
 }
@@ -35,11 +63,13 @@ function mapCameraPadding() {
 }
 
 function fitMapResults() {
-  const points = (state.filteredOpere || state.opere).filter(validMapCoordinates);
+  const pool = state.filteredOpere || state.opere;
+  const points = pool.flatMap(mapOperaCoordinates);
+  const hasParcels = pool.some(op => (op.ditte || []).some(row => row.geometry || row.geojson?.geometry));
   if (!state.map || !points.length) return;
   const bounds = new maplibregl.LngLatBounds();
-  points.forEach(op => bounds.extend([Number(op.geo.lng), Number(op.geo.lat)]));
-  state.map.fitBounds(bounds, {padding: mapCameraPadding(), maxZoom: 13, pitch: 0, bearing: 0,
+  points.forEach(point => bounds.extend(point));
+  state.map.fitBounds(bounds, {padding: mapCameraPadding(), maxZoom: hasParcels ? 17 : 13, pitch: 0, bearing: 0,
     duration: mapAnimationDuration(650)});
 }
 
@@ -53,10 +83,14 @@ function updateMapViewportStatus() {
   if (!state.map) return;
   const pool = state.filteredOpere || state.opere;
   const bounds = state.map.getBounds();
-  const valid = pool.filter(validMapCoordinates);
-  const visible = valid.filter(op => bounds.contains([Number(op.geo.lng), Number(op.geo.lat)])).length;
+  const valid = pool.filter(op => mapOperaCoordinates(op).length > 0);
+  const visible = valid.filter(op => mapOperaInView(op, bounds)).length;
+  const parcelKeys = new Set();
+  pool.forEach(op => (op.ditte || []).forEach(row => {
+    if (row.geometry) parcelKeys.add(`${op.slug}:${row.riferimento_catastale || JSON.stringify(row.geometry)}`);
+  }));
   document.getElementById('stat-in-vista').textContent = visible;
-  document.getElementById('map-view-status').textContent = `${visible} in vista · ${pool.length} opere filtrate${pool.length !== valid.length ? ` · ${pool.length - valid.length} senza coordinate` : ''}`;
+  document.getElementById('map-view-status').textContent = `${visible} in vista · ${pool.length} opere filtrate${parcelKeys.size ? ` · ${parcelKeys.size} particelle localizzate` : ''}${pool.length !== valid.length ? ` · ${pool.length - valid.length} senza geometrie` : ''}`;
   document.getElementById('btn-fit-results').disabled = valid.length === 0;
   const zoom = state.map.getZoom();
   document.getElementById('gis-map').dataset.detail = zoom >= 10 ? 'local' : 'overview';
@@ -131,9 +165,9 @@ function renderOperaDocuments(opera) {
     document.getElementById('modal-ditte-subtitle').parentElement.appendChild(panel);
   }
   panel.innerHTML=`<a href="${safeSourceLink(opera.fonte_atto_url)}" target="_blank" rel="noopener" class="text-sky-300 underline">Pagina ufficiale dell’opera</a>
-    <p class="text-slate-400">${opera.righe_catastali || 0} righe estratte · ${opera.particelle_localizzate || 0} localizzate. Copertura completa non certificata.</p>`+
+    <p class="text-slate-400">${opera.righe_catastali || 0} righe consultabili · ${opera.particelle_uniche ?? opera.particelle_localizzate ?? 0} particelle localizzate. Copertura parziale.${opera.modalita_archivio === 'catalogo_pubblico_sola_lettura' ? ' Catalogo pubblico di fonti e geometrie; nominativi e archivio locale non pubblicati.' : ''}</p>`+
     (opera.documenti || []).map(doc=>`<div><a class="text-sky-300 underline" href="/api/documenti/${escapeMapHtml(doc.id)}/file" target="_blank" rel="noopener">${escapeMapHtml(doc.titolo)}</a>
-    <span class="text-slate-400"> · ${doc.totale_pagine ?? '?'} pagine · ${doc.righe_estratte} righe</span>
+    <span class="text-slate-400"> · ${doc.totale_pagine ?? '?'} pagine · ${doc.disponibilita === 'presso_ente' ? 'originale presso l’ente' : `${doc.righe_estratte} righe`}</span>
     <a href="${safeSourceLink(doc.fonte_url)}" target="_blank" rel="noopener" class="text-slate-400 underline">Fonte ente</a></div>`).join('');
 }
 function buildDocumentedOperaPopup(opera) {

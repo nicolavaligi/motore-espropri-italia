@@ -127,3 +127,29 @@ test('i fascicoli restano disponibili quando il motore cartografico non si avvia
  a.run('state.map=null;applyFilters()');
  assert.match(a.document.getElementById('quick-opere-list').innerHTML,/Linea ferroviaria/);
 });
+
+test('le particelle senza pin consentono inquadramento e filtro in vista',()=>{
+ const a=app();
+ const geometry={type:'Polygon',coordinates:[[[11,45],[11.01,45],[11.01,45.01],[11,45]]]};
+ dataset(a,[{...opere[0],geo:null,tipo_dati:'documentale',ditte:[{geometry}]}]);
+ a.run('applyFilters();fitMapResults()');
+ assert.equal(a.document.getElementById('btn-fit-results').disabled,false);
+ assert.equal(a.map.lastFit.bounds.points.length,4);
+ assert.equal(a.map.lastFit.opts.maxZoom,17);
+ a.document.getElementById('filter-in-view').checked=true;a.run('applyFilters()');
+ assert.equal(a.run('state.filteredOpere.length'),1);
+});
+test('i subalterni non duplicano la geometria catastale rappresentata',()=>{
+ const a=app();const geometry={type:'Polygon',coordinates:[[[11,45],[11.01,45],[11.01,45.01],[11,45]]]};
+ dataset(a,[{...opere[0],geo:null,ditte:[{geometry,riferimento_catastale:'comune/1/2',sub:'1'},{geometry,riferimento_catastale:'comune/1/2',sub:'2'}]}]);
+ a.run('applyFilters()');
+ assert.equal(a.sources['particellare-source'].data.features.length,1);
+ assert.match(a.document.getElementById('map-view-status').textContent,/1 particelle localizzate/);
+});
+test('apertura geometrie effettive non richiede un asse di progetto',()=>{
+ const a=app();const geometry={type:'Polygon',coordinates:[[[11,45],[11.01,45],[11.01,45.01],[11,45]]]};
+ dataset(a,[{...opere[0],geo:null,ditte:[{geometry}]}]);
+ a.run("applyFilters();selectAndOpenPin('vicenza')");
+ assert.equal(a.run('state.selectedOpera.slug'),'vicenza');
+ assert.equal(a.map.lastFit.bounds.points.length,4);
+});

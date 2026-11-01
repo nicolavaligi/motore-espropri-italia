@@ -15,11 +15,12 @@ from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.responses import FileResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 from stima_delta import router as stima_router
 from production_store import ProductionStore, DEFAULT_ROOT
+from public_catalogue import PublishedArchive, PUBLIC_CATALOGUE_PATH
 
 app = FastAPI(
     title="Motore Espropri Italia API",
@@ -94,10 +95,14 @@ _opere_signature = None
 def load_opere(*, copia: bool = True) -> List[Dict[str, Any]]:
     """Cache invalidata da percorso, inode, dimensione e modifica nanosecondi."""
     global _opere_cache, _opere_signature
+    if os.environ.get('MOTORE_PUBLIC_CATALOGUE_ONLY') == '1':
+        return PublishedArchive(PUBLIC_CATALOGUE_PATH).catalogue()
     with _opere_lock:
         try:
             stat = DATA_PATH.stat()
         except FileNotFoundError:
+            if DATA_PATH == DEFAULT_ROOT / 'opere.json' and not os.environ.get('MOTORE_ARCHIVE_ROOT') and PUBLIC_CATALOGUE_PATH.is_file():
+                return PublishedArchive(PUBLIC_CATALOGUE_PATH).catalogue()
             if os.environ.get("VERCEL"):
                 raise HTTPException(status_code=503, detail="Archivio persistente non configurato per questa installazione. Nessun fallback a dati dimostrativi.")
             return []
@@ -419,8 +424,13 @@ async def create_or_update_opera(opera_data: Dict[str, Any]):
 
 
 def archive_store():
-    if os.environ.get('VERCEL') and not (DEFAULT_ROOT / 'archivio.sqlite3').is_file():
-        raise HTTPException(status_code=503, detail='Archivio documentale persistente non collegato. Nessun dato simulato disponibile.')
+    if os.environ.get('MOTORE_PUBLIC_CATALOGUE_ONLY') == '1':
+        return PublishedArchive(PUBLIC_CATALOGUE_PATH)
+    if not (DEFAULT_ROOT / 'archivio.sqlite3').is_file():
+        if not os.environ.get('MOTORE_ARCHIVE_ROOT') and PUBLIC_CATALOGUE_PATH.is_file():
+            return PublishedArchive(PUBLIC_CATALOGUE_PATH)
+        if os.environ.get('VERCEL'):
+            raise HTTPException(status_code=503, detail='Archivio documentale non disponibile. Nessun dato simulato disponibile.')
     return ProductionStore()
 
 
@@ -465,6 +475,11 @@ def archived_document(identifier: str):
     doc = store.document(identifier)
     if not doc:
         raise HTTPException(status_code=404, detail="Documento non archiviato")
+    if isinstance(store, PublishedArchive):
+        # L'originale resta presso l'ente: non distribuiamo copie dell'archivio locale.
+        from production_store import public_url
+        return RedirectResponse(public_url(doc['fonte_url']), status_code=307,
+                                headers={'Cache-Control': 'public, max-age=3600'})
     path = store.root / "documenti" / (doc["sha256"] + ".pdf")
     if not path.is_file() or path.stat().st_size != doc["byte_size"]:
         raise HTTPException(status_code=409, detail="Originale mancante o archivio incoerente")

@@ -1,0 +1,1257 @@
+{
+  "schema": "motore-espropri-catalogo-pubblico-v1",
+  "opere": [
+    {
+      "slug": "EMILIA-CISPADANA-AUTOSTRADA-REGIONALE",
+      "titolo": "Autostrada regionale Cispadana: Reggiolo–Rolo–Ferrara Sud",
+      "ente_promotore": "Autostrada Regionale Cispadana / Regione Emilia-Romagna",
+      "regione": "Emilia-Romagna",
+      "provincia": null,
+      "comune": "Reggiolo, Rolo, Novi, Concordia, San Possidonio, Mirandola, Medolla, San Felice sul Panaro, Finale Emilia, Cento, Poggio Renatico, Ferrara",
+      "cup": null,
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://mobilita.regione.emilia-romagna.it/strade/progetti/autostrada-regionale-cispadana",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [],
+      "ditte": [],
+      "geo": null,
+      "ente": "Autostrada Regionale Cispadana / Regione Emilia-Romagna",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_DA_ACQUISIRE",
+      "particellare_url": "/api/opere/EMILIA-CISPADANA-AUTOSTRADA-REGIONALE/particelle",
+      "has_pda": false,
+      "righe_catastali": 0,
+      "righe_catastali_archivio": 0,
+      "particelle_localizzate": 0,
+      "particelle_uniche": 0,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    },
+    {
+      "slug": "LOMBARDIA-RFI-QUADRUPICAMENTO-MILANO-PAVIA",
+      "titolo": "Potenziamento linea Milano–Genova, quadruplicamento Milano Rogoredo–Pavia",
+      "ente_promotore": "RFI",
+      "regione": "Lombardia",
+      "provincia": null,
+      "comune": "Milano, Pieve Emanuele, Pavia",
+      "cup": null,
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://www.fsitaliane.it/it/opere-strategiche/linea-milano---genova--quadruplicamento-tratta-milano-rogoredo--.html",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [
+        {
+          "id": "f775ad2ca319f0726a21209ee2f4b047",
+          "titolo": "Piano particellare esproprio — Comune di Pavia — Tavola 1/1",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/1204230",
+          "pagina_fonte": "https://www.fsitaliane.it/it/opere-strategiche/linea-milano---genova--quadruplicamento-tratta-milano-rogoredo--.html",
+          "sha256": "5fbb245455484ee03999343e3bedfdcb1cc4084a1301d71df3444d87994d76fb",
+          "acquisito_il": "2026-10-31T21:40:08+00:00",
+          "tipo": "planimetria_catastale",
+          "attivo": 1,
+          "totale_pagine": 1,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 0,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/f775ad2ca319f0726a21209ee2f4b047/file",
+          "righe_pubblicate": 0
+        }
+      ],
+      "ditte": [],
+      "geo": null,
+      "ente": "RFI",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_ARCHIVIATI",
+      "particellare_url": "/api/opere/LOMBARDIA-RFI-QUADRUPICAMENTO-MILANO-PAVIA/particelle",
+      "has_pda": false,
+      "righe_catastali": 0,
+      "righe_catastali_archivio": 0,
+      "particelle_localizzate": 0,
+      "particelle_uniche": 0,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    },
+    {
+      "slug": "RFI-PALERMO-CATANIA-LOTTO4A-XIRBI-ENNA-VARIANTE2026",
+      "titolo": "Palermo–Catania, lotto 4A Caltanissetta Xirbi–Enna Nuova: modifiche del progetto esecutivo",
+      "ente_promotore": "RFI / FS Engineering",
+      "regione": "Sicilia",
+      "provincia": null,
+      "comune": "Caltanissetta, Enna",
+      "cup": "J11H03000180001",
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/13/nuovo-collegamento-palermo---catania-lotto-4a--tratta-caltanisse.html",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [
+        {
+          "id": "d0a12ac37600a600ca5cf7108c2be5c3",
+          "titolo": "Avviso modifiche Palermo–Catania lotto 4A",
+          "fonte_url": "https://www.gruppofsengineering.it/content/dam/italferr_nd/italiano/documenti/gare-ed-espropri/2026/Realizzazione%20asse%20ferroviario%20Palermo-Catania-Messina.pdf",
+          "pagina_fonte": "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/13/nuovo-collegamento-palermo---catania-lotto-4a--tratta-caltanisse.html",
+          "sha256": "a9ccc7c7b70971d8592c993ddea0c895d8bdde32f719968d2ade73510aacd377",
+          "acquisito_il": "2026-10-31T21:40:08+00:00",
+          "tipo": "avviso",
+          "attivo": 1,
+          "totale_pagine": 3,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 0,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/d0a12ac37600a600ca5cf7108c2be5c3/file",
+          "righe_pubblicate": 0
+        }
+      ],
+      "ditte": [],
+      "geo": null,
+      "ente": "RFI / FS Engineering",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_ARCHIVIATI",
+      "particellare_url": "/api/opere/RFI-PALERMO-CATANIA-LOTTO4A-XIRBI-ENNA-VARIANTE2026/particelle",
+      "has_pda": false,
+      "righe_catastali": 0,
+      "righe_catastali_archivio": 0,
+      "particelle_localizzate": 0,
+      "particelle_uniche": 0,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    },
+    {
+      "slug": "RFI-RHO-GALLARATE-PROGETTO-DEFINITIVO-2013",
+      "titolo": "Potenziamento linea Rho–Arona, tratta Rho–Gallarate: progetto definitivo 2013",
+      "ente_promotore": "RFI / Italferr",
+      "regione": "Lombardia",
+      "provincia": null,
+      "comune": "Rho, Pregnana Milanese, Vanzago, Pogliano Milanese, Nerviano, Parabiago, Canegrate, Legnano, Castellanza, Busto Arsizio",
+      "cup": null,
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [
+        {
+          "id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+          "titolo": "Elenco delle Ditte - Comune di Busto Arsizio",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+          "acquisito_il": "2026-10-31T20:37:57+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 14,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 27,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file",
+          "righe_pubblicate": 3
+        },
+        {
+          "id": "11080fd218017b4cdef3a85a3eab52fc",
+          "titolo": "Elenco delle Ditte - Comune di Canegrate",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95279",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "05ec07cdae183e814108951627b5fdc6bf6deb00baef0e555a832af43f9982c0",
+          "acquisito_il": "2026-10-31T20:37:57+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 14,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 37,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/11080fd218017b4cdef3a85a3eab52fc/file",
+          "righe_pubblicate": 2
+        },
+        {
+          "id": "26e2564ff58728b6aa3cf95a1d99ac22",
+          "titolo": "Elenco delle Ditte - Comune di Castellanza",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95281",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "888d82064082b3a9dcfb11ade5548e23c9ba95f54f8fbf151de7c0e25929b9e7",
+          "acquisito_il": "2026-10-31T20:37:57+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 10,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 21,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/26e2564ff58728b6aa3cf95a1d99ac22/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "6fedb0a95cc3e778d3db44569fb4dd38",
+          "titolo": "Elenco delle Ditte - Comune di Legnano",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95280",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "1d7a26009fdb4b2e6f6ad7f0e892e83dbf6eb49da4e37da5908aff3211ccfc15",
+          "acquisito_il": "2026-10-31T20:37:57+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 3,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 3,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/6fedb0a95cc3e778d3db44569fb4dd38/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "40c89aa2b7c566f42980a86fc691d2b2",
+          "titolo": "Elenco delle Ditte - Comune di Nerviano",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95277",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "dbefdc20fe439273a6fa1b8b8fa9a617bc93c457cad0964c3c164393e917b872",
+          "acquisito_il": "2026-10-31T20:37:57+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 35,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 54,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/40c89aa2b7c566f42980a86fc691d2b2/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "179cc95d3c649bec8ae270e4a8513d4f",
+          "titolo": "Elenco delle Ditte - Comune di Parabiago",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95278",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "dff0094eb4844b14a9efbd4367689aa2dfd8dceb8a9bf8786aa7e874f4700f29",
+          "acquisito_il": "2026-10-31T20:37:57+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 84,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 231,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/179cc95d3c649bec8ae270e4a8513d4f/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "7a0547ba17b17eeeba481a2c16831db0",
+          "titolo": "Elenco delle Ditte - Comune di Pogliano M.se",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95276",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "0cdd5165e7c89eacf3b5516557747cdb5f6afdd480d6bf5016b37be32a59e32c",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 40,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 66,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/7a0547ba17b17eeeba481a2c16831db0/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "6135c6bbf00dbe10f4066701984f79f2",
+          "titolo": "Elenco delle Ditte - Comune di Pregnana M.se",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95274",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "f48d4166a869f4ed116c3b29e5a406f6cfcc49574ef76da37ba629c4144096ff",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 40,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 98,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/6135c6bbf00dbe10f4066701984f79f2/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "95e36f3b47c8846224c66cf3e4169d01",
+          "titolo": "Elenco delle Ditte - Comune di Pregnana M.se",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95287",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "f6edcedf3bff8a82dc7121883b886177cebff9d5a4568a34cf031872dda9dbf5",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 25,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 48,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/95e36f3b47c8846224c66cf3e4169d01/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "844f152efbe4dfd004fc5c3d8f21cee4",
+          "titolo": "Elenco delle Ditte - Comune di Rho",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95273",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "a971baa4d3bc8189b25c6254f73e70d8a7e0ddb228983b9cebfa8d8d707dc87e",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 4,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 3,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/844f152efbe4dfd004fc5c3d8f21cee4/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "8d0a2891619e24351410ad0ca23fff17",
+          "titolo": "Elenco delle Ditte - Comune di Rho",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95286",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "451a120c1902db4e24de611c4e212aa6e99d2a820c237ae37e925ba01021d7c5",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 11,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 11,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/8d0a2891619e24351410ad0ca23fff17/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "a1a03df75834716f168b626cf36fe807",
+          "titolo": "Elenco delle Ditte - Comune di Rho",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95255",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "689220afd9c02ed05394abc39e22215002a042ae3ee22b86ee9483b75c82429d",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 21,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 64,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/a1a03df75834716f168b626cf36fe807/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "4752d164d7eb810badf8e4cfb1ad81f8",
+          "titolo": "Elenco delle Ditte - Comune di Vanzago",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95288",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "d1e537d247708727c9f0eb5336cc815d0ef32b10d47bc909f81ffda471ccd7ce",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 12,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 38,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/4752d164d7eb810badf8e4cfb1ad81f8/file",
+          "righe_pubblicate": 0
+        },
+        {
+          "id": "4bd21937dda0359196627132179b3ded",
+          "titolo": "Elenco delle Ditte - Comune di Vanzago",
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95275",
+          "pagina_fonte": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+          "sha256": "1b18f95cc5398d5ffe456b4a7787b9d06e7a0858b83dcaf547f839336e77b6ab",
+          "acquisito_il": "2026-10-31T20:37:56+00:00",
+          "tipo": "elenco_ditte",
+          "attivo": 1,
+          "totale_pagine": 46,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 131,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/4bd21937dda0359196627132179b3ded/file",
+          "righe_pubblicate": 0
+        }
+      ],
+      "ditte": [
+        {
+          "comune": "Canegrate",
+          "foglio": "11",
+          "mappale": "80",
+          "sub": "",
+          "sezione": null,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  8.93500869,
+                  45.56127249
+                ],
+                [
+                  8.93495338,
+                  45.5612712
+                ],
+                [
+                  8.93477923,
+                  45.56119928
+                ],
+                [
+                  8.93472671,
+                  45.56116493
+                ],
+                [
+                  8.93475907,
+                  45.56113792
+                ],
+                [
+                  8.93485018,
+                  45.56118849
+                ],
+                [
+                  8.93497208,
+                  45.56123648
+                ],
+                [
+                  8.93501,
+                  45.56123684
+                ],
+                [
+                  8.93503268,
+                  45.56125291
+                ],
+                [
+                  8.93500869,
+                  45.56127249
+                ]
+              ]
+            ]
+          },
+          "riferimento_catastale": "B593_001100.80",
+          "stato_identificativi": "verificati_su_documento",
+          "stato_geometria": "localizzata_wfs",
+          "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.56089050%2C8.93246243%2C45.56348425%2C8.93535700%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+          "fonte_geometria_sha256": "6b40f4ae510a24e75a3e23ac2db42dd694e0076c3636d898719dd28028d7a19b",
+          "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+          "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+          "crs_geometry": "EPSG:4326",
+          "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+          "sezione_catastale_geometria": null,
+          "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+          "id": "24510797d4a0d2c61034af8cc81188e8",
+          "documento_id": "11080fd218017b4cdef3a85a3eab52fc",
+          "fonte_pagina": 2,
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95279",
+          "fonte_sha256": "05ec07cdae183e814108951627b5fdc6bf6deb00baef0e555a832af43f9982c0",
+          "intestatario": null,
+          "stato_estrazione": "intestazione_non_pubblicata",
+          "documento_url": "/api/documenti/11080fd218017b4cdef3a85a3eab52fc/file#page=2",
+          "mappali": "80",
+          "sup_mq": null,
+          "sup_esproprio_mq": null,
+          "sup_asservimento_mq": null,
+          "indennita": null,
+          "delta": false
+        },
+        {
+          "comune": "Canegrate",
+          "foglio": "11",
+          "mappale": "79",
+          "sub": "",
+          "sezione": null,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  8.93500869,
+                  45.56127249
+                ],
+                [
+                  8.93487993,
+                  45.56138366
+                ],
+                [
+                  8.93469458,
+                  45.56154369
+                ],
+                [
+                  8.93457293,
+                  45.56164871
+                ],
+                [
+                  8.93411066,
+                  45.56204589
+                ],
+                [
+                  8.93405202,
+                  45.56209634
+                ],
+                [
+                  8.93388291,
+                  45.56224182
+                ],
+                [
+                  8.93385421,
+                  45.56226743
+                ],
+                [
+                  8.93375488,
+                  45.56221064
+                ],
+                [
+                  8.93361857,
+                  45.562129
+                ],
+                [
+                  8.93418568,
+                  45.5616379
+                ],
+                [
+                  8.93472671,
+                  45.56116493
+                ],
+                [
+                  8.93477923,
+                  45.56119928
+                ],
+                [
+                  8.93495338,
+                  45.5612712
+                ],
+                [
+                  8.93500869,
+                  45.56127249
+                ]
+              ]
+            ]
+          },
+          "riferimento_catastale": "B593_001100.79",
+          "stato_identificativi": "verificati_su_documento",
+          "stato_geometria": "localizzata_wfs",
+          "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.56089050%2C8.93246243%2C45.56348425%2C8.93535700%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+          "fonte_geometria_sha256": "6b40f4ae510a24e75a3e23ac2db42dd694e0076c3636d898719dd28028d7a19b",
+          "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+          "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+          "crs_geometry": "EPSG:4326",
+          "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+          "sezione_catastale_geometria": null,
+          "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+          "id": "9da32bcd6b979d320f5890b94b1a592b",
+          "documento_id": "11080fd218017b4cdef3a85a3eab52fc",
+          "fonte_pagina": 2,
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95279",
+          "fonte_sha256": "05ec07cdae183e814108951627b5fdc6bf6deb00baef0e555a832af43f9982c0",
+          "intestatario": null,
+          "stato_estrazione": "intestazione_non_pubblicata",
+          "documento_url": "/api/documenti/11080fd218017b4cdef3a85a3eab52fc/file#page=2",
+          "mappali": "79",
+          "sup_mq": null,
+          "sup_esproprio_mq": null,
+          "sup_asservimento_mq": null,
+          "indennita": null,
+          "delta": false
+        },
+        {
+          "comune": "Busto Arsizio",
+          "foglio": "917",
+          "mappale": "2038",
+          "sub": "",
+          "sezione": null,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  8.87253061,
+                  45.60974822
+                ],
+                [
+                  8.87265757,
+                  45.60956767
+                ],
+                [
+                  8.87267777,
+                  45.6095387
+                ],
+                [
+                  8.8727303,
+                  45.60955295
+                ],
+                [
+                  8.87278833,
+                  45.60956612
+                ],
+                [
+                  8.8728589,
+                  45.60958314
+                ],
+                [
+                  8.87277286,
+                  45.60971545
+                ],
+                [
+                  8.87272646,
+                  45.60979105
+                ],
+                [
+                  8.87253061,
+                  45.60974822
+                ]
+              ]
+            ]
+          },
+          "riferimento_catastale": "B300A091700.2038",
+          "stato_identificativi": "verificati_su_documento",
+          "stato_geometria": "localizzata_wfs",
+          "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.60785050%2C8.87242586%2C45.61065600%2C8.87501043%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+          "fonte_geometria_sha256": "0ecb2c02573e3c0873067a1c6a28f5f8ef6bb9369be28f6e70fcc572213346cd",
+          "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+          "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+          "crs_geometry": "EPSG:4326",
+          "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+          "sezione_catastale_geometria": "A",
+          "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+          "id": "d34b3e097e18f8831da58f045418acc7",
+          "documento_id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+          "fonte_pagina": 2,
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+          "fonte_sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+          "intestatario": null,
+          "stato_estrazione": "intestazione_non_pubblicata",
+          "documento_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file#page=2",
+          "mappali": "2038",
+          "sup_mq": null,
+          "sup_esproprio_mq": null,
+          "sup_asservimento_mq": null,
+          "indennita": null,
+          "delta": false
+        },
+        {
+          "comune": "Busto Arsizio",
+          "foglio": "917",
+          "mappale": "2038",
+          "sub": "1",
+          "sezione": null,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  8.87253061,
+                  45.60974822
+                ],
+                [
+                  8.87265757,
+                  45.60956767
+                ],
+                [
+                  8.87267777,
+                  45.6095387
+                ],
+                [
+                  8.8727303,
+                  45.60955295
+                ],
+                [
+                  8.87278833,
+                  45.60956612
+                ],
+                [
+                  8.8728589,
+                  45.60958314
+                ],
+                [
+                  8.87277286,
+                  45.60971545
+                ],
+                [
+                  8.87272646,
+                  45.60979105
+                ],
+                [
+                  8.87253061,
+                  45.60974822
+                ]
+              ]
+            ]
+          },
+          "riferimento_catastale": "B300A091700.2038",
+          "stato_identificativi": "verificati_su_documento",
+          "stato_geometria": "localizzata_wfs",
+          "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.60785050%2C8.87242586%2C45.61065600%2C8.87501043%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+          "fonte_geometria_sha256": "0ecb2c02573e3c0873067a1c6a28f5f8ef6bb9369be28f6e70fcc572213346cd",
+          "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+          "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+          "crs_geometry": "EPSG:4326",
+          "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+          "sezione_catastale_geometria": "A",
+          "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+          "id": "9532031fa734a2f365fe56628109e07e",
+          "documento_id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+          "fonte_pagina": 2,
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+          "fonte_sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+          "intestatario": null,
+          "stato_estrazione": "intestazione_non_pubblicata",
+          "documento_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file#page=2",
+          "mappali": "2038",
+          "sup_mq": null,
+          "sup_esproprio_mq": null,
+          "sup_asservimento_mq": null,
+          "indennita": null,
+          "delta": false
+        },
+        {
+          "comune": "Busto Arsizio",
+          "foglio": "917",
+          "mappale": "2038",
+          "sub": "2",
+          "sezione": null,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  8.87253061,
+                  45.60974822
+                ],
+                [
+                  8.87265757,
+                  45.60956767
+                ],
+                [
+                  8.87267777,
+                  45.6095387
+                ],
+                [
+                  8.8727303,
+                  45.60955295
+                ],
+                [
+                  8.87278833,
+                  45.60956612
+                ],
+                [
+                  8.8728589,
+                  45.60958314
+                ],
+                [
+                  8.87277286,
+                  45.60971545
+                ],
+                [
+                  8.87272646,
+                  45.60979105
+                ],
+                [
+                  8.87253061,
+                  45.60974822
+                ]
+              ]
+            ]
+          },
+          "riferimento_catastale": "B300A091700.2038",
+          "stato_identificativi": "verificati_su_documento",
+          "stato_geometria": "localizzata_wfs",
+          "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.60785050%2C8.87242586%2C45.61065600%2C8.87501043%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+          "fonte_geometria_sha256": "0ecb2c02573e3c0873067a1c6a28f5f8ef6bb9369be28f6e70fcc572213346cd",
+          "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+          "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+          "crs_geometry": "EPSG:4326",
+          "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+          "sezione_catastale_geometria": "A",
+          "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+          "id": "0e21940654bd78ae52346a3a194ce942",
+          "documento_id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+          "fonte_pagina": 2,
+          "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+          "fonte_sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+          "intestatario": null,
+          "stato_estrazione": "intestazione_non_pubblicata",
+          "documento_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file#page=2",
+          "mappali": "2038",
+          "sup_mq": null,
+          "sup_esproprio_mq": null,
+          "sup_asservimento_mq": null,
+          "indennita": null,
+          "delta": false
+        }
+      ],
+      "geo": null,
+      "ente": "RFI / Italferr",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_ARCHIVIATI",
+      "particellare_url": "/api/opere/RFI-RHO-GALLARATE-PROGETTO-DEFINITIVO-2013/particelle",
+      "has_pda": true,
+      "righe_catastali": 5,
+      "righe_catastali_archivio": 832,
+      "particelle_localizzate": 5,
+      "particelle_uniche": 3,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    },
+    {
+      "slug": "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA",
+      "titolo": "Linea AV/AC Verona–Padova: secondo lotto funzionale, attraversamento di Vicenza",
+      "ente_promotore": "RFI",
+      "regione": "Veneto",
+      "provincia": null,
+      "comune": "Vicenza",
+      "cup": null,
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://www.rfi.it/it/rete/i-nostri-progetti/principali-interventi-lavori-programmati/linea-milano---venezia.html",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [],
+      "ditte": [],
+      "geo": null,
+      "ente": "RFI",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_DA_ACQUISIRE",
+      "particellare_url": "/api/opere/RFI-TAV-VR-PD-SUB-TRATTA-VICENZA/particelle",
+      "has_pda": false,
+      "righe_catastali": 0,
+      "righe_catastali_archivio": 0,
+      "particelle_localizzate": 0,
+      "particelle_uniche": 0,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    },
+    {
+      "slug": "RFI-VERONA-BIVIO-VICENZA-LOTTO1-VARIANTE-SNAM-2026",
+      "titolo": "Linea AV/AC Verona–Bivio Vicenza: variante SNAM del primo lotto funzionale",
+      "ente_promotore": "RFI / FS Engineering",
+      "regione": "Veneto",
+      "provincia": null,
+      "comune": "San Martino Buon Albergo, San Bonifacio, Caldiero, Belfiore, Lonigo, Brendola, Montebello Vicentino, Montecchio Maggiore, Altavilla Vicentina",
+      "cup": "J41E91000000009",
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/16/linea-av-ac-milano---venezia--tratta-verona---padova-primo-lotto.html",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [
+        {
+          "id": "03b1951a0794432f9ec03bb4bc38b0ee",
+          "titolo": "Avviso variante SNAM Verona–Bivio Vicenza",
+          "fonte_url": "https://www.gruppofsengineering.it/content/dam/italferr_nd/italiano/documenti/gare-ed-espropri/2026/avviso%20VR-Bivio%20Vicenza_SNAM.pdf",
+          "pagina_fonte": "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/16/linea-av-ac-milano---venezia--tratta-verona---padova-primo-lotto.html",
+          "sha256": "692bc4e991f5161647ddd58281658c4688c85498486e2db62145360fdb5f4865",
+          "acquisito_il": "2026-10-31T21:40:08+00:00",
+          "tipo": "avviso",
+          "attivo": 1,
+          "totale_pagine": 2,
+          "stato": "estrazione_parziale",
+          "righe_estratte": 0,
+          "disponibilita": "presso_ente",
+          "archivio_url": "/api/documenti/03b1951a0794432f9ec03bb4bc38b0ee/file",
+          "righe_pubblicate": 0
+        }
+      ],
+      "ditte": [],
+      "geo": null,
+      "ente": "RFI / FS Engineering",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_ARCHIVIATI",
+      "particellare_url": "/api/opere/RFI-VERONA-BIVIO-VICENZA-LOTTO1-VARIANTE-SNAM-2026/particelle",
+      "has_pda": false,
+      "righe_catastali": 0,
+      "righe_catastali_archivio": 0,
+      "particelle_localizzate": 0,
+      "particelle_uniche": 0,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    },
+    {
+      "slug": "TRENTINO-RFI-CIRCONVALLAZIONE-TRENTO",
+      "titolo": "Quadruplicamento Fortezza–Verona: lotto 3A, circonvallazione di Trento",
+      "ente_promotore": "RFI",
+      "regione": "Trentino-Alto Adige",
+      "provincia": null,
+      "comune": "Trento",
+      "cup": null,
+      "tipo_dati": "documentale",
+      "fonte_atto_url": "https://accountability-backend.mit.gov.it/storage/documents/236/UroHR7XmpJdYmzWDjUYrW7RTUc9Izxx7hYHT8NgY.pdf",
+      "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+      "documenti": [],
+      "ditte": [],
+      "geo": null,
+      "ente": "RFI",
+      "importo_eur": null,
+      "stato_opera": "DOCUMENTI_DA_ACQUISIRE",
+      "particellare_url": "/api/opere/TRENTINO-RFI-CIRCONVALLAZIONE-TRENTO/particelle",
+      "has_pda": false,
+      "righe_catastali": 0,
+      "righe_catastali_archivio": 0,
+      "particelle_localizzate": 0,
+      "particelle_uniche": 0,
+      "completezza_catastale": "non_certificata",
+      "modalita_archivio": "catalogo_pubblico_sola_lettura"
+    }
+  ],
+  "particelle": {
+    "EMILIA-CISPADANA-AUTOSTRADA-REGIONALE": [],
+    "LOMBARDIA-RFI-QUADRUPICAMENTO-MILANO-PAVIA": [],
+    "RFI-PALERMO-CATANIA-LOTTO4A-XIRBI-ENNA-VARIANTE2026": [],
+    "RFI-RHO-GALLARATE-PROGETTO-DEFINITIVO-2013": [
+      {
+        "comune": "Canegrate",
+        "foglio": "11",
+        "mappale": "80",
+        "sub": "",
+        "sezione": null,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                8.93500869,
+                45.56127249
+              ],
+              [
+                8.93495338,
+                45.5612712
+              ],
+              [
+                8.93477923,
+                45.56119928
+              ],
+              [
+                8.93472671,
+                45.56116493
+              ],
+              [
+                8.93475907,
+                45.56113792
+              ],
+              [
+                8.93485018,
+                45.56118849
+              ],
+              [
+                8.93497208,
+                45.56123648
+              ],
+              [
+                8.93501,
+                45.56123684
+              ],
+              [
+                8.93503268,
+                45.56125291
+              ],
+              [
+                8.93500869,
+                45.56127249
+              ]
+            ]
+          ]
+        },
+        "riferimento_catastale": "B593_001100.80",
+        "stato_identificativi": "verificati_su_documento",
+        "stato_geometria": "localizzata_wfs",
+        "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.56089050%2C8.93246243%2C45.56348425%2C8.93535700%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+        "fonte_geometria_sha256": "6b40f4ae510a24e75a3e23ac2db42dd694e0076c3636d898719dd28028d7a19b",
+        "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+        "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+        "crs_geometry": "EPSG:4326",
+        "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+        "sezione_catastale_geometria": null,
+        "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+        "id": "24510797d4a0d2c61034af8cc81188e8",
+        "documento_id": "11080fd218017b4cdef3a85a3eab52fc",
+        "fonte_pagina": 2,
+        "fonte_url": "https://va.mite.gov.it/File/Documento/95279",
+        "fonte_sha256": "05ec07cdae183e814108951627b5fdc6bf6deb00baef0e555a832af43f9982c0",
+        "intestatario": null,
+        "stato_estrazione": "intestazione_non_pubblicata",
+        "documento_url": "/api/documenti/11080fd218017b4cdef3a85a3eab52fc/file#page=2"
+      },
+      {
+        "comune": "Canegrate",
+        "foglio": "11",
+        "mappale": "79",
+        "sub": "",
+        "sezione": null,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                8.93500869,
+                45.56127249
+              ],
+              [
+                8.93487993,
+                45.56138366
+              ],
+              [
+                8.93469458,
+                45.56154369
+              ],
+              [
+                8.93457293,
+                45.56164871
+              ],
+              [
+                8.93411066,
+                45.56204589
+              ],
+              [
+                8.93405202,
+                45.56209634
+              ],
+              [
+                8.93388291,
+                45.56224182
+              ],
+              [
+                8.93385421,
+                45.56226743
+              ],
+              [
+                8.93375488,
+                45.56221064
+              ],
+              [
+                8.93361857,
+                45.562129
+              ],
+              [
+                8.93418568,
+                45.5616379
+              ],
+              [
+                8.93472671,
+                45.56116493
+              ],
+              [
+                8.93477923,
+                45.56119928
+              ],
+              [
+                8.93495338,
+                45.5612712
+              ],
+              [
+                8.93500869,
+                45.56127249
+              ]
+            ]
+          ]
+        },
+        "riferimento_catastale": "B593_001100.79",
+        "stato_identificativi": "verificati_su_documento",
+        "stato_geometria": "localizzata_wfs",
+        "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.56089050%2C8.93246243%2C45.56348425%2C8.93535700%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+        "fonte_geometria_sha256": "6b40f4ae510a24e75a3e23ac2db42dd694e0076c3636d898719dd28028d7a19b",
+        "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+        "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+        "crs_geometry": "EPSG:4326",
+        "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+        "sezione_catastale_geometria": null,
+        "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+        "id": "9da32bcd6b979d320f5890b94b1a592b",
+        "documento_id": "11080fd218017b4cdef3a85a3eab52fc",
+        "fonte_pagina": 2,
+        "fonte_url": "https://va.mite.gov.it/File/Documento/95279",
+        "fonte_sha256": "05ec07cdae183e814108951627b5fdc6bf6deb00baef0e555a832af43f9982c0",
+        "intestatario": null,
+        "stato_estrazione": "intestazione_non_pubblicata",
+        "documento_url": "/api/documenti/11080fd218017b4cdef3a85a3eab52fc/file#page=2"
+      },
+      {
+        "comune": "Busto Arsizio",
+        "foglio": "917",
+        "mappale": "2038",
+        "sub": "",
+        "sezione": null,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                8.87253061,
+                45.60974822
+              ],
+              [
+                8.87265757,
+                45.60956767
+              ],
+              [
+                8.87267777,
+                45.6095387
+              ],
+              [
+                8.8727303,
+                45.60955295
+              ],
+              [
+                8.87278833,
+                45.60956612
+              ],
+              [
+                8.8728589,
+                45.60958314
+              ],
+              [
+                8.87277286,
+                45.60971545
+              ],
+              [
+                8.87272646,
+                45.60979105
+              ],
+              [
+                8.87253061,
+                45.60974822
+              ]
+            ]
+          ]
+        },
+        "riferimento_catastale": "B300A091700.2038",
+        "stato_identificativi": "verificati_su_documento",
+        "stato_geometria": "localizzata_wfs",
+        "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.60785050%2C8.87242586%2C45.61065600%2C8.87501043%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+        "fonte_geometria_sha256": "0ecb2c02573e3c0873067a1c6a28f5f8ef6bb9369be28f6e70fcc572213346cd",
+        "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+        "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+        "crs_geometry": "EPSG:4326",
+        "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+        "sezione_catastale_geometria": "A",
+        "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+        "id": "d34b3e097e18f8831da58f045418acc7",
+        "documento_id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+        "fonte_pagina": 2,
+        "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+        "fonte_sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+        "intestatario": null,
+        "stato_estrazione": "intestazione_non_pubblicata",
+        "documento_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file#page=2"
+      },
+      {
+        "comune": "Busto Arsizio",
+        "foglio": "917",
+        "mappale": "2038",
+        "sub": "1",
+        "sezione": null,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                8.87253061,
+                45.60974822
+              ],
+              [
+                8.87265757,
+                45.60956767
+              ],
+              [
+                8.87267777,
+                45.6095387
+              ],
+              [
+                8.8727303,
+                45.60955295
+              ],
+              [
+                8.87278833,
+                45.60956612
+              ],
+              [
+                8.8728589,
+                45.60958314
+              ],
+              [
+                8.87277286,
+                45.60971545
+              ],
+              [
+                8.87272646,
+                45.60979105
+              ],
+              [
+                8.87253061,
+                45.60974822
+              ]
+            ]
+          ]
+        },
+        "riferimento_catastale": "B300A091700.2038",
+        "stato_identificativi": "verificati_su_documento",
+        "stato_geometria": "localizzata_wfs",
+        "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.60785050%2C8.87242586%2C45.61065600%2C8.87501043%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+        "fonte_geometria_sha256": "0ecb2c02573e3c0873067a1c6a28f5f8ef6bb9369be28f6e70fcc572213346cd",
+        "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+        "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+        "crs_geometry": "EPSG:4326",
+        "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+        "sezione_catastale_geometria": "A",
+        "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+        "id": "9532031fa734a2f365fe56628109e07e",
+        "documento_id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+        "fonte_pagina": 2,
+        "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+        "fonte_sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+        "intestatario": null,
+        "stato_estrazione": "intestazione_non_pubblicata",
+        "documento_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file#page=2"
+      },
+      {
+        "comune": "Busto Arsizio",
+        "foglio": "917",
+        "mappale": "2038",
+        "sub": "2",
+        "sezione": null,
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                8.87253061,
+                45.60974822
+              ],
+              [
+                8.87265757,
+                45.60956767
+              ],
+              [
+                8.87267777,
+                45.6095387
+              ],
+              [
+                8.8727303,
+                45.60955295
+              ],
+              [
+                8.87278833,
+                45.60956612
+              ],
+              [
+                8.8728589,
+                45.60958314
+              ],
+              [
+                8.87277286,
+                45.60971545
+              ],
+              [
+                8.87272646,
+                45.60979105
+              ],
+              [
+                8.87253061,
+                45.60974822
+              ]
+            ]
+          ]
+        },
+        "riferimento_catastale": "B300A091700.2038",
+        "stato_identificativi": "verificati_su_documento",
+        "stato_geometria": "localizzata_wfs",
+        "fonte_geometria": "https://wfs.cartografia.agenziaentrate.gov.it/inspire/wfs/owfs01.php?service=WFS&version=2.0.0&request=GetFeature&typeNames=CP%3ACadastralParcel&srsName=urn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706&count=1000&bbox=45.60785050%2C8.87242586%2C45.61065600%2C8.87501043%2Curn%3Aogc%3Adef%3Acrs%3AEPSG%3A%3A6706",
+        "fonte_geometria_sha256": "0ecb2c02573e3c0873067a1c6a28f5f8ef6bb9369be28f6e70fcc572213346cd",
+        "geometria_acquisita_il": "2026-11-01T03:12:10+00:00",
+        "crs_sorgente": "urn:ogc:def:crs:EPSG::6706",
+        "crs_geometry": "EPSG:4326",
+        "licenza_geometria": "CC BY 4.0 — Agenzia delle Entrate",
+        "sezione_catastale_geometria": "A",
+        "match_geometria": "corrispondenza esatta di comune catastale, foglio, mappale e sezione WFS",
+        "id": "0e21940654bd78ae52346a3a194ce942",
+        "documento_id": "397f8ce0e1edf2d9ffcfa76d46b8b1d3",
+        "fonte_pagina": 2,
+        "fonte_url": "https://va.mite.gov.it/File/Documento/95282",
+        "fonte_sha256": "45da34a2ef453975e45439191c2a568cc076997bcec5e081c4c25d1f9ac70649",
+        "intestatario": null,
+        "stato_estrazione": "intestazione_non_pubblicata",
+        "documento_url": "/api/documenti/397f8ce0e1edf2d9ffcfa76d46b8b1d3/file#page=2"
+      }
+    ],
+    "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA": [],
+    "RFI-VERONA-BIVIO-VICENZA-LOTTO1-VARIANTE-SNAM-2026": [],
+    "TRENTINO-RFI-CIRCONVALLAZIONE-TRENTO": []
+  },
+  "metadata": {
+    "esportato_il": "2026-11-01T11:14:54.422293+00:00",
+    "modalita": "catalogo_pubblico_sola_lettura",
+    "particelle_uniche": 3,
+    "righe_pubblicate": 5,
+    "nota": "Sole fonti pubbliche e geometrie catastali riscontrate. Nessun nominativo, database o PDF locale. Copertura parziale."
+  }
+}
