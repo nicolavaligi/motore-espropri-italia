@@ -1,0 +1,9 @@
+{
+  "baseline": "afb36f6",
+  "particelle": 20000,
+  "interferite": 100,
+  "ripetizioni": 3,
+  "mediana_prima_s": 0.192025,
+  "mediana_dopo_s": 0.022728,
+  "accelerazione": 8.45
+}

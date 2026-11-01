@@ -5,18 +5,26 @@ Ambiente: Antigravity (AGY)
 """
 
 import json
+import os
+import tempfile
+from copy import deepcopy
+from threading import RLock
+from typing import Literal
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, Response
-from pydantic import BaseModel, Field
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from stima_delta import router as stima_router
+from production_store import ProductionStore, DEFAULT_ROOT
 
 app = FastAPI(
     title="Motore Espropri Italia API",
     description="Feed REST e intelligence per piani particellari e procedure D.P.R. 327/2001",
-    version="1.2.0"
+    version="2.0.0"
 )
 
 # CORS Middleware aperto per chiamate locali e dashboard
@@ -28,24 +36,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class ArchiveGZipMiddleware(GZipMiddleware):
+    async def __call__(self, scope, receive, send):
+        path = scope.get("path", "")
+        if path.startswith("/api/documenti/") or path in {"/api/catasto/wms", "/catasto/wms"}:
+            await self.app(scope, receive, send)
+        else:
+            await super().__call__(scope, receive, send)
+
+
+app.add_middleware(ArchiveGZipMiddleware, minimum_size=1000)
+
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+
 app.include_router(stima_router)
 from stima_delta import router_no_prefix as stima_no_prefix_router
 app.include_router(stima_no_prefix_router)
 
-DATA_PATH = Path(__file__).parent / "data" / "opere.json"
+DATA_PATH = DEFAULT_ROOT / "opere.json"
 STATIC_INDEX = Path(__file__).parent / "index.html"
 QUADRO_INTERFERENZE_HTML = Path(__file__).parent / "quadro_interferenze.html"
 DOSSIER_PATH = Path(__file__).parent / "DOSSIER_ARCHITETTURALE.md"
 
 
 class StimaPeriziaRequest(BaseModel):
-    tipologia: str = Field("agricola", description="'edificabile' oppure 'agricola'")
+    model_config = ConfigDict(allow_inf_nan=False)
+    tipologia: Literal["agricola", "edificabile"] = Field("agricola", description="'edificabile' oppure 'agricola'")
     valore_venale_unitario: float = Field(..., gt=0, description="Valore venale a metro quadro (€/mq)")
     superficie_mq: float = Field(..., gt=0, description="Superficie catastale espropriata (mq)")
     soprassuoli_eur: float = Field(0.0, ge=0, description="Valore soprassuoli/piantumazioni/fabbricati rurali (€)")
     coltivatore_diretto: bool = Field(False, description="Proprietario coltivatore diretto o IAP")
     cessione_volontaria: bool = Field(True, description="Accettazione cessione volontaria ex art. 45")
     vam_unitario: Optional[float] = Field(None, ge=0, description="Valore Agricolo Medio di zona (€/mq) ex art. 40 c. 4")
+
+
+    @model_validator(mode="after")
+    def verifica_vam(self):
+        if self.tipologia == "agricola" and self.coltivatore_diretto and not self.cessione_volontaria and self.vam_unitario is None:
+            raise ValueError("Specificare il VAM unitario per l'indennità aggiuntiva CD/IAP")
+        return self
 
 
 class StimaPeriziaResponse(BaseModel):
@@ -57,17 +86,49 @@ class StimaPeriziaResponse(BaseModel):
     dettagli_calcolo: Dict[str, Any]
 
 
-def load_opere() -> List[Dict[str, Any]]:
-    if not DATA_PATH.exists():
-        return []
-    with open(DATA_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+_opere_lock = RLock()
+_opere_cache = None
+_opere_signature = None
+
+
+def load_opere(*, copia: bool = True) -> List[Dict[str, Any]]:
+    """Cache invalidata da percorso, inode, dimensione e modifica nanosecondi."""
+    global _opere_cache, _opere_signature
+    with _opere_lock:
+        try:
+            stat = DATA_PATH.stat()
+        except FileNotFoundError:
+            if os.environ.get("VERCEL"):
+                raise HTTPException(status_code=503, detail="Archivio persistente non configurato per questa installazione. Nessun fallback a dati dimostrativi.")
+            return []
+        signature = (str(DATA_PATH), stat.st_ino, stat.st_mtime_ns, stat.st_size)
+        if _opere_signature != signature:
+            with DATA_PATH.open(encoding="utf-8") as stream:
+                dati = json.load(stream)
+            if not isinstance(dati, list):
+                raise ValueError("Il dataset opere deve essere una lista")
+            _opere_cache, _opere_signature = dati, signature
+        return deepcopy(_opere_cache) if copia else _opere_cache
 
 
 def save_opere(opere: List[Dict[str, Any]]) -> None:
-    DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(DATA_PATH, "w", encoding="utf-8") as f:
-        json.dump(opere, f, ensure_ascii=False, indent=2)
+    """Sostituzione atomica: una scrittura interrotta non tronca il dataset."""
+    global _opere_signature
+    with _opere_lock:
+        DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+        temporary = None
+        try:
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=DATA_PATH.parent,
+                                             suffix=".tmp", delete=False) as stream:
+                temporary = stream.name
+                json.dump(opere, stream, ensure_ascii=False, indent=2, allow_nan=False)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, DATA_PATH)
+            _opere_signature = None
+        finally:
+            if temporary and os.path.exists(temporary):
+                os.unlink(temporary)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -91,7 +152,6 @@ async def serve_quadro_interferenze():
     return HTMLResponse("<h1>Quadro interferenze in preparazione</h1>")
 
 
-@app.get("/tracciato_suite.js")
 @app.get("/{filename}.js")
 async def serve_js(filename: str):
     base_dir = Path(__file__).parent
@@ -101,96 +161,28 @@ async def serve_js(filename: str):
     raise HTTPException(status_code=404, detail="File JavaScript non trovato")
 
 
-# Endpoint WFS regionale (esempio Lombardia / Geoportale Nazionale)
-WFS_URL = "https://www.geoportale.regione.lombardia.it/geoserver/wfs"
-
-
+# Overlay esclusivamente tra geometrie fornite e documentate: nessun buffer predefinito.
 class TracciatoInterferenzeRequest(BaseModel):
-    tracciato_geojson: Dict[str, Any]
-    buffer_meters: float = 25.0
+    model_config = ConfigDict(allow_inf_nan=False)
+    tracciato_geojson: Dict[str, Any] | None = None  # compatibilità: un asse non definisce l'occupazione
+    ingombro_geojson: Dict[str, Any] | None = None
+    particelle_geojson: Dict[str, Any] | None = None
+    fonte_ingombro_url: str | None = None
+    fonte_catasto_url: str | None = None
 
 
 @app.post("/api/catasto/interferenze")
 @app.post("/catasto/interferenze")
 def get_particelle_sotto_tracciato(req: TracciatoInterferenzeRequest):
-    """
-    Calcola l'ingombro metrico bufferizzato del tracciato di progetto ed effettua la query WFS
-    o intersezione spaziale per isolare le particelle catastali impattate.
-    """
+    if not all((req.ingombro_geojson, req.particelle_geojson,
+                req.fonte_ingombro_url, req.fonte_catasto_url)):
+        raise HTTPException(status_code=409, detail="Servono ingombro di progetto e particelle poligonali con le rispettive fonti. Nessuna fascia o particella viene simulata da un asse.")
+    from spatial_quality import overlay_documentato
     try:
-        import geopandas as gpd
-        import requests
-        from shapely.geometry import shape
-
-        tracciato_geojson = req.tracciato_geojson
-        buffer_meters = req.buffer_meters
-
-        # 1. Parsing tracciato in GeoDataFrame
-        if "features" in tracciato_geojson:
-            gdf_tracciato = gpd.GeoDataFrame.from_features(tracciato_geojson["features"], crs="EPSG:4326")
-        elif "geometry" in tracciato_geojson:
-            gdf_tracciato = gpd.GeoDataFrame.from_features([tracciato_geojson], crs="EPSG:4326")
-        else:
-            geom = shape(tracciato_geojson)
-            gdf_tracciato = gpd.GeoDataFrame(geometry=[geom], crs="EPSG:4326")
-
-        gdf_metric = gdf_tracciato.to_crs(epsg=32632)
-
-        # 2. Calcolo del buffer e del Bounding Box
-        buffer_geom = gdf_metric.geometry.buffer(buffer_meters).unary_union
-
-        # Conversione bbox per la query WFS
-        gdf_bbox = gpd.GeoDataFrame(geometry=[buffer_geom.envelope], crs="EPSG:32632").to_crs(epsg=4326)
-        minx, miny, maxx, maxy = gdf_bbox.total_bounds
-        bbox_str = f"{miny},{minx},{maxy},{maxx},urn:ogc:def:crs:EPSG:4326"
-
-        # 3. Richiesta WFS limitata al bounding box dell'opera
-        params = {
-            "service": "WFS",
-            "version": "2.0.0",
-            "request": "GetFeature",
-            "typeNames": "ct_particelle",
-            "srsName": "EPSG:4326",
-            "outputFormat": "application/json",
-            "bbox": bbox_str
-        }
-
-        try:
-            resp = requests.get(WFS_URL, params=params, timeout=10)
-            if resp.status_code == 200:
-                gdf_catasto = gpd.read_file(resp.text)
-            else:
-                gdf_catasto = gpd.GeoDataFrame()
-        except Exception:
-            gdf_catasto = gpd.GeoDataFrame()
-
-        # 4. Clip spaziale ed estrazione particelle interferite
-        if not gdf_catasto.empty:
-            gdf_catasto_metric = gdf_catasto.to_crs(epsg=32632)
-            intersecate = gdf_catasto_metric[gdf_catasto_metric.intersects(buffer_geom)].copy()
-            intersecate["sup_totale_mq"] = intersecate.geometry.area
-            intersecate["sup_interferita_mq"] = intersecate.geometry.intersection(buffer_geom).area
-            return intersecate.to_crs(epsg=4326).__geo_interface__
-        else:
-            # Fallback resiliente con poligono bufferizzato georiferito
-            gdf_buffer_res = gpd.GeoDataFrame(geometry=[buffer_geom], crs="EPSG:32632").to_crs(epsg=4326)
-            return {
-                "type": "FeatureCollection",
-                "features": [
-                    {
-                        "type": "Feature",
-                        "geometry": gdf_buffer_res.geometry.iloc[0].__geo_interface__,
-                        "properties": {
-                            "buffer_meters": buffer_meters,
-                            "bbox": [minx, miny, maxx, maxy],
-                            "info": "Fascia buffer generata con successo"
-                        }
-                    }
-                ]
-            }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return overlay_documentato(req.ingombro_geojson, req.particelle_geojson,
+                                   req.fonte_ingombro_url, req.fonte_catasto_url)
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 @app.get("/api/catasto/wms")
@@ -273,7 +265,7 @@ async def debug_env(request: Request):
 @app.get("/data/opere.json")
 @app.get("/opere.json")
 async def serve_opere_json():
-    return load_opere()
+    return load_opere(copia=False)
 
 @app.get("/specifiche-dossier")
 @app.get("/api/specifiche-dossier")
@@ -350,7 +342,7 @@ async def calcola_stima_perizia(req: StimaPeriziaRequest):
         else:
             # Senza cessione volontaria: se coltivatore diretto, spetta VAM aggiuntivo art. 40 c. 4
             if req.coltivatore_diretto:
-                vam_val = (req.vam_unitario or v_unit) * sup
+                vam_val = req.vam_unitario * sup
                 indennita_finale = indennita_base + vam_val
                 maggiorazione = vam_val
                 desc = "Indennità base + Indennità Aggiuntiva VAM Coltivatore Diretto (art. 40 c. 4 D.P.R. 327/2001)"
@@ -386,7 +378,7 @@ async def get_opere(
     stato: Optional[str] = Query(None, description="Filtra per stato_opera (es. AVANZATA_SENZA_ELENCO)"),
     q: Optional[str] = Query(None, description="Ricerca testuale su titolo, cup o ente")
 ):
-    opere = load_opere()
+    opere = load_opere(copia=False)
 
     if regione and regione != "ALL":
         opere = [o for o in opere if o.get("regione", "").lower() == regione.lower()]
@@ -400,7 +392,7 @@ async def get_opere(
             o for o in opere
             if query in o.get("titolo", "").lower()
             or query in (o.get("cup") or "").lower()
-            or query in o.get("ente", "").lower()
+            or query in (o.get("ente") or o.get("ente_promotore") or "").lower()
             or query in o.get("comune", "").lower()
         ]
 
@@ -410,7 +402,7 @@ async def get_opere(
 @app.get("/opere/{slug}")
 @app.get("/api/opere/{slug}")
 async def get_opera_by_slug(slug: str):
-    opere = load_opere()
+    opere = load_opere(copia=False)
     for o in opere:
         if o.get("slug") == slug:
             return o
@@ -420,22 +412,63 @@ async def get_opera_by_slug(slug: str):
 @app.post("/opere")
 @app.post("/api/opere")
 async def create_or_update_opera(opera_data: Dict[str, Any]):
-    opere = load_opere()
-    slug = opera_data.get("slug") or f"OPERA-{Date.now()}"
-    opera_data["slug"] = slug
+    raise HTTPException(status_code=409, detail="Archivio di produzione: le opere e le ditte vengono acquisite da documenti degli enti con provenienza. Inserimento libero disabilitato.")
 
-    # Aggiorna se esistente o inserisci in cima
-    updated = False
-    for i, o in enumerate(opere):
-        if o.get("slug") == slug:
-            opere[i] = opera_data
-            updated = True
-            break
-    if not updated:
-        opere.insert(0, opera_data)
 
-    save_opere(opere)
-    return {"status": "success", "slug": slug, "total": len(opere)}
+
+
+
+def archive_store():
+    if os.environ.get('VERCEL') and not (DEFAULT_ROOT / 'archivio.sqlite3').is_file():
+        raise HTTPException(status_code=503, detail='Archivio documentale persistente non collegato. Nessun dato simulato disponibile.')
+    return ProductionStore()
+
+
+@app.get("/api/archivio/stato")
+def archive_status():
+    return archive_store().status()
+
+
+@app.get("/api/opere/{slug}/documenti")
+def opera_documents(slug: str):
+    return archive_store().documents(slug)
+
+
+@app.get("/api/opere/{slug}/particelle")
+def opera_parcels(slug: str):
+    return archive_store().rows(slug)
+
+
+@app.get("/api/opere/{slug}/particelle.geojson")
+def opera_parcels_geojson(slug: str):
+    rows = archive_store().rows(slug)
+    features = [{"type":"Feature", "id":r["id"], "geometry":r["geometry"],
+                 "properties":{k:v for k,v in r.items() if k not in {"geometry", "raw"}}}
+                for r in rows if r.get("geometry")]
+    return {"type":"FeatureCollection", "features":features,
+            "righe_archiviate":len(rows), "righe_localizzate":len(features),
+            "righe_senza_geometria":len(rows)-len(features)}
+
+
+@app.get("/api/apl/tratte/{tratta}.geojson")
+def apl_candidate_geometry(tratta: Literal["B2", "C"]):
+    """Geometrie originali dei KMZ APL importati, servite come layer candidato non certificato."""
+    path = DEFAULT_ROOT / "apl" / "geometrie" / f"APL_{tratta}.geojson"
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Geometrie APL non archiviate")
+    return FileResponse(path, media_type="application/geo+json", headers={"Cache-Control":"private, no-store"})
+
+
+@app.get("/api/documenti/{identifier}/file")
+def archived_document(identifier: str):
+    store = archive_store()
+    doc = store.document(identifier)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Documento non archiviato")
+    path = store.root / "documenti" / (doc["sha256"] + ".pdf")
+    if not path.is_file() or path.stat().st_size != doc["byte_size"]:
+        raise HTTPException(status_code=409, detail="Originale mancante o archivio incoerente")
+    return FileResponse(path, media_type="application/pdf", headers={"Cache-Control":"private, no-store"})
 
 
 if __name__ == "__main__":

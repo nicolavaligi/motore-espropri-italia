@@ -315,7 +315,7 @@ def test_parser_estrazione_particellare_righe_tabellari():
     from extract_particellare import parse_raw_table_rows
 
     mock_table = [
-        ["Comune", "Fg.", "Mapp.", "Sub", "Ditta Intestataria", "Sup. Esproprio (mq)", "Sup. Asservimento", "Sup. Totale"],
+        ["Comune", "Fg.", "Mapp.", "Sub", "Ditta Intestataria", "Sup. Esproprio (mq)", "Sup. Asservimento mq", "Sup. Totale mq"],
         ["Dervio", "12", "145", "1", "ROSSI MARIO RSSMRA80A01E507X", "450,50", "0", "1.200,00"],
         ["Dervio", "12", "146", "", "BIANCHI LUIGI (01234567890)", "0", "800,00", "2.500"]
     ]

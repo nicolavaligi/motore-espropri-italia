@@ -128,8 +128,8 @@ class BurEspropriCrawler:
             "giorni_residui": scadenza_info["giorni_residui"],
             "stato_codice": "PDA", # Fase 4: Piano Particellare Depositato
             "fase_procedimento": 4,
-            "lat": avviso.get("lat", 45.4642), # Fallback coordinate
-            "lng": avviso.get("lng", 9.1900),
+            "lat": avviso.get("lat"), # Coordinate solo se fornite dalla fonte
+            "lng": avviso.get("lng"),
             "sup_totale_esproprio_mq": round(tot_esp, 2),
             "sup_totale_asservimento_mq": round(tot_ass, 2),
             "particelle": particelle,
@@ -140,49 +140,9 @@ class BurEspropriCrawler:
         return nuova_opera
 
     def salva_o_aggiorna_opera(self, opera: Dict[str, Any]):
-        """Aggiorna opere.json evitando duplicazioni basate su slug o CUP."""
-        opere = []
-        if OPERE_FILE.exists():
-            with open(OPERE_FILE, "r", encoding="utf-8") as f:
-                opere = json.load(f)
-
-        # Verifica se esiste già
-        idx = next((i for i, o in enumerate(opere) if o.get("slug") == opera["slug"] or (o.get("cup") != "NON_SPECIFICATO" and o.get("cup") == opera["cup"])), -1)
-        if idx >= 0:
-            opere[idx].update(opera)
-        else:
-            opere.append(opera)
-
-        with open(OPERE_FILE, "w", encoding="utf-8") as f:
-            json.dump(opere, f, ensure_ascii=False, indent=2)
-
-
-# ============================================================================
-# ESEMPIO CONNETTORE SPECIFICO: PARSER INDICE HTML / RSS
-# ============================================================================
-def mock_esegui_scansione_giornaliera():
-    """
-    Esempio di esecuzione crawler su un indice di annunci BUR simulato.
-    """
-    crawler = BurEspropriCrawler()
-
-    # Struttura tipica restituita dallo scraping delle pagine BUR
-    avviso_rilevato = {
-        "titolo": "AVVISO DI DEPOSITO DEL PIANO PARTICELLARE D'ESPROPRIO EX ART. 16 D.P.R. 327/2001",
-        "descrizione": "Realizzazione del nuovo raccordo RTN 380 kV. Deposito atti per 30 giorni per osservazioni.",
-        "ente": "Terna Rete Italia S.p.A.",
-        "data_pubblicazione": datetime.now(),
-        "pdf_url": None, # Sostituire con URL reale dell'allegato PDF
-        "link_atto": "https://bur.regione.lombardia.it/avvisi/2026/10/atto-12345",
-        "lat": 45.6983,
-        "lng": 9.6773
-    }
-
-    risultato = crawler.indicizza_nuovo_avviso(avviso_rilevato)
-    if risultato:
-        print(f"[MATCH FASE 4] Opera censita con successo: {risultato['slug']}")
-        print(f"-> Scadenza termini osservazioni: {risultato['termini_osservazioni']['data_scadenza']} ({risultato['giorni_residui']} gg rimasti)")
+        raise RuntimeError("Scrittura legacy disabilitata: usare collect_public_records.py e l’archivio documentale di produzione")
 
 
 if __name__ == "__main__":
-    mock_esegui_scansione_giornaliera()
+    from collect_public_records import main
+    main()

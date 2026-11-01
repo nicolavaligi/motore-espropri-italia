@@ -24,8 +24,11 @@ def parse_float(val: Optional[str]) -> float:
     if not val:
         return 0.0
     val_clean = clean_text(val).replace("mq", "").replace("m²", "").strip()
-    val_clean = val_clean.replace(".", "").replace(",", ".")
-    match = re.search(r"[-+]?\d*\.\d+|\d+", val_clean)
+    if "," in val_clean:
+        val_clean = val_clean.replace(".", "").replace(",", ".")
+    elif re.fullmatch(r"[-+]?\d{1,3}(?:\.\d{3})+", val_clean):
+        val_clean = val_clean.replace(".", "")
+    match = re.search(r"[-+]?\d*\.\d+|[-+]?\d+", val_clean)
     return float(match.group()) if match else 0.0
 
 
@@ -47,7 +50,8 @@ def parse_raw_table_rows(table_rows: List[List[str]]) -> List[Dict[str, Any]]:
     col_map = {
         "comune": -1, "foglio": -1, "mappale": -1, "sub": -1,
         "ditta": -1, "sup_totale": -1, "sup_esproprio": -1,
-        "sup_asservimento": -1, "sup_occupazione": -1
+        "sup_asservimento": -1, "sup_occupazione": -1,
+        "cf": -1, "quota": -1, "diritto": -1, "sezione": -1
     }
     header_detected = False
 
@@ -69,6 +73,14 @@ def parse_raw_table_rows(table_rows: List[List[str]]) -> List[Dict[str, Any]]:
                     col_map["mappale"] = idx
                 elif "sub" in c_low:
                     col_map["sub"] = idx
+                elif any(k in c_low for k in ["codice fiscale", "c.f.", "p.iva", "partita iva"]):
+                    col_map["cf"] = idx
+                elif "quota" in c_low:
+                    col_map["quota"] = idx
+                elif "diritto" in c_low or "titolar" in c_low:
+                    col_map["diritto"] = idx
+                elif "sezione" in c_low:
+                    col_map["sezione"] = idx
                 elif any(k in c_low for k in ["ditta", "proprietari", "intestatar", "nominativ"]):
                     col_map["ditta"] = idx
                 elif "occup" in c_low:
@@ -80,6 +92,7 @@ def parse_raw_table_rows(table_rows: List[List[str]]) -> List[Dict[str, Any]]:
                 elif "tot" in c_low or "sup" in c_low:
                     if col_map["sup_totale"] == -1:
                         col_map["sup_totale"] = idx
+            header_row = cleaned_row
             header_detected = True
             continue
 
@@ -99,10 +112,20 @@ def parse_raw_table_rows(table_rows: List[List[str]]) -> List[Dict[str, Any]]:
         if "totale" in foglio.lower() or "foglio" in foglio.lower():
             continue
 
-        cf = extract_cf(raw_ditta)
+        cf = extract_cf(get_val("cf")) or extract_cf(raw_ditta)
         ditta_nome = raw_ditta
         if cf:
             ditta_nome = raw_ditta.replace(cf, "").strip(" -–,;/")
+
+        def optional_surface(key):
+            value = get_val(key)
+            header = header_row[col_map[key]] if col_map[key] >= 0 else ''
+            # Un numero senza unità dichiarata non diventa automaticamente m².
+            unit_declared = bool(re.search(r"(?:\bmq\b|m²|m2|m\^2)", value + ' ' + header, re.I))
+            number = re.sub(r"(?:\bmq\b|m²|m2|m\^2)", '', value, flags=re.I).strip()
+            if not unit_declared or not re.fullmatch(r"\d+(?:[.,]\d+)*", number):
+                return None
+            return parse_float(number)
 
         record = {
             "foglio": foglio,
@@ -111,12 +134,21 @@ def parse_raw_table_rows(table_rows: List[List[str]]) -> List[Dict[str, Any]]:
             "comune": get_val("comune") or None,
             "intestatario": ditta_nome or "Ditta non specificata",
             "codice_fiscale": cf,
+            "quota": get_val("quota") or None,
+            "diritto": get_val("diritto") or None,
+            "sezione": get_val("sezione") or None,
+            "raw": {"celle": row, "intestazione": raw_ditta},
             "superfici_mq": {
-                "totale": parse_float(get_val("sup_totale")),
-                "esproprio": parse_float(get_val("sup_esproprio")),
-                "asservimento": parse_float(get_val("sup_asservimento")),
-                "occupazione_temporanea": parse_float(get_val("sup_occupazione"))
+                "totale": optional_surface("sup_totale"),
+                "esproprio": optional_surface("sup_esproprio"),
+                "asservimento": optional_surface("sup_asservimento"),
+                "occupazione_temporanea": optional_surface("sup_occupazione")
             }
+        }
+        record['qualita_superfici'] = {
+            'unita_output': 'm²',
+            'nota': 'Valori nulli se unità assente o testo ambiguo; verificare celle e intestazioni originali.',
+            'intestazioni_originali': header_row,
         }
         records.append(record)
 

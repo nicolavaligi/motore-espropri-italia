@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from fastapi import APIRouter
 
 router = APIRouter(prefix="/api/stima", tags=["Stima Peritale Espropri"])
@@ -17,6 +17,7 @@ class TipologiaIntervento(str, Enum):
     OCCUPAZIONE_TEMPORANEA = "occupazione_temporanea"
 
 class InputStimaPerizia(BaseModel):
+    model_config = ConfigDict(allow_inf_nan=False)
     superficie_mq: float = Field(..., gt=0)
     destinazione: DestinazioneUrbanistica
     intervento: TipologiaIntervento
@@ -30,6 +31,16 @@ class InputStimaPerizia(BaseModel):
     vam_tabellare_mq: float = Field(0.0, ge=0.0)
     adesione_cessione_volontaria: bool = Field(False)
     anni_occupazione: float = Field(1.0, ge=0.0)
+
+    @model_validator(mode="after")
+    def verifica_vam(self):
+        if (self.is_coltivatore_diretto_o_iap
+            and self.destinazione == DestinazioneUrbanistica.AGRICOLA
+            and self.intervento != TipologiaIntervento.OCCUPAZIONE_TEMPORANEA
+            and self.vam_tabellare_mq <= 0):
+            raise ValueError("Specificare il VAM tabellare per calcolare l'indennità aggiuntiva CD/IAP")
+        return self
+
 
 class OutputStimaPerizia(BaseModel):
     totale_offerta_ente: float
@@ -55,14 +66,11 @@ def calcola_indennita_peritale(p: InputStimaPerizia) -> OutputStimaPerizia:
     indennita_soprassuoli = p.valore_soprassuoli_euro + p.frutti_pendenti_euro
 
     indennita_maggiorazione_cd = 0.0
-    if p.is_coltivatore_diretto_o_iap and p.destinazione == DestinazioneUrbanistica.AGRICOLA:
-        if p.vam_tabellare_mq > 0:
-            indennita_maggiorazione_cd = p.vam_tabellare_mq * p.superficie_mq
-        else:
-            indennita_maggiorazione_cd = (p.valore_venale_mercato_mq * p.superficie_mq) * 0.5
+    if p.is_coltivatore_diretto_o_iap and p.destinazione == DestinazioneUrbanistica.AGRICOLA and p.intervento != TipologiaIntervento.OCCUPAZIONE_TEMPORANEA:
+        indennita_maggiorazione_cd = p.vam_tabellare_mq * p.superficie_mq
 
     maggiorazione_cessione_volontaria = 0.0
-    if p.adesione_cessione_volontaria:
+    if p.adesione_cessione_volontaria and p.intervento in {TipologiaIntervento.ESPROPRIO_TOTALE, TipologiaIntervento.ESPROPRIO_PARZIALE}:
         if p.destinazione == DestinazioneUrbanistica.AGRICOLA and not p.is_coltivatore_diretto_o_iap:
             maggiorazione_cessione_volontaria = indennita_suolo_reale * 0.50
         elif p.destinazione == DestinazioneUrbanistica.EDIFICABILE:

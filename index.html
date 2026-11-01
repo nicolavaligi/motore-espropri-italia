@@ -9,7 +9,7 @@
   <title>Motore Espropri Italia — Intelligence Territoriale DPR 327/2001</title>
   
   <!-- CDN Dipendenze: Tailwind CSS, Lucide Icons, MapLibre GL 3D (SunPro Engine), Turf.js -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="static/workspace.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
@@ -525,6 +525,101 @@
       background: #0369a1;
     }
 
+    /* Workspace cartografico: più territorio e comandi progressivi. */
+    body { height: 100dvh !important; }
+    #workspace-header { height: 58px; background: #101b2c; border-color: #263449; }
+    #workspace-header .animate-ping { animation: none; background: #38bdf8; box-shadow: 0 0 0 4px #38bdf818; }
+    #workspace-header button, #workspace-header a { min-height: 32px; }
+    #workspace-metrics { height: 42px; background: #152238; border-color: #27364a; }
+    #floating-sidebar { left: 16px; top: 16px; width: 352px; max-height: calc(100% - 64px); border-color: #33415580; border-radius: 16px; background: #101b2cf5; box-shadow: 0 12px 40px #02061730; }
+    #floating-sidebar > :first-child { padding: 17px 16px; background: #18253a; }
+    #floating-sidebar > :nth-child(2) { padding: 16px; }
+    #floating-sidebar input[type=text] { min-height: 44px; font-family: Inter, sans-serif; font-size: 12px; padding-right: 30px; }
+    #floating-sidebar .reg-btn { min-height: 28px; padding: 4px 8px; font-family: Inter, sans-serif; }
+    #floating-sidebar label { min-height: 28px; }
+    .opera-card-item { padding: 12px; border-radius: 10px; }
+    .opera-card-item > :nth-child(2) { font-size: 12px; line-height: 1.55; -webkit-line-clamp: 2; }
+    .opera-card-item > :last-child { margin-top: 8px; padding-top: 8px; }
+    .map-toolbar { position: absolute; top: 16px; right: 16px; width: 218px; display: grid; gap: 8px; z-index: 1001; color: #cbd5e1; font-size: 12px; }
+    .map-basemaps, .map-layer-panel, .map-action-bar, .map-legend { background: #101b2cf5; border: 1px solid #334155; box-shadow: 0 4px 20px #02061720; border-radius: 12px; }
+    .map-basemaps { display: flex; gap: 3px; padding: 5px; }
+    .map-basemaps button { flex: 1; min-height: 34px; border: 0 !important; background: transparent !important; border-radius: 8px; color: #b5c4d7 !important; font: 500 12px Inter, sans-serif; justify-content: center; }
+    .map-basemaps button[aria-pressed=true] { background: #33475f !important; color: white !important; box-shadow: 0 1px 4px #02061740; }
+    .map-layer-panel summary, .map-legend summary { display: flex; justify-content: space-between; align-items: center; padding: 13px 14px; cursor: pointer; font-weight: 600; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .map-layer-panel[open] summary { border-bottom: 1px solid #334155; }
+    .map-layer-body { padding: 12px; display: grid; gap: 9px; max-height: min(500px, calc(100dvh - 285px)); overflow-y: auto; }
+    .map-layer-body button { min-height: 36px; width: 100%; padding: 7px 9px; border-radius: 7px; border: 1px solid #3b4b62; background: #1d2c42; color: #e2e8f0; font: 500 11px Inter, sans-serif; text-align: left; }
+    .map-layer-body button[aria-pressed=true] { border-color: #38bdf870; background: #10364a; color: #a5e4ff; }
+    .map-tool-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .map-section-label { font-size: 9px; letter-spacing: .12em; font-weight: 600; color: #92a5be; margin-top: 2px; }
+    .map-opacity { display: grid; gap: 8px; font-size: 11px; color: #b5c4d7; }
+    .map-opacity input { width: 100%; accent-color: #38bdf8; }
+    #catasto-zoom-alert { color: #fbbf24; font-size: 11px; }
+    .map-layer-note { font-size: 10px; line-height: 1.6; color: #a3b4ca; }
+    .map-action-bar { position: absolute; top: 16px; left: var(--sidebar-offset, 16px); z-index: 1000; display: flex; align-items: center; gap: 12px; padding: 6px 12px 6px 6px; font-size: 11px; transition: left .2s; }
+    .map-action-bar button { min-height: 34px; padding: 6px 12px; border-radius: 7px; font-weight: 600; color: #bcecff; background: #16435a; }
+    .map-action-bar button:disabled { opacity: .5; cursor: default; }
+    .map-action-bar label { display: flex; gap: 7px; align-items: center; white-space: nowrap; cursor: pointer; }
+    .map-action-bar input { accent-color: #38bdf8; }
+    .map-status-bar { position: absolute; bottom: 32px; left: var(--sidebar-offset, 16px); z-index: 5; display: flex; gap: 20px; color: #e2e8f0; background: #101b2ce8; border: 1px solid #33415580; border-radius: 7px; padding: 7px 10px; font: 10px 'JetBrains Mono', monospace; pointer-events: none; }
+    .map-notice { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); padding: 14px 20px; background: #101b2cf5; border: 1px solid #52637b; color: #e2e8f0; border-radius: 10px; z-index: 1002; font-size: 12px; text-align: center; }
+    .map-notice[hidden] { display: none; }
+    .map-notice button, .map-reset-results { color: #7dd3fc; text-decoration: underline; padding: 8px; }
+    .map-legend { position: absolute; bottom: 80px; right: 16px; width: 190px; z-index: 10; font-size: 11px; color: #cbd5e1; }
+    .map-legend > div { display: flex; align-items: center; gap: 9px; padding: 5px 14px; }
+    .map-legend > div:last-child { padding-bottom: 14px; }
+    .map-legend > div span { width: 9px; height: 9px; border-radius: 3px; background: var(--legend); }
+    .maplibregl-ctrl-bottom-left { left: 12px; bottom: 2px; }
+    .maplibregl-ctrl-bottom-right { right: 4px; bottom: 2px; }
+    .maplibregl-ctrl-group { border-radius: 10px; overflow: hidden; }
+    .maplibregl-ctrl-group button { width: 36px; height: 36px; }
+    .maplibregl-ctrl-scale { font: 10px Inter, sans-serif; border-color: #334155; background: #ffffffd9; border-radius: 2px; }
+    .maplibregl-popup-content { width: 360px !important; max-height: min(580px, calc(100dvh - 190px)); overflow-y: auto; box-shadow: 0 12px 40px #02061755; }
+    /* MapLibre place le marqueur par transform : animer seulement son SVG. */
+    .map-pin-wrap { width: 27px; height: 39px; transition: filter .15s; }
+    .map-pin-wrap svg { transition: transform .18s; transform-origin: 50% 100%; }
+    .map-pin-wrap:hover, .map-pin-wrap.active { transform: none; filter: drop-shadow(0 3px 5px #02061760); }
+    .map-pin-wrap:hover svg, .map-pin-wrap:focus-visible svg { transform: translateY(-3px) scale(1.12); }
+    .map-pin-wrap.active svg { transform: translateY(-3px) scale(1.18); }
+    #gis-map[data-detail=local] .map-pin-wrap { width: 34px; height: 49px; }
+    button:focus-visible, a:focus-visible, summary:focus-visible, [role=button]:focus-visible { outline: 2px solid #7dd3fc; outline-offset: 3px; }
+    @media (max-width: 1100px) { #map-coordinate-status { display: none; } }
+    @media (max-width: 767px) {
+      #workspace-header { padding: 0 12px; height: 54px; }
+      #workspace-header > :first-child { gap: 10px; }
+      #workspace-header > :first-child > :last-child > :last-child { font: 600 11px Inter, sans-serif; letter-spacing: 0; }
+      #workspace-header > :nth-child(2) { display: none; }
+      #workspace-metrics { height: 38px; gap: 12px; }
+      #workspace-metrics > :first-child { gap: 16px; font-size: 10px; }
+      #floating-sidebar { width: calc(100% - 24px); top: 74px; left: 12px; max-height: calc(100% - 90px); z-index: 1010; }
+      #floating-sidebar .max-h-56 { max-height: none; }
+      .map-toolbar { right: 12px; top: 12px; width: 188px; }
+      .map-basemaps button { font-size: 11px; }
+      .map-action-bar { left: 12px !important; top: 12px; padding: 5px; display: block; }
+      .map-action-bar button { padding: 6px 9px; min-height: 34px; font-size: 11px; }
+      .map-action-bar label { position: absolute; top: 57px; left: 0; padding: 10px; border-radius: 9px; background: #101b2cf5; border: 1px solid #334155; font-size: 10px; }
+      .map-status-bar { left: 12px !important; bottom: 36px; font-size: 9px; max-width: calc(100% - 68px); }
+      .map-legend { bottom: 86px; right: 12px; width: 170px; font-size: 10px; }
+      .map-layer-panel summary { padding: 10px 12px; font-size: 11px; }
+      .map-layer-body { max-height: calc(100dvh - 280px); }
+      .map-notice { top: 135px; width: min(300px, 85vw); }
+      #toast-filtro-attivo { top: 116px; max-width: calc(100% - 24px); width: 340px; font-size: 10px; }
+    }
+    @media (min-width: 768px) and (max-width: 1100px) {
+      .map-action-bar { top: auto; bottom: 78px; }
+    }
+    @media (max-width: 380px) {
+      .map-toolbar { width: 154px; }
+      .map-basemaps { gap: 0; padding: 3px; }
+      .map-basemaps button { font-size: 10px; }
+      .map-layer-panel summary { font-size: 10px; padding: 11px 8px; }
+      .map-action-bar button { font-size: 10px; padding: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+
   </style>
 </head>
 <body class="h-screen w-screen flex flex-col overflow-hidden text-slate-100 select-none">
@@ -532,11 +627,11 @@
   <!-- =======================================================================
        TOPBAR 1: BRAND, SHORTCUTS OPERATIVI & ORA IT
        ======================================================================= -->
-  <header class="h-12 border-b border-slate-800 bg-slate-950 px-3 md:px-5 flex items-center justify-between shrink-0 z-40 relative shadow-sm">
+  <header id="workspace-header" class="h-12 border-b border-slate-800 bg-slate-950 px-3 md:px-5 flex items-center justify-between shrink-0 z-40 relative shadow-sm">
     
     <!-- Sinistra: Brand & Tasto Sidebar -->
     <div class="flex items-center gap-3">
-      <button onclick="toggleSidebar()" id="btn-toggle-sidebar" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 flex items-center gap-1.5 text-xs font-mono transition-colors" title="Mostra/Nascondi Filtri">
+      <button onclick="toggleSidebar()" id="btn-toggle-sidebar" aria-controls="floating-sidebar" aria-expanded="true" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-amber-400 flex items-center gap-1.5 text-xs font-mono transition-colors" title="Mostra/Nascondi Filtri">
         <i data-lucide="menu" class="w-4 h-4"></i>
         <span class="hidden md:inline font-bold">FILTRI</span>
       </button>
@@ -568,7 +663,7 @@
       </a>
 
       <button onclick="openGuidaModal()" class="hidden lg:flex px-2 py-1 rounded border border-slate-800 bg-slate-900/80 hover:bg-slate-800 hover:border-indigo-500/50 text-slate-300 hover:text-indigo-300 transition-colors items-center gap-1 text-[11px]" title="Guida procedurale e strategia pre-decreto">
-        <span class="font-bold text-indigo-400">Esempio guidato</span> <span class="text-slate-500">→</span>
+        <span class="font-bold text-indigo-400">Metodo documentale</span> <span class="text-slate-500">→</span>
       </button>
     </div>
 
@@ -580,22 +675,19 @@
         <span class="text-slate-500 text-[9px]">ora IT</span>
       </div>
 
-      <button onclick="triggerQuickAddModal()" class="px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold flex items-center gap-1 text-[11px] shadow-sm shadow-amber-500/20">
-        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-        <span class="hidden sm:inline">Nuovo Atto</span>
-      </button>
+      <a href="/quadro-interferenze" class="text-sky-300 text-xs px-3 py-2 rounded border border-slate-700">Archivio fonti</a>
     </div>
   </header>
 
   <!-- =======================================================================
        TOPBAR 2: TELEMETRIA KPI, METRICHE & STATO CRAWLER
        ======================================================================= -->
-  <div class="h-10 border-b border-slate-800/80 bg-slate-900/90 px-3 md:px-5 flex items-center justify-between shrink-0 z-30 overflow-x-auto text-xs font-mono gap-4">
+  <div id="workspace-metrics" class="h-10 border-b border-slate-800/80 bg-slate-900/90 px-3 md:px-5 flex items-center justify-between shrink-0 z-30 overflow-x-auto text-xs font-mono gap-4">
     
     <!-- Pills metriche principali -->
     <div class="flex items-center gap-3 sm:gap-5 whitespace-nowrap text-[11px]">
       <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" onclick="triggerShortcutFilter('NOSTRE')">
-        <span class="font-bold text-sky-400 text-sm" id="stat-nostre">88</span>
+        <span class="font-bold text-sky-400 text-sm" id="stat-nostre">0</span>
         <span class="text-slate-400">Nostre opere</span>
       </div>
 
@@ -605,40 +697,34 @@
       </div>
 
       <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" onclick="filterByStateClick('AVANZATA_SENZA_ELENCO')">
-        <span class="font-bold text-amber-400 text-sm" id="stat-avanzate">208</span>
-        <span class="text-slate-300 font-medium">Avanzate · elenco atteso</span>
+        <span class="font-bold text-amber-400 text-sm" id="stat-avanzate">0</span>
+        <span class="text-slate-300 font-medium">Documenti da acquisire</span>
       </div>
 
       <div class="flex items-center gap-1.5 cursor-pointer hover:opacity-80" onclick="filterByStateClick('ELENCO_PUBBLICATO')">
-        <span class="font-bold text-emerald-400 text-sm" id="stat-elenchi">11</span>
-        <span class="text-slate-400">Elenchi pubblicati</span>
+        <span class="font-bold text-emerald-400 text-sm" id="stat-elenchi">0</span>
+        <span class="text-slate-400">Documenti archiviati</span>
       </div>
 
       <div class="hidden md:flex items-center gap-1.5">
-        <span class="font-bold text-amber-300 text-sm" id="stat-investimento">2.480</span>
+        <span class="font-bold text-amber-300 text-sm" id="stat-investimento">0</span>
         <span class="text-slate-400">mln € Investimento</span>
       </div>
 
       <div class="hidden lg:flex items-center gap-1.5">
-        <span class="font-bold text-slate-300 text-sm" id="stat-comuni">204</span>
+        <span class="font-bold text-slate-300 text-sm" id="stat-comuni">0</span>
         <span class="text-slate-400">Comuni</span>
       </div>
 
       <div class="hidden lg:flex items-center gap-1.5">
-        <span class="font-bold text-slate-300 text-sm" id="stat-regioni">17</span>
+        <span class="font-bold text-slate-300 text-sm" id="stat-regioni">0</span>
         <span class="text-slate-400">Regioni</span>
       </div>
     </div>
 
-    <!-- Stato Telemetrico Crawler -->
-    <div class="hidden xl:flex items-center gap-2 text-[10px] text-slate-400 bg-slate-950/70 px-2.5 py-1 rounded border border-slate-800 whitespace-nowrap">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="text-slate-300 font-bold">Crawler:</span>
-      <span>ultimo giro 4 giorni fa</span>
-      <span class="text-slate-600">·</span>
-      <span class="text-amber-400">23 fonti su 47 producono davvero</span>
-      <span class="text-slate-600">·</span>
-      <span>28 giri registrati</span>
+    <div class="hidden xl:flex items-center gap-2 text-[10px] text-slate-400 whitespace-nowrap">
+      <span class="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
+      Archivio documentale <span class="text-slate-600">/</span> Fonti e originali collegati
     </div>
 
   </div>
@@ -646,10 +732,10 @@
   <!-- =======================================================================
        MAPPA FULLSCREEN MAPLIBRE GL 3D (SUNPRO GEO-INTELLIGENCE ENGINE)
        ======================================================================= -->
-  <div class="flex-1 relative overflow-hidden flex">
+  <div id="map-workspace" class="flex-1 relative overflow-hidden flex">
 
     <!-- SIDEBAR FLOTTANTE FILTRI (Collassabile) -->
-    <aside id="floating-sidebar" class="absolute top-3 left-3 z-[1000] w-80 md:w-96 max-h-[calc(100%-24px)] flex flex-col bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl transition-all duration-300 text-xs overflow-hidden">
+    <aside id="floating-sidebar" aria-label="Ricerca e filtri opere" class="absolute top-3 left-3 z-[1000] w-80 md:w-96 max-h-[calc(100%-24px)] flex flex-col bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-xl shadow-2xl transition-all duration-300 text-xs overflow-hidden">
       
       <!-- Header Sidebar -->
       <div class="p-3 border-b border-slate-800 flex items-center justify-between bg-slate-900/80 shrink-0">
@@ -671,7 +757,7 @@
         <!-- Ricerca Testo, CUP o Ditta -->
         <div>
           <div class="relative">
-            <input type="text" id="filter-search" oninput="applyFilters()" placeholder="Cerca opera, CUP, ente, comune o ditta..." 
+            <input type="text" id="filter-search" aria-label="Cerca opera, CUP, ente, comune o ditta" oninput="scheduleMapSearch()" placeholder="Cerca opera, CUP, ente, comune o ditta..."
               class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:border-amber-400 font-mono">
             <i data-lucide="search" class="w-3.5 h-3.5 text-slate-500 absolute right-3 top-2.5 pointer-events-none"></i>
           </div>
@@ -729,9 +815,9 @@
         <div class="border-t border-slate-800 pt-2">
           <div class="flex items-center justify-between mb-1.5 font-mono text-[10px]">
             <span class="font-bold text-slate-300 uppercase">Opere Filtrate (<span id="count-opere-list">0</span>)</span>
-            <span class="text-sky-400">clicca per zoom</span>
+            <span class="text-sky-400">apri scheda e fonti</span>
           </div>
-          <div id="quick-opere-list" class="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+          <div id="quick-opere-list" class="space-y-1.5 pr-1" aria-label="Risultati della ricerca">
             <!-- Popolato via JS -->
           </div>
         </div>
@@ -761,143 +847,57 @@
       </button>
     </div>
 
-    <!-- MAP CONTROLS OVERLAY (In alto a destra: Basemap Switcher & Reset) -->
-    <div class="absolute top-3 right-3 z-[1000] flex flex-col gap-2 font-mono text-xs">
-      
-      <!-- Basemap Switcher (Strade HD Chiara di Default vs Satellite 3D vs Dark GIS) -->
-      <div class="bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-1.5 flex gap-1 shadow-xl">
-        <button onclick="switchTileLayer('streets')" id="btn-tile-streets" class="px-2 py-1 rounded bg-slate-800 text-sky-400 font-bold border border-sky-500/40 text-[10px] flex items-center gap-1">
-          <span>☀️ Strade HD</span>
-        </button>
-        <button onclick="switchTileLayer('satellite')" id="btn-tile-satellite" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
-          <span>🛰️ Satellite 3D</span>
-        </button>
-        <button onclick="switchTileLayer('dark')" id="btn-tile-dark" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1">
-          <span>🌙 Dark GIS</span>
-        </button>
+    <div class="map-toolbar" aria-label="Comandi mappa">
+      <div class="map-basemaps" role="group" aria-label="Sfondo cartografico">
+        <button onclick="switchTileLayer('streets')" id="btn-tile-streets" aria-pressed="true">Strade</button>
+        <button onclick="switchTileLayer('satellite')" id="btn-tile-satellite" aria-pressed="false">Satellite</button>
+        <button onclick="switchTileLayer('dark')" id="btn-tile-dark" aria-pressed="false">Scuro</button>
       </div>
-
-      <!-- Legenda Dinamica Particellare Catastale, Fasce & Tracciato Progetto -->
-      <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1 text-[10px] font-mono">
-        <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 flex items-center justify-between">
-          <span>📐 Tracciato & Fasce DPR 327</span>
-          <span class="text-sky-400 text-[8px] font-semibold">SUITE INTEGRATA</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm bg-[#E63946] border border-red-400 inline-block"></span>
-          <span class="text-slate-200">Fascia Esproprio Sede (±12m)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm bg-[#F4A261] border border-orange-400 inline-block"></span>
-          <span class="text-slate-200">Fascia Asservimento / Rispetto (±25m)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm bg-[#EAB308]/40 border border-yellow-500/80 inline-block"></span>
-          <span class="text-slate-300">Fascia Cantiere Temporaneo (±35m)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-3.5 h-2 rounded-sm bg-[#1E293B] border border-slate-400 inline-block"></span>
-          <span class="text-slate-200 font-semibold">Sede Opera da Progetto (Piattaforma)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-3.5 h-2 rounded-sm bg-[#64748B] border border-slate-300 inline-block"></span>
-          <span class="text-slate-200 font-semibold">Manufatti (Viadotti, Gallerie)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-sky-500 border border-white inline-block"></span>
-          <span class="text-sky-300 font-semibold">Picchetti PK (0+000)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-500 border border-white inline-block"></span>
-          <span class="text-amber-300 font-semibold">Opere d'Arte (Ponti, Gallerie)</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-sm border-2 border-[#D90429] bg-transparent inline-block"></span>
-          <span class="text-red-300 font-semibold">Relitto Critico (Art. 33)</span>
-        </div>
-      </div>
-
-      <!-- Componente Toolbar: Suite Tracciato Ingegneristico & Tool Vettoriali -->
-      <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1.5 font-mono">
-        <div class="flex items-center justify-between gap-1 text-[9px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
-          <span>🛣️ Strumenti Tracciato</span>
-          <span class="text-emerald-400">GEOJSON / KML</span>
-        </div>
-        <div class="grid grid-cols-2 gap-1.5">
-          <button id="btn-toggle-tracciato" onclick="toggleTracciatoFasce()" class="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-sky-500/50 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all" title="Attiva/disattiva asse e buffer di progetto">
-            <span>🛣️ Fasce On</span>
-          </button>
-          <button id="btn-toggle-pk" onclick="togglePicchettiPK()" class="px-2 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-sky-500/50 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all" title="Attiva/disattiva progressive chilometriche PK e opere d'arte">
-            <span>📏 PK On</span>
-          </button>
-        </div>
-        <div class="grid grid-cols-2 gap-1.5 mt-0.5">
-          <button onclick="apriModalUploadTracciato()" class="px-2 py-1 rounded bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/60 text-emerald-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all shadow-sm" title="Importa file KML o GeoJSON con calcolo automatico buffer e interferenze">
-            <span>📂 Carica</span>
-          </button>
-          <button onclick="esportaTracciatoSelezionato()" class="px-2 py-1 rounded bg-sky-950/80 hover:bg-sky-900 border border-sky-500/60 text-sky-300 font-bold text-[10px] flex items-center justify-center gap-1 transition-all shadow-sm" title="Esporta asse, fasce di buffer e picchetti PK in GeoJSON">
-            <span>💾 Esporta</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Componente Toolbar: Catasto WMS Agenzia delle Entrate (Desktop) -->
-      <div class="hidden md:flex bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2 shadow-xl flex-col gap-1.5 catasto-control-group">
-        <div class="flex items-center justify-between gap-2">
-          <button id="btn-toggle-catasto" onclick="toggleCatastoWms()" class="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-bold text-[10px] flex items-center gap-1.5 transition-all shadow-sm" title="Attiva layer particellare AdE (zoom >= 15)">
-            <span>📐 Catasto AdE</span>
-          </button>
-          <div class="flex items-center gap-1.5">
-            <label for="slider-catasto-opacity" style="font-size: 10px; color: #94a3b8;">Opacità:</label>
-            <input 
-              type="range" 
-              id="slider-catasto-opacity" 
-              min="0.1" 
-              max="1.0" 
-              step="0.05" 
-              value="0.85" 
-              oninput="updateCatastoOpacity(this.value)"
-              style="width: 65px; accent-color: #38bdf8;"
-            />
+      <details class="map-layer-panel">
+        <summary><span>Livelli e strumenti</span><span aria-hidden="true">⌄</span></summary>
+        <div class="map-layer-body">
+          <p class="map-section-label">VISUALIZZAZIONE</p>
+          <button id="btn-toggle-tracciato" onclick="toggleTracciatoFasce()" aria-pressed="true">Tracciati e fasce · On</button>
+          <button id="btn-toggle-pk" onclick="togglePicchettiPK()" aria-pressed="true">Progressive PK · On</button>
+          <button id="btn-toggle-catasto" onclick="toggleCatastoWms()" aria-pressed="false">Catasto AdE · Off</button>
+          <button id="btn-toggle-apl-kmz" onclick="toggleAplKmz()" aria-pressed="false" disabled>APL B2/C · KMZ utente · Off</button>
+          <p class="map-layer-note" id="apl-kmz-status" role="status">Layer APL importato dai due KMZ, non collegato alle ditte e non certificato come tracciato ufficiale. Si attiva solo su richiesta per revisione.</p>
+          <label class="map-opacity" for="slider-catasto-opacity">Opacità catasto
+            <input type="range" id="slider-catasto-opacity" min="0.1" max="1" step="0.05" value="0.85" oninput="updateCatastoOpacity(this.value)">
+          </label>
+          <span id="catasto-zoom-alert" role="status" style="display:none">Zoom ≥ 14 per le particelle</span>
+          <div class="map-tool-pair">
+            <button onclick="togglePitch3D()" id="btn-toggle-pitch" aria-pressed="false">Vista 3D</button>
+            <button onclick="zoomNordItalia()">Italia</button>
           </div>
+          <p class="map-section-label">TRACCIATI</p>
+          <div class="map-tool-pair">
+            <button onclick="apriModalUploadTracciato()">Importa KML / JSON</button>
+            <button onclick="esportaTracciatoSelezionato()">Esporta</button>
+          </div>
+          <p class="map-layer-note">Senza tracciato verificato non vengono sovrapposti all’opera assi, fasce o particelle. Restano consultabili punto generale, documenti ed elenco; le righe rinviano agli originali.</p>
         </div>
-        <span id="catasto-zoom-alert" style="display: none; color: #f59e0b; font-size: 10px; font-weight: bold;">⚠️ Zoom ≥ 15 per particelle</span>
-      </div>
-
-      <!-- Controlli Inclinazione 3D e Reset Centratura -->
-      <div class="flex gap-1.5">
-        <button onclick="togglePitch3D()" id="btn-toggle-pitch" class="flex-1 bg-slate-950/90 hover:bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-300 text-[10px] shadow-lg flex items-center justify-center gap-1 transition-colors" title="Inverti tra prospettiva 3D cinematografica (35-50°) e vista zenitale 2D (0°)">
-          <i data-lucide="box" class="w-3.5 h-3.5 text-amber-400"></i>
-          <span>3D / 2D</span>
-        </button>
-        <button onclick="zoomNordItalia()" class="flex-1 bg-slate-950/90 hover:bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-slate-300 text-[10px] shadow-lg flex items-center justify-center gap-1 transition-colors" title="Centra la vista sull'Italia">
-          <i data-lucide="compass" class="w-3.5 h-3.5 text-sky-400"></i>
-          <span>Centra IT</span>
-        </button>
-      </div>
-
-      <!-- Legenda Rapida Trasparente (Desktop) -->
-      <div class="hidden lg:block bg-slate-950/95 backdrop-blur-md border border-slate-800 rounded-lg p-2.5 text-[10px] text-slate-300 space-y-1.5 shadow-xl">
-        <div class="uppercase font-bold text-slate-400 border-b border-slate-800 pb-0.5">Legenda Procedurale</div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block shadow-sm shadow-amber-400"></span>
-          <span>Avanzata · Elenco Atteso</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block shadow-sm shadow-emerald-400"></span>
-          <span>Elenco Ditte Pubblicato</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-slate-400 inline-block"></span>
-          <span>Fase Preliminare</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-rose-400 inline-block"></span>
-          <span>Chiusa / CDP</span>
-        </div>
-      </div>
-
+      </details>
     </div>
+    <div class="map-action-bar" aria-label="Navigazione risultati">
+      <button onclick="fitMapResults()" id="btn-fit-results"><span aria-hidden="true">⌖</span> Inquadra risultati</button>
+      <label><input type="checkbox" id="filter-in-view" onchange="applyFilters()"> Solo area visibile</label>
+    </div>
+    <div class="map-status-bar">
+      <span id="map-view-status" role="status" aria-live="polite">Caricamento opere…</span>
+      <span id="map-coordinate-status" aria-hidden="true"></span>
+    </div>
+    <div id="map-notice" class="map-notice" role="status">Caricamento del territorio…</div>
+    <details class="map-legend">
+      <summary>Legenda <span aria-hidden="true">＋</span></summary>
+      <div><span style="--legend:#f59e0b"></span>Avanzata · elenco atteso</div>
+      <div><span style="--legend:#10b981"></span>Elenco pubblicato</div>
+      <div><span style="--legend:#94a3b8"></span>Preliminare</div>
+      <div><span style="--legend:#f43f5e"></span>Chiusa</div>
+      <div><span style="--legend:#e63946"></span>Esproprio</div>
+      <div><span style="--legend:#f4a261"></span>Asservimento</div>
+      <div><span style="--legend:#eab308"></span>Cantiere</div>
+    </details>
 
   </div>
 
@@ -935,7 +935,7 @@
           <div class="input-row">
             <div class="form-group flex-1">
               <label for="inp-superficie">Superficie (mq)</label>
-              <input type="number" id="inp-superficie" value="3500" min="1" step="0.5" required>
+              <input type="number" id="inp-superficie" placeholder="Dato da documento" min="1" step="0.5" required>
             </div>
             <div class="form-group flex-1">
               <label for="inp-destinazione">Zonizzazione</label>
@@ -961,22 +961,22 @@
           <div class="input-row">
             <div class="form-group flex-1">
               <label for="inp-offerta-ente">Offerta Ente (€/mq)</label>
-              <input type="number" id="inp-offerta-ente" value="4.50" min="0" step="0.10" required>
+              <input type="number" id="inp-offerta-ente" placeholder="Dato da documento" min="0" step="0.10" required>
             </div>
             <div class="form-group flex-1">
               <label for="inp-valore-mercato">Valore Venale Reale (€/mq)</label>
-              <input type="number" id="inp-valore-mercato" value="18.00" min="0.1" step="0.50" required>
+              <input type="number" id="inp-valore-mercato" placeholder="Dato da documento" min="0.1" step="0.50" required>
             </div>
           </div>
 
           <div class="input-row" id="row-asservimento">
             <div class="form-group flex-1">
               <label for="inp-deprezzamento-ass">Saggio Deprezzamento (%)</label>
-              <input type="number" id="inp-deprezzamento-ass" value="50" min="1" max="100" step="5">
+              <input type="number" id="inp-deprezzamento-ass" placeholder="Dato da documento" min="1" max="100" step="5">
             </div>
             <div class="form-group flex-1">
               <label for="inp-danno-relitto">Danno Relitto Residuo (€)</label>
-              <input type="number" id="inp-danno-relitto" value="5000" min="0" step="100">
+              <input type="number" id="inp-danno-relitto" placeholder="Dato da documento" min="0" step="100">
             </div>
           </div>
 
@@ -985,11 +985,11 @@
           <div class="input-row">
             <div class="form-group flex-1">
               <label for="inp-soprassuoli">Soprassuoli / Opere (€)</label>
-              <input type="number" id="inp-soprassuoli" value="3200" min="0" step="100">
+              <input type="number" id="inp-soprassuoli" placeholder="Dato da documento" min="0" step="100">
             </div>
             <div class="form-group flex-1">
               <label for="inp-frutti">Frutti Pendenti (Art. 40 c.4) (€)</label>
-              <input type="number" id="inp-frutti" value="800" min="0" step="50">
+              <input type="number" id="inp-frutti" placeholder="Dato da documento" min="0" step="50">
             </div>
           </div>
 
@@ -1000,7 +1000,7 @@
 
           <div class="form-group" id="grp-vam">
             <label for="inp-vam">VAM Tabellare Provinciale (€/mq)</label>
-            <input type="number" id="inp-vam" value="6.20" min="0" step="0.10">
+            <input type="number" id="inp-vam" placeholder="Dato da documento" min="0" step="0.10">
           </div>
 
           <div class="form-group-checkbox">
@@ -1011,25 +1011,27 @@
           <button type="button" id="btn-calcola-delta" class="btn-calcola-submit">
             Ricalcola Stima Peritale
           </button>
+          <div class="form-group"><label for="inp-anni">Durata occupazione documentata (anni; 0 se non applicabile)</label><input id="inp-anni" type="number" min="0" step="0.01" required></div>
+          <p class="text-slate-400">Calcolo su dati inseriti dall’utente; non costituisce perizia asseverata. Ogni valore deve essere riscontrato sulla documentazione.</p>
         </form>
 
         <!-- Colonna Destra: Cruscotto Risultati & Delta Recuperabile -->
         <div class="modal-stima-kpi-panel">
           
           <div class="kpi-card-highlight">
-            <div class="kpi-label">DELTA RECUPERABILE RIVENDICABILE</div>
-            <div class="kpi-value text-accent" id="res-delta-valore">€ 0,00</div>
-            <div class="kpi-badge" id="res-delta-percentuale">+0% rispetto all'offerta</div>
+            <div class="kpi-label">DIFFERENZA CALCOLATA</div>
+            <div class="kpi-value text-accent" id="res-delta-valore">Da calcolare</div>
+            <div class="kpi-badge" id="res-delta-percentuale">Da calcolare</div>
           </div>
 
           <div class="kpi-comparison-grid">
             <div class="kpi-box box-ente">
               <span class="box-title">Offerta Ente Espropriante</span>
-              <span class="box-value" id="res-tot-ente">€ 0,00</span>
+              <span class="box-value" id="res-tot-ente">Da calcolare</span>
             </div>
             <div class="kpi-box box-perizia">
-              <span class="box-title">Stima Asseverata Perito</span>
-              <span class="box-value" id="res-tot-perizia">€ 0,00</span>
+              <span class="box-title">Calcolo sui valori inseriti</span>
+              <span class="box-value" id="res-tot-perizia">Da calcolare</span>
             </div>
           </div>
 
@@ -1037,29 +1039,29 @@
             <div class="breakdown-title">Composizione Analitica Indennizzo</div>
             <div class="breakdown-row">
               <span>Indennità base suolo reale:</span>
-              <strong id="res-dett-suolo">€ 0,00</strong>
+              <strong id="res-dett-suolo">Da calcolare</strong>
             </div>
             <div class="breakdown-row">
               <span>Deprezzamento relitto (Art. 33):</span>
-              <strong id="res-dett-relitto">€ 0,00</strong>
+              <strong id="res-dett-relitto">Da calcolare</strong>
             </div>
             <div class="breakdown-row">
               <span>Soprassuoli e frutti pendenti:</span>
-              <strong id="res-dett-soprassuoli">€ 0,00</strong>
+              <strong id="res-dett-soprassuoli">Da calcolare</strong>
             </div>
             <div class="breakdown-row">
               <span>Maggiorazione CD/IAP (Art. 40 c.4):</span>
-              <strong id="res-dett-cd">€ 0,00</strong>
+              <strong id="res-dett-cd">Da calcolare</strong>
             </div>
             <div class="breakdown-row">
               <span>Maggiorazione cessione (Art. 45):</span>
-              <strong id="res-dett-cessione">€ 0,00</strong>
+              <strong id="res-dett-cessione">Da calcolare</strong>
             </div>
           </div>
 
           <div class="fee-recommendation-box">
             <div class="fee-title">💼 Compenso Tecnico Suggerito (10% Delta)</div>
-            <div class="fee-value" id="res-compenso-tecnico">€ 0,00</div>
+            <div class="fee-value" id="res-compenso-tecnico">Da calcolare</div>
             <div class="fee-note">Base di trattativa per accordo a successo con la ditta esproprianda.</div>
           </div>
 
@@ -1086,16 +1088,9 @@
       </div>
 
       <div class="p-4 space-y-3 font-sans leading-relaxed text-slate-300">
-        <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-200 font-mono text-xs">
-          <strong>Regola d'Oro:</strong> Le migliori opportunità peritali e di consulenza nascono nella fase 🟡 <em>Avanzata Senza Elenco</em>, prima che l'Ente notifichi l'indennità provvisoria formale ai proprietari.
-        </div>
-
-        <ol class="space-y-2 list-decimal list-inside text-xs">
-          <li><strong>Intercettazione Atto:</strong> Il crawler individua la chiusura della Conferenza di Servizi o la Delibera di Giunta regionale/provinciale con approvazione del Progetto Definitivo.</li>
-          <li><strong>Mappatura Catastale:</strong> L'elenco viene consultato fisicamente presso l'Ufficio Espropri o l'Albo Pretorio dei Comuni prima che sia rintracciabile dai concorrenti.</li>
-          <li><strong>Scoring Proprietari:</strong> Vengono selezionati i proprietari <em>Tier 1</em> (singoli, con superfici &gt;3.000 mq o soprassuoli pregiati) calcolando il delta rispetto al VAM tabellare.</li>
-          <li><strong>Accordo Bonario (art. 45):</strong> Assistenza al proprietario per la stipula della cessione volontaria con maggiorazione del 50% sul valore venale.</li>
-        </ol>
+        <p>Consulta la fonte ufficiale dell’opera e gli originali archiviati. Verifica pagina, data e identificativi catastali prima di usare una trascrizione OCR.</p>
+        <p>Le geometrie mancanti restano da localizzare. Le superfici senza unità o non leggibili restano non disponibili. Titolarità e regimi di occupazione richiedono riscontro documentale.</p>
+        <p>Le stime richiedono valori documentati inseriti dall’utente. Il sistema non ricostruisce prezzi, fasce o particelle mancanti.</p>
       </div>
 
       <div class="p-3 border-t border-slate-800 bg-slate-950 flex justify-end">
@@ -1114,11 +1109,11 @@
           <h3 id="modal-ditte-title" class="text-sm md:text-base font-bold text-slate-100 flex items-center gap-2 font-mono">
             📋 Piano Particellare d'Esproprio
           </h3>
-          <p id="modal-ditte-subtitle" class="text-xs text-sky-400 font-mono mt-0.5">Elenco intestatari e particelle catastali accertate (Art. 16 D.P.R. 327/2001)</p>
+          <p id="modal-ditte-subtitle" class="text-xs text-sky-400 font-mono mt-0.5">Righe catastali presenti in archivio — completezza da verificare sulle fonti</p>
         </div>
         <div class="flex items-center gap-2">
-          <button onclick="visualizzaParticelleSuMappa()" class="px-3 py-1.5 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-sky-600/50 shadow-sm" title="Chiudi tabella e zooma direttamente sulle particelle nella mappa 3D">
-            <span>🗺️ Vedi su Mappa 3D</span>
+          <button onclick="visualizzaParticelleSuMappa()" class="px-3 py-1.5 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-sky-600/50 shadow-sm" title="Apri documenti e geometrie effettive">
+            <span>Documenti e mappa</span>
           </button>
           <button onclick="closeDitteModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-mono text-xs flex items-center gap-1.5 transition-colors border border-slate-700 shadow-sm" title="Chiudi finestra (Esc)">
             <span class="text-sm font-bold leading-none">✕</span>
@@ -1129,9 +1124,9 @@
 
       <div class="p-3 bg-slate-800/40 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
         <div class="flex items-center gap-4">
-          <div><span class="text-slate-400">Intestatari:</span> <span id="mod-tot-ditte" class="font-bold text-sky-400">0</span></div>
+          <div><span class="text-slate-400">Intestazioni distinte per testo:</span> <span id="mod-tot-ditte" class="font-bold text-sky-400">0</span></div>
           <div><span class="text-slate-400">Superficie:</span> <span id="mod-tot-mq" class="font-bold text-amber-400">0 mq</span></div>
-          <div><span class="text-slate-400">Indennità Stima:</span> <span id="mod-tot-indennita" class="font-bold text-emerald-400">€ 0</span></div>
+          <div><span class="text-slate-400">Documenti archiviati:</span> <span id="mod-tot-indennita" class="font-bold text-emerald-400">€ 0</span></div>
         </div>
         <input type="text" id="filter-ditte-table" oninput="filterDitteTable()" placeholder="Cerca intestatario o foglio/mappale..." class="bg-slate-950 border border-slate-700 text-slate-200 px-2.5 py-1 rounded text-xs focus:outline-none focus:border-amber-400">
       </div>
@@ -1145,9 +1140,9 @@
               <th class="p-2">Foglio</th>
               <th class="p-2">Mappali</th>
               <th class="p-2 text-right">Sup. Esproprio (mq)</th>
-              <th class="p-2 text-right">Indennità Stima</th>
-              <th class="p-2 text-center">Delta Potenz.</th>
-              <th class="p-2 text-center">Azioni</th>
+              <th class="p-2">Ubicazione</th>
+              <th class="p-2">Originale</th>
+              <th class="p-2 text-center">Mappa</th>
             </tr>
           </thead>
           <tbody id="ditte-table-body" class="divide-y divide-slate-800 font-mono"></tbody>
@@ -1190,24 +1185,9 @@
           </button>
         </div>
 
-        <!-- Parametri Buffer di Progetto -->
-        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col gap-2">
-          <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Dimensioni Fasce di Rispetto (Buffer Metrici):</div>
-          <div class="grid grid-cols-3 gap-3">
-            <div>
-              <label class="text-[10px] text-red-400 block mb-1">Esproprio (m):</label>
-              <input type="number" id="upload-buf-esp" value="12" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-red-400" />
-            </div>
-            <div>
-              <label class="text-[10px] text-amber-400 block mb-1">Asservimento (m):</label>
-              <input type="number" id="upload-buf-ass" value="25" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-amber-400" />
-            </div>
-            <div>
-              <label class="text-[10px] text-yellow-400 block mb-1">Cantiere (m):</label>
-              <input type="number" id="upload-buf-cant" value="35" class="w-full bg-slate-900 border border-slate-700 rounded px-2 py-1 text-slate-200 focus:outline-none focus:border-yellow-400" />
-            </div>
-          </div>
-        </div>
+        <p class="text-slate-300">Il file viene visualizzato come fornito, in WGS84. Nessuna fascia di esproprio, servitù o cantiere viene generata automaticamente. Carica soltanto tracciati reali e documentati.</p>
+        <label class="text-slate-300" for="upload-source">Fonte del tracciato (URL del documento)</label>
+        <input id="upload-source" type="url" required placeholder="https://ente.it/documento" class="bg-slate-950 border border-slate-700 rounded p-2" />
 
         <!-- Feedback & Anteprima Metrica -->
         <div id="upload-preview-info" class="hidden bg-emerald-950/40 border border-emerald-600/50 p-3 rounded-lg text-emerald-300 flex flex-col gap-1">
@@ -1314,6 +1294,7 @@
   <!-- =======================================================================
        CORE LOGIC JAVASCRIPT
        ======================================================================= */ -->
+  <script src="map_workspace.js"></script>
   <script>
     // Stato globale
     let state = {
@@ -1330,7 +1311,9 @@
       tracciatoVisible: true,
       pkVisible: true,
       buffersVisible: true,
-      userTracciati: []
+      userTracciati: [],
+      aplKmzVisible: false,
+      aplKmzData: null
     };
 
     /* =======================================================================
@@ -1365,7 +1348,7 @@
                 type: 'raster',
                 tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256,
-                attribution: 'Esri World Imagery (SunPro 3D)'
+                attribution: 'Esri World Imagery'
               },
               'esri-labels': {
                 type: 'raster',
@@ -1374,15 +1357,15 @@
               },
               'esri-streets': {
                 type: 'raster',
-                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'],
+                tiles: ['https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'],
                 tileSize: 256,
-                attribution: 'Esri Street Map'
+                attribution: '© OpenStreetMap contributors © CARTO'
               },
               'esri-dark': {
                 type: 'raster',
                 tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'],
                 tileSize: 256,
-                attribution: 'CartoDB Dark'
+                attribution: '© OpenStreetMap contributors © CARTO'
               }
             },
             layers: [
@@ -1413,13 +1396,17 @@
             ]
           },
           center: [12.50, 42.80],
-          zoom: 6.2,
-          pitch: 35,
+          zoom: 5.4,
+          pitch: 0,
+          minZoom: 3,
+          maxZoom: 20,
+          renderWorldCopies: false,
           bearing: 0
         });
 
         window.map = state.map;
         window.state = state;
+        initializeMapWorkspace();
 
         // Controlli 3D SunPro con visualizzazione Pitch e bussola
         state.map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'bottom-right');
@@ -1463,9 +1450,15 @@
               data: { type: 'FeatureCollection', features: [] }
             });
           }
+          if (!state.map.getSource('apl-kmz-source')) {
+            state.map.addSource('apl-kmz-source', {
+              type: 'geojson',
+              data: { type: 'FeatureCollection', features: [] }
+            });
+          }
 
           // A. LAYER FASCE BUFFER TOPOLOGICHE (D.P.R. 327/2001)
-          // Fascia Cantiere Temporaneo (±35m)
+          // Occupazione: geometria da documento
           if (!state.map.getLayer('opera-buffer-cantiere-fill')) {
             state.map.addLayer({
               id: 'opera-buffer-cantiere-fill',
@@ -1491,7 +1484,7 @@
             });
           }
 
-          // Fascia Asservimento / Rispetto (±25m) - Contorno Continuo Solido da Progetto
+          // Servitù: geometria da documento - Contorno Continuo Solido da Progetto
           if (!state.map.getLayer('opera-buffer-asservimento-fill')) {
             state.map.addLayer({
               id: 'opera-buffer-asservimento-fill',
@@ -1754,6 +1747,46 @@
             });
           }
 
+          // Layer di revisione dei KMZ APL: geometrie originali, fuori dai buffer stimati.
+          if (!state.map.getLayer('apl-kmz-fill')) {
+            state.map.addLayer({
+              id: 'apl-kmz-fill', type: 'fill', source: 'apl-kmz-source',
+              filter: ['==', ['get', 'classe_kmz'], 'progetto_poligono'],
+              paint: {
+                'fill-color': ['match', ['get', 'tratta'], 'B2', '#f59e0b', 'C', '#a78bfa', '#38bdf8'],
+                'fill-opacity': 0.18
+              }
+            });
+          }
+          if (!state.map.getLayer('apl-kmz-line')) {
+            state.map.addLayer({
+              id: 'apl-kmz-line', type: 'line', source: 'apl-kmz-source',
+              filter: ['==', ['get', 'classe_kmz'], 'piano_linea'],
+              paint: {
+                'line-color': ['match', ['get', 'tratta'], 'B2', '#f97316', 'C', '#8b5cf6', '#ef4444'],
+                'line-width': ['interpolate', ['linear'], ['zoom'], 10, 0.5, 16, 1.4],
+                'line-opacity': 0.9
+              }
+            });
+          }
+          if (!state.map.getLayer('apl-kmz-label')) {
+            state.map.addLayer({
+              id: 'apl-kmz-label', type: 'symbol', source: 'apl-kmz-source',
+              filter: ['==', ['get', 'classe_kmz'], 'numero_piano'], minzoom: 15,
+              layout: {'text-field': ['coalesce', ['get', 'Name'], ''], 'text-size': 10, 'text-allow-overlap': false},
+              paint: {'text-color': '#0f172a', 'text-halo-color': '#ffffff', 'text-halo-width': 1.5}
+            });
+          }
+          document.getElementById('btn-toggle-apl-kmz').disabled = false;
+
+          state.map.on('click', 'apl-kmz-fill', e => showAplKmzPopup(e));
+          state.map.on('click', 'apl-kmz-line', e => showAplKmzPopup(e));
+          state.map.on('click', 'apl-kmz-label', e => showAplKmzPopup(e));
+          ['apl-kmz-fill', 'apl-kmz-line', 'apl-kmz-label'].forEach(layer => {
+            state.map.on('mouseenter', layer, () => { state.map.getCanvas().style.cursor = 'pointer'; });
+            state.map.on('mouseleave', layer, () => { state.map.getCanvas().style.cursor = ''; });
+          });
+
           // Eventi click su Picchetti PK
           state.map.on('click', 'opera-pk-circle', (e) => {
             if (!e.features || !e.features.length) return;
@@ -1880,12 +1913,54 @@
           });
 
           caricaConfiniRegionaliIstat(state.map);
-          updateMapMarkers(state.opere);
-          updateParticellareGeoJSON(state.opere);
+          updateMapMarkers(state.filteredOpere || state.opere);
         });
       } catch (err) {
+        state.mapError = true;
         console.error("Errore inizializzazione mappa MapLibre:", err);
       }
+    }
+
+    async function toggleAplKmz() {
+      const button = document.getElementById('btn-toggle-apl-kmz');
+      const source = state.map?.getSource('apl-kmz-source');
+      if (!source) return;
+      if (state.aplKmzVisible) {
+        state.aplKmzVisible = false;
+        source.setData({type:'FeatureCollection',features:[]});
+        button.setAttribute('aria-pressed','false');
+        button.textContent='APL B2/C · KMZ utente · Off';
+        return;
+      }
+      button.disabled=true;
+      button.textContent='Caricamento KMZ APL…';
+      try {
+        if (!state.aplKmzData) {
+          const responses=await Promise.all(['B2','C'].map(tratta=>fetch(`/api/apl/tratte/${tratta}.geojson`,{cache:'no-store',signal:AbortSignal.timeout(60000)})));
+          for (const response of responses) if (!response.ok) throw new Error(`Archivio geometrie APL non disponibile (${response.status})`);
+          const collections=await Promise.all(responses.map(response=>response.json()));
+          state.aplKmzData={type:'FeatureCollection',features:collections.flatMap(collection=>collection.features || [])};
+        }
+        source.setData(state.aplKmzData);
+        state.aplKmzVisible=true;
+        button.setAttribute('aria-pressed','true');
+        button.textContent=`APL B2/C · KMZ utente · ${state.aplKmzData.features.length.toLocaleString('it-IT')} elementi · On`;
+        const bounds=new maplibregl.LngLatBounds();let hasBounds=false;
+        const extend=coordinates=>{if(typeof coordinates?.[0]==='number'){bounds.extend(coordinates);hasBounds=true;}else if(Array.isArray(coordinates))coordinates.forEach(extend);};
+        state.aplKmzData.features.forEach(feature=>extend(feature.geometry?.coordinates));
+        if(hasBounds)state.map.fitBounds(bounds,{padding:70,maxZoom:14,pitch:0,bearing:0,duration:900});
+      } catch(error) {
+        document.getElementById('apl-kmz-status').textContent=`Geometrie APL non caricate: ${error.message}`;
+        button.textContent='APL B2/C · KMZ utente · Riprova';
+      } finally {
+        button.disabled=false;
+      }
+    }
+
+    function showAplKmzPopup(event) {
+      const properties=event.features?.[0]?.properties || {};
+      const content=`<div style="font:12px/1.6 system-ui;min-width:230px"><strong>APL · Tratta ${escapeMapHtml(properties.tratta || '?')}</strong><br>Layer KMZ: ${escapeMapHtml(properties.layer_kmz || '?')}<br>Elemento: ${escapeMapHtml(properties.Name || properties.id || 'senza nome')}<br><span style="color:#b45309">Geometria importata dai file forniti; associazione catastale e natura espropriativa da verificare.</span><br><small>SHA256 KMZ: ${escapeMapHtml(properties.sha256_kmz || 'N/D')}</small></div>`;
+      new maplibregl.Popup({closeButton:true}).setLngLat(event.lngLat).setHTML(content).addTo(state.map);
     }
 
     function toggleCatastoWms() {
@@ -1893,6 +1968,7 @@
       const btn = document.getElementById('btn-toggle-catasto');
       const alertEl = document.getElementById('catasto-zoom-alert');
       state.catastoVisible = !state.catastoVisible;
+      btn.setAttribute('aria-pressed', String(state.catastoVisible));
 
       if (state.map.getLayer('catasto-ade-layer')) {
         state.map.setLayoutProperty('catasto-ade-layer', 'visibility', state.catastoVisible ? 'visible' : 'none');
@@ -1919,7 +1995,9 @@
 
     function switchTileLayer(theme) {
       if (!state.map) return;
+      if (!state.map.getLayer('layer-streets')) return;
       state.currentTileTheme = theme;
+      document.querySelectorAll('.map-basemaps button').forEach(b => b.setAttribute('aria-pressed', String(b.id === `btn-tile-${theme}`)));
 
       const btnSat = document.getElementById('btn-tile-satellite');
       const btnStr = document.getElementById('btn-tile-streets');
@@ -1953,10 +2031,11 @@
       if (state.map) {
         state.map.flyTo({
           center: [12.50, 42.80],
-          zoom: 6.2,
-          pitch: 35,
+          zoom: 5.4,
+          pitch: 0,
           bearing: 0,
-          duration: 1000
+          padding: {top: 0, right: 0, bottom: 0, left: 0},
+          duration: mapAnimationDuration(700)
         });
       }
     }
@@ -1964,6 +2043,8 @@
     function togglePitch3D() {
       if (!state.map) return;
       const currentPitch = state.map.getPitch();
+      document.getElementById('btn-toggle-pitch').setAttribute('aria-pressed', String(currentPitch <= 15));
+      document.getElementById('btn-toggle-pitch').textContent = currentPitch <= 15 ? 'Vista 2D' : 'Vista 3D';
       const btn = document.getElementById('btn-toggle-pitch');
       if (currentPitch > 15) {
         state.map.easeTo({ pitch: 0, bearing: 0, duration: 600 });
@@ -1978,6 +2059,10 @@
       state.sidebarOpen = !state.sidebarOpen;
       const el = document.getElementById('floating-sidebar');
       const btn = document.getElementById('btn-toggle-sidebar');
+      btn.setAttribute('aria-expanded', String(state.sidebarOpen));
+      syncMapWorkspaceLayout();
+      el.inert = !state.sidebarOpen;
+      el.setAttribute('aria-hidden', String(!state.sidebarOpen));
       if (state.sidebarOpen) {
         el.classList.remove('-translate-x-[115%]', 'opacity-0', 'pointer-events-none');
         btn.classList.add('text-amber-400');
@@ -1989,7 +2074,9 @@
 
     function getPinColor(stato) {
       switch (stato) {
+        case 'DOCUMENTI_DA_ACQUISIRE':
         case 'AVANZATA_SENZA_ELENCO': return '#F59E0B'; // Amber
+        case 'DOCUMENTI_ARCHIVIATI':
         case 'ELENCO_PUBBLICATO': return '#10B981';    // Emerald
         case 'CHIUSA': return '#F43F5E';               // Rose
         default: return '#94A3B8';                     // Slate
@@ -2000,10 +2087,14 @@
        3. GENERATORE TABBED POPUP PER I PIN
        ======================================================================= */
     function buildTabbedPopupHtml(op) {
+      if (op.tipo_dati === 'documentale') return buildDocumentedOperaPopup(op);
       const color = getPinColor(op.stato_opera);
       const isTarget = op.stato_opera === 'AVANZATA_SENZA_ELENCO';
       const formatEuro = op.importo_eur ? `€ ${(op.importo_eur / 1000000).toFixed(1)}M` : 'N.D.';
       const numDitte = op.ditte ? op.ditte.length : 0;
+      const numParticelleGeolocalizzate = hasPreciseTracciato(op)
+        ? (op.ditte || []).filter(d => ['Polygon', 'MultiPolygon'].includes((d.geometry || d.geojson?.geometry)?.type)).length
+        : 0;
       const safeSlug = op.slug.replace(/[^a-zA-Z0-9_-]/g, '_');
 
       const pdaBadge = (numDitte > 0 || op.has_pda) ? `
@@ -2044,15 +2135,15 @@
         dittePreviewHtml = `
           <div style="background:#0B0F17; border:1px solid #1E293B; border-radius:6px; padding:10px; margin-bottom:4px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <span style="font-size:11px; font-weight:700; color:#38BDF8;">📋 Piano Particellare Depositato</span>
-              <span style="font-size:10px; color:#94A3B8; font-weight:bold;">${numDitte} ditte censite</span>
+              <span style="font-size:11px; font-weight:700; color:#38BDF8;">📋 Righe catastali archiviate</span>
+              <span style="font-size:10px; color:#94A3B8; font-weight:bold;">${numDitte} righe · ${numParticelleGeolocalizzate} geometrie</span>
             </div>
             <div style="font-size:10px; color:#CBD5E1; line-height:1.4; margin-bottom:8px;">
-              Superfici catastali e indennità accertate ex <b>Art. 16 D.P.R. 327/2001</b>.
+              Le righe d'archivio non certificano la copertura del piano. In mappa compaiono solo particelle con geometria disponibile.
             </div>
             <div style="display:flex; gap:6px;">
-              <button onclick="zoomToParticelleAndHighlight('${op.slug}')" style="flex:1; background:#0284C7; color:#fff; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:7px 6px; border-radius:6px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 2px 4px rgba(0,0,0,0.3);">
-                <span>🗺️ Particelle 3D</span>
+              <button ${numParticelleGeolocalizzate ? `onclick="zoomToParticelleAndHighlight('${op.slug}')"` : 'disabled title="Nessuna geometria catastale collegata: apri la tabella e consulta gli originali"'} style="flex:1; background:${numParticelleGeolocalizzate ? '#0284C7' : '#334155'}; color:#fff; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:7px 6px; border-radius:6px; border:none; cursor:${numParticelleGeolocalizzate ? 'pointer' : 'not-allowed'}; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 2px 4px rgba(0,0,0,0.3);">
+                <span>🗺️ Particelle (${numParticelleGeolocalizzate})</span>
               </button>
               <button onclick="openDitteModalForSlug('${op.slug}')" style="flex:1; background:#1E293B; color:#38BDF8; font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:bold; padding:7px 6px; border-radius:6px; border:1px solid #38BDF855; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
                 <span>📋 Tabella (${numDitte})</span>
@@ -2064,7 +2155,7 @@
         dittePreviewHtml = `
           <div style="background:#1E293B80; padding:14px; border-radius:6px; text-align:center; font-size:11px; color:#94A3B8;">
             ⚠️ <strong>Piano particellare non ancora digitalizzato</strong><br>
-            <span style="font-size:10px; color:#F59E0B;">Elenco depositato cartaceo presso l'Ufficio Tecnico dell'Ente.</span>
+            <span style="font-size:10px; color:#F59E0B;">Consulta gli originali pubblicati dall'ente; la copertura dell'estrazione non è certificata.</span>
           </div>
         `;
       }
@@ -2204,16 +2295,18 @@
        4. AGGIORNAMENTO MARKERS SU MAPPA & LISTA QUICK (SUNPRO TEARDROP PIN 3D)
        ======================================================================= */
     function updateMapMarkers(opereList) {
-      if (state.markers && state.markers.length > 0) {
-        state.markers.forEach(m => m.remove());
-      }
-      state.markers = [];
-      state.markerMap = {};
-
-      if (!state.map) return;
+      if (!state.map) { renderQuickOpereList(opereList); return; }
+      const wanted = new Set(opereList.map(o => o.slug));
+      Object.entries(state.markerMap).forEach(([slug, marker]) => {
+        if (!wanted.has(slug)) { marker.remove(); delete state.markerMap[slug]; }
+      });
+      if (state.selectedOpera && !wanted.has(state.selectedOpera.slug)) state.selectedOpera = null;
 
       opereList.forEach(op => {
-        if (!op.geo || !op.geo.lat || !op.geo.lng) return;
+        if (!validMapCoordinates(op)) return;
+        const existing = state.markerMap[op.slug];
+        if (existing && existing._operaData === op) return;
+        if (existing) existing.remove();
 
         const hasPda = op.ditte && op.ditte.length > 0;
         const isAvanzata = op.stato_opera === 'AVANZATA_SENZA_ELENCO';
@@ -2221,8 +2314,8 @@
         const step = op.maturita_step || 3;
 
         // Palette Teardrop Pin 3D SunPro
-        let outerColor = '#0284C7';
-        let ringColor = '#0369A1';
+        let outerColor = getPinColor(op.stato_opera);
+        let ringColor = '#334155';
         let badgeStroke = 'stroke="rgba(0,0,0,0.12)" stroke-width="1.2"';
         let topAccent = '';
         let badgeContent = step;
@@ -2244,6 +2337,12 @@
         const el = document.createElement('div');
         el.className = `map-pin-wrap${hasPda ? ' pda-ready' : ''}${isAvanzata ? ' target-lead' : ''}`;
         el.id = `pin-${op.slug}`;
+        el.tabIndex = 0;
+        el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', `Apri opera: ${op.titolo}`);
+        el.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectAndOpenPin(op.slug); }
+        });
         el.title = `${op.titolo}\nEnte: ${op.ente}\nCUP: ${op.cup || 'N.D.'}\nStato: ${op.stato_opera}\nDitte: ${numDitte}`;
 
         el.innerHTML = `
@@ -2275,12 +2374,14 @@
           .setPopup(popup)
           .addTo(state.map);
 
-        state.markers.push(marker);
+        marker._operaData = op;
         state.markerMap[op.slug] = marker;
       });
 
+      state.markers = Object.values(state.markerMap);
       renderQuickOpereList(opereList);
       updateParticellareGeoJSON(opereList);
+      updateMapViewportStatus();
     }
 
     /* =======================================================================
@@ -2294,131 +2395,35 @@
       const kSrc = state.map.getSource('opera-pk-source');
       if (!pSrc || !oSrc) return;
 
-      const targetOpere = (opereList || state.opere).filter(o => o.ditte && o.ditte.length > 0 && o.geo && o.geo.lat && o.geo.lng);
+      const targetOpere = opereList || state.opere;
       const parcelFeatures = [];
       const bufferFeatures = [];
       const axisFeatures = [];
       const pkFeatures = [];
 
       targetOpere.forEach(op => {
-        const centerLng = op.geo.lng;
-        const centerLat = op.geo.lat;
+        // Le particelle documentate sono consultabili anche in assenza dell'asse.
         const ditte = op.ditte || [];
 
         ditte.forEach((d, idx) => {
-          const col = idx % 3;
-          const row = Math.floor(idx / 3);
-          const offsetLng = (col - 1) * 0.0016;
-          const offsetLat = (row - 1) * 0.0012;
-
-          const pLng = centerLng + offsetLng;
-          const pLat = centerLat + offsetLat;
-          const w = 0.0014;
-          const h = 0.0010;
-
-          const coords = [
-            [pLng, pLat],
-            [pLng + w, pLat],
-            [pLng + w, pLat + h],
-            [pLng, pLat + h],
-            [pLng, pLat]
-          ];
-
-          const isAsservimento = (idx % 3 === 2) || (op.titolo && op.titolo.toLowerCase().includes('metanodotto'));
-          const supEsproprio = isAsservimento ? 0 : (d.sup_mq || 1800);
-          const supAsservimento = isAsservimento ? (d.sup_mq || 1200) : 0;
-          const relittoCritico = Boolean(d.delta || (idx === 1));
-
+          const geometry = d.geometry || d.geojson?.geometry;
+          if (!geometry || !['Polygon', 'MultiPolygon'].includes(geometry.type)) return;
           parcelFeatures.push({
-            type: 'Feature',
-            id: `${op.slug}-p-${idx}`,
-            geometry: {
-              type: 'Polygon',
-              coordinates: [coords]
-            },
+            type: 'Feature', id: `${op.slug}-p-${idx}`, geometry,
             properties: {
-              opera_slug: op.slug,
-              foglio: d.foglio || '1',
-              mappale: d.mappali || String(100 + idx),
-              intestatario: d.intestatario || 'Proprietario privato',
-              comune: d.comune || op.comune,
-              sup_esproprio_mq: supEsproprio,
-              sup_asservimento_mq: supAsservimento,
-              has_progetto: true,
-              relitto_critico: relittoCritico,
-              indennita: d.indennita || 0
+              opera_slug: op.slug, foglio: d.foglio || '', mappale: d.mappali || d.mappale || '',
+              intestatario: d.intestatario || 'Non disponibile', comune: d.comune || op.comune,
+              sup_esproprio_mq: d.sup_esproprio_mq ?? null,
+              sup_asservimento_mq: d.sup_asservimento_mq ?? null,
+              has_progetto: d.has_progetto === true, relitto_critico: d.relitto_critico === true,
+              indennita: d.indennita ?? null
             }
           });
         });
 
-        // Particelle contermini intatte non interferite (0.08 opacità, verde neutro)
-        for (let k = 0; k < 2; k++) {
-          const pLng = centerLng + (k === 0 ? -0.0032 : 0.0032);
-          const pLat = centerLat + (k === 0 ? -0.0022 : 0.0022);
-          const w = 0.0014;
-          const h = 0.0010;
-          parcelFeatures.push({
-            type: 'Feature',
-            id: `${op.slug}-intatta-${k}`,
-            geometry: {
-              type: 'Polygon',
-              coordinates: [[
-                [pLng, pLat],
-                [pLng + w, pLat],
-                [pLng + w, pLat + h],
-                [pLng, pLat + h],
-                [pLng, pLat]
-              ]]
-            },
-            properties: {
-              opera_slug: op.slug,
-              foglio: '1',
-              mappale: String(300 + k),
-              intestatario: 'Fondo confinante non espropriato',
-              comune: op.comune,
-              sup_esproprio_mq: 0,
-              sup_asservimento_mq: 0,
-              has_progetto: false,
-              relitto_critico: false,
-              indennita: 0
-            }
-          });
-        }
-
-        // Generazione Suite Tracciato Ingegneristico: Sedime Piattaforma + Manufatti + Limiti di Esproprio Solidi + PK
-        if (window.TracciatoSuite) {
-          const suite = window.TracciatoSuite.generaSuiteGeoJsonPerOpera(op);
-          if (suite) {
-            if (suite.piattaforma) axisFeatures.push(suite.piattaforma);
-            if (suite.manufatti && suite.manufatti.length) axisFeatures.push(...suite.manufatti);
-            if (suite.asse) axisFeatures.push(suite.asse);
-            if (suite.buffer_cantiere) bufferFeatures.push(suite.buffer_cantiere);
-            if (suite.buffer_asservimento) bufferFeatures.push(suite.buffer_asservimento);
-            if (suite.buffer_esproprio) bufferFeatures.push(suite.buffer_esproprio);
-            if (suite.picchetti && suite.picchetti.length) {
-              pkFeatures.push(...suite.picchetti);
-            }
-          }
-        } else {
-          // Fallback geometrico essenziale
-          axisFeatures.push({
-            type: 'Feature',
-            id: `${op.slug}-axis`,
-            geometry: {
-              type: 'LineString',
-              coordinates: [
-                [centerLng - 0.004, centerLat - 0.0025],
-                [centerLng - 0.001, centerLat - 0.0005],
-                [centerLng + 0.001, centerLat + 0.0008],
-                [centerLng + 0.004, centerLat + 0.0025]
-              ]
-            },
-            properties: {
-              opera_slug: op.slug,
-              titolo: op.titolo,
-              tipo_feature: 'ASSE_TRACCIATO'
-            }
-          });
+        if (op.tipo_dati === 'documentale' && hasPreciseTracciato(op)) {
+          axisFeatures.push(...op.tracciato_geojson.features);
+          return;
         }
       });
 
@@ -2460,12 +2465,24 @@
       }
     }
 
+    function hasPreciseTracciato(op) {
+      const verified = op?.tracciato_verificato === true || op?.stato_tracciato === 'verificato';
+      const sourced = typeof op?.fonte_tracciato_url === 'string' && /^https?:\/\//i.test(op.fonte_tracciato_url);
+      const features = op?.tracciato_geojson?.type === 'FeatureCollection' ? op.tracciato_geojson.features : [];
+      const hasAxis = Array.isArray(features) && features.some(feature => {
+        const geometry = feature?.geometry;
+        return ['LineString', 'MultiLineString'].includes(geometry?.type) && Array.isArray(geometry.coordinates) && geometry.coordinates.length >= 2;
+      });
+      return verified && sourced && hasAxis;
+    }
+
     /* =======================================================================
        4c. STRUMENTI TRACCIATO: TOGGLE, EXPORT & CARICAMENTO FILE KML/GEOJSON
        ======================================================================= */
     function toggleTracciatoFasce() {
       if (!state.map) return;
       state.tracciatoVisible = !state.tracciatoVisible;
+      document.getElementById('btn-toggle-tracciato').setAttribute('aria-pressed', String(state.tracciatoVisible));
       const vis = state.tracciatoVisible ? 'visible' : 'none';
 
       const layers = [
@@ -2492,6 +2509,7 @@
     function togglePicchettiPK() {
       if (!state.map) return;
       state.pkVisible = !state.pkVisible;
+      document.getElementById('btn-toggle-pk').setAttribute('aria-pressed', String(state.pkVisible));
       const vis = state.pkVisible ? 'visible' : 'none';
 
       const layers = [
@@ -2554,6 +2572,10 @@
     }
 
     function caricaEAnalizzaFile(file) {
+      parsedTracciatoTemp = null;
+      document.getElementById('btn-conferma-upload-tracciato').disabled = true;
+      document.getElementById('upload-preview-info').classList.add('hidden');
+      if (file.size > 10 * 1024 * 1024) { alert('Il file supera il limite di 10 MB.'); return; }
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
@@ -2565,7 +2587,7 @@
             filename: file.name
           };
 
-          const coords = feat.geometry.coordinates;
+          const coords = window.TracciatoSuite.coordinateTracciato(feat);
           const infoEl = document.getElementById('upload-preview-info');
           const detailsEl = document.getElementById('upload-preview-details');
           const btn = document.getElementById('btn-conferma-upload-tracciato');
@@ -2573,11 +2595,9 @@
           if (infoEl && detailsEl) {
             infoEl.classList.remove('hidden');
             let cumKm = 0;
-            for (let i = 0; i < coords.length - 1; i++) {
-              cumKm += window.TracciatoSuite.distanzaMetriWgs84(coords[i], coords[i + 1]) / 1000;
-            }
+            cumKm = window.TracciatoSuite.lunghezzaTracciato(feat) / 1000;
             detailsEl.innerHTML = `
-              <div><b>File:</b> ${file.name}</div>
+              <div><b>File:</b> ${escapeMapHtml(file.name)}</div>
               <div><b>Geometria:</b> ${feat.geometry.type} (${coords.length} vertici)</div>
               <div><b>Sviluppo Asse:</b> ${cumKm.toFixed(2)} km</div>
             `;
@@ -2594,73 +2614,16 @@
       if (!parsedTracciatoTemp || !parsedTracciatoTemp.feature) return;
 
       const feat = parsedTracciatoTemp.feature;
-      const coords = feat.geometry.coordinates;
-      const bufEsp = parseFloat(document.getElementById('upload-buf-esp').value) || 12.0;
-      const bufAss = parseFloat(document.getElementById('upload-buf-ass').value) || 25.0;
-      const bufCant = parseFloat(document.getElementById('upload-buf-cant').value) || 35.0;
-
-      const opSimulata = {
-        slug: 'user-track-' + Date.now(),
-        titolo: parsedTracciatoTemp.filename,
-        geo: { lng: coords[0][0], lat: coords[0][1] }
-      };
-
-      // Calcola pacchetto suite per il tracciato utente
-      const geomEsp = window.TracciatoSuite.calcolaBufferPoligono(coords, bufEsp);
-      const geomAss = window.TracciatoSuite.calcolaBufferPoligono(coords, bufAss);
-      const geomCant = window.TracciatoSuite.calcolaBufferPoligono(coords, bufCant);
-
-      const userPack = {
-        asse: {
-          type: 'Feature',
-          id: `${opSimulata.slug}-asse`,
-          geometry: { type: 'LineString', coordinates: coords },
-          properties: { titolo: parsedTracciatoTemp.filename, opera_slug: opSimulata.slug }
-        },
-        buffer_esproprio: {
-          type: 'Feature',
-          id: `${opSimulata.slug}-esp`,
-          geometry: geomEsp,
-          properties: { nome_fascia: `Fascia Esproprio (${bufEsp}m)`, buffer_m: bufEsp, tipo_fascia: 'ESPROPRIO', colore: '#E63946' }
-        },
-        buffer_asservimento: {
-          type: 'Feature',
-          id: `${opSimulata.slug}-ass`,
-          geometry: geomAss,
-          properties: { nome_fascia: `Fascia Asservimento (${bufAss}m)`, buffer_m: bufAss, tipo_fascia: 'ASSERVIMENTO', colore: '#F4A261' }
-        },
-        buffer_cantiere: {
-          type: 'Feature',
-          id: `${opSimulata.slug}-cant`,
-          geometry: geomCant,
-          properties: { nome_fascia: `Fascia Cantiere (${bufCant}m)`, buffer_m: bufCant, tipo_fascia: 'CANTIERE', colore: '#EAB308' }
-        },
-        picchetti: []
-      };
-
-      // Genera PK
-      let cumM = 0;
-      for (let i = 0; i < coords.length - 1; i++) {
-        const d = window.TracciatoSuite.distanzaMetriWgs84(coords[i], coords[i + 1]);
-        if (i === 0) {
-          userPack.picchetti.push({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: coords[0] },
-            properties: { pk_label: 'PK 0+000', distanza_m: 0, tipo: 'PICCHETTO_PK', desc: 'Inizio tracciato caricato' }
-          });
-        }
-        cumM += d;
-      }
-      userPack.picchetti.push({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: coords[coords.length - 1] },
-        properties: { pk_label: `PK ${Math.floor(cumM/1000)}+${Math.floor(cumM%1000)}`, distanza_m: Math.floor(cumM), tipo: 'PICCHETTO_PK', desc: 'Fine tracciato caricato' }
-      });
+      const source = document.getElementById('upload-source').value.trim();
+      if (safeSourceLink(source) === '#') { alert('Indica l’URL del documento sorgente del tracciato.'); return; }
+      const coords = window.TracciatoSuite.coordinateTracciato(feat);
+      const userPack = {asse: {...feat, properties: {...feat.properties,
+        fonte_url: source, tipo_feature: 'ASSE_TRACCIATO', tipo_dati: 'caricato_da_utente', verifica: 'da_verificare_sulla_fonte'}}, picchetti: []};
 
       if (!state.userTracciati) state.userTracciati = [];
       state.userTracciati.push(userPack);
 
-      updateParticellareGeoJSON(state.opere);
+      updateParticellareGeoJSON(state.filteredOpere || state.opere);
       chiudiModalUploadTracciato();
 
       // Zoom sulla geometria caricata
@@ -2678,6 +2641,10 @@
     function zoomToParticelleAndHighlight(slug) {
       const op = state.opere.find(o => o.slug === slug);
       if (!op || !state.map) return;
+      if (!hasPreciseTracciato(op)) {
+        window.openDitteModalForSlug(slug);
+        return;
+      }
       state.selectedOpera = op;
 
       closeDitteModal();
@@ -2701,29 +2668,32 @@
       }
 
       // Aggiorna layer particellari
-      updateParticellareGeoJSON(state.opere);
+      updateParticellareGeoJSON(state.filteredOpere || state.opere);
 
-      // Camera FlyTo ravvicinata sulle particelle
-      state.map.flyTo({
-        center: [op.geo.lng, op.geo.lat],
-        zoom: 15.0,
-        pitch: 45,
-        bearing: 15,
-        speed: 1.2,
-        curve: 1.3
-      });
+      // Inquadra i poligoni catastali reali, mai il pin generico dell'opera.
+      const geometrie = (op.ditte || []).map(d => d.geometry || d.geojson?.geometry)
+        .filter(g => g && ['Polygon', 'MultiPolygon'].includes(g.type));
+      if (!geometrie.length) {
+        window.openDitteModalForSlug(slug);
+        return;
+      }
+      const bounds = new maplibregl.LngLatBounds();
+      const estendi = coordinate => {
+        if (typeof coordinate[0] === 'number') bounds.extend(coordinate);
+        else coordinate.forEach(estendi);
+      };
+      geometrie.forEach(g => estendi(g.coordinates));
+      state.map.fitBounds(bounds, { padding: 80, maxZoom: 18, pitch: 0, bearing: 0, duration: 800 });
     }
 
     function visualizzaParticelleSuMappa() {
-      closeDitteModal();
-      if (state.selectedOpera && state.map) {
-        zoomToParticelleAndHighlight(state.selectedOpera.slug);
-      }
+      if (state.selectedOpera) location.href = `/quadro-interferenze?opera=${encodeURIComponent(state.selectedOpera.slug)}`;
     }
 
     function selectAndOpenPin(slug) {
       const op = state.opere.find(o => o.slug === slug);
       const marker = state.markerMap[slug];
+      if (op && !marker) { window.openDitteModalForSlug(slug); return; }
       if (op && marker && state.map) {
         state.selectedOpera = op;
 
@@ -2747,18 +2717,14 @@
         // Camera FlyTo 3D cinematografica con pitch e inclinazione
         state.map.flyTo({
           center: [op.geo.lng, op.geo.lat],
-          zoom: 14.2,
-          pitch: 50,
-          bearing: 25,
-          speed: 1.1,
-          curve: 1.3
+          zoom: Math.max(state.map.getZoom(), 11.5),
+          padding: mapCameraPadding(),
+          duration: mapAnimationDuration(650)
         });
 
-        setTimeout(() => {
-          if (marker.getPopup() && !marker.getPopup().isOpen()) {
-            marker.togglePopup();
-          }
-        }, 600);
+        Object.values(state.markerMap).forEach(m => { if (m.getPopup()?.isOpen()) m.getPopup().remove(); });
+        if (marker.getPopup() && !marker.getPopup().isOpen()) marker.togglePopup();
+        if (window.innerWidth < 768 && state.sidebarOpen) toggleSidebar();
       }
     }
 
@@ -2770,7 +2736,7 @@
       if (opere.length === 0) {
         container.innerHTML = `
           <div class="p-4 text-center text-slate-500 font-mono text-[11px]">
-            Nessuna opera corrispondente ai filtri attivi.
+            Nessuna opera corrispondente ai filtri attivi.<br><button onclick="resetAllFilters()" class="map-reset-results">Azzera filtri</button>
           </div>
         `;
         return;
@@ -2781,13 +2747,13 @@
         const formatEuro = op.importo_eur ? `€ ${(op.importo_eur / 1000000).toFixed(1)}M` : 'ND';
         const numDitte = op.ditte ? op.ditte.length : 0;
         const pdaPill = numDitte > 0 ? `
-          <button onclick="event.stopPropagation(); zoomToParticelleAndHighlight('${op.slug}')" class="px-1.5 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 text-[9px] font-bold flex items-center gap-1 transition-colors" title="Visualizza particelle catastali su mappa 3D">
-            <span>🗺️ PdA (${numDitte})</span>
+          <button onclick="event.stopPropagation(); window.openDitteModalForSlug('${op.slug}')" class="px-1.5 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-600/50 text-[9px] font-bold flex items-center gap-1 transition-colors" title="Visualizza particelle catastali su mappa 3D">
+            <span>Elenco · ${numDitte} righe</span>
           </button>
         ` : '';
 
         return `
-          <div id="card-opera-${op.slug}" onclick="selectAndOpenPin('${op.slug}')" class="opera-card-item p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all">
+          <div id="card-opera-${op.slug}" role="button" tabindex="0" onkeydown="if(event.target===this && (event.key==='Enter'||event.key===' ')){event.preventDefault();selectAndOpenPin(this.dataset.slug)}" data-slug="${op.slug}" onclick="selectAndOpenPin(this.dataset.slug)" class="opera-card-item p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 hover:border-amber-500/50 cursor-pointer transition-all">
             <div class="flex items-center justify-between gap-1 mb-1 font-mono text-[10px]">
               <div class="flex items-center gap-1.5 truncate">
                 <span class="w-2 h-2 rounded-full inline-block shrink-0" style="background:${color};"></span>
@@ -2885,6 +2851,7 @@
     function resetAllFilters() {
       state.selectedRegion = 'ALL';
       state.shortcutFilter = null;
+      document.getElementById('filter-in-view').checked = false;
       document.getElementById('filter-search').value = '';
       document.getElementById('chk-st-avanzata').checked = true;
       document.getElementById('chk-st-elenco').checked = true;
@@ -2899,18 +2866,20 @@
       }
       toggleRegionFilter('ALL');
       if (state.map) {
-        state.map.flyTo({ center: [12.50, 42.80], zoom: 6.2, pitch: 35, bearing: 0, duration: 900 });
+        zoomNordItalia();
       }
     }
 
     function applyFilters() {
-      const q = document.getElementById('filter-search').value.toLowerCase().trim();
+      const q = normalizeMapSearch(document.getElementById('filter-search').value);
       const stAvanzata = document.getElementById('chk-st-avanzata').checked;
       const stElenco = document.getElementById('chk-st-elenco').checked;
       const stPrelim = document.getElementById('chk-st-preliminare').checked;
       const stChiusa = document.getElementById('chk-st-chiusa').checked;
 
       let filtered = state.opere.filter(op => {
+        if (document.getElementById('filter-in-view')?.checked && state.map &&
+            (!validMapCoordinates(op) || !state.map.getBounds().contains([Number(op.geo.lng), Number(op.geo.lat)]))) return false;
         // Regione
         if (state.selectedRegion !== 'ALL' && op.regione !== state.selectedRegion) {
           return false;
@@ -2928,15 +2897,15 @@
         }
 
         // Stato
-        if (op.stato_opera === 'AVANZATA_SENZA_ELENCO' && !stAvanzata) return false;
-        if (op.stato_opera === 'ELENCO_PUBBLICATO' && !stElenco) return false;
+        if (['AVANZATA_SENZA_ELENCO', 'DOCUMENTI_DA_ACQUISIRE'].includes(op.stato_opera) && !stAvanzata) return false;
+        if (['ELENCO_PUBBLICATO', 'DOCUMENTI_ARCHIVIATI'].includes(op.stato_opera) && !stElenco) return false;
         if (op.stato_opera === 'PRELIMINARE' && !stPrelim) return false;
         if (op.stato_opera === 'CHIUSA' && !stChiusa) return false;
 
         // Ricerca testuale comprensiva di CUP, Ente, Comune, Provincia e Ditte/Mappali
         if (q) {
           const ditteStr = (op.ditte || []).map(d => `${d.intestatario} ${d.mappali}`).join(' ');
-          const haystack = `${op.titolo} ${op.cup || ''} ${op.ente} ${op.comune} ${op.provincia || ''} ${op.rup || ''} ${ditteStr}`.toLowerCase();
+          const haystack = normalizeMapSearch(`${op.titolo} ${op.cup || ''} ${op.ente || op.ente_promotore || ''} ${op.comune} ${op.provincia || ''} ${op.rup || ''} ${ditteStr}`);
           if (!haystack.includes(q)) return false;
         }
 
@@ -2947,17 +2916,8 @@
       updateMapMarkers(filtered);
       updateGlobalMetrics(filtered);
 
-      // Auto-inquadra i risultati con pitch 35 prospettico
-      if (state.shortcutFilter && filtered.length > 0 && state.map) {
-        const pts = filtered.filter(o => o.geo && o.geo.lat && o.geo.lng).map(o => [o.geo.lng, o.geo.lat]);
-        if (pts.length > 0) {
-          try {
-            const bounds = new maplibregl.LngLatBounds(pts[0], pts[0]);
-            pts.forEach(p => bounds.extend(p));
-            state.map.fitBounds(bounds, { padding: 60, pitch: 35, duration: 800 });
-          } catch (e) {}
-        }
-      }
+      updateMapViewportStatus();
+
     }
 
     function updateGlobalMetrics(filteredList) {
@@ -2965,9 +2925,9 @@
       
       const nostreCount = pool.filter(o => o.nostra_opera).length;
       const inVista = pool.length;
-      const avanzate = pool.filter(o => o.stato_opera === 'AVANZATA_SENZA_ELENCO').length;
-      const elenchi = pool.filter(o => o.stato_opera === 'ELENCO_PUBBLICATO').length;
-      const totEurMln = Math.round(pool.reduce((acc, o) => acc + (o.importo_eur || 0), 0) / 1000000);
+      const avanzate = pool.filter(o => ['AVANZATA_SENZA_ELENCO','DOCUMENTI_DA_ACQUISIRE'].includes(o.stato_opera)).length;
+      const elenchi = pool.filter(o => ['ELENCO_PUBBLICATO','DOCUMENTI_ARCHIVIATI'].includes(o.stato_opera)).length;
+      const totEurMln = Math.round(pool.reduce((acc, o) => acc + (o.importo_eur ?? 0), 0) / 1000000);
       
       const allComuni = new Set();
       pool.forEach(o => {
@@ -2979,7 +2939,7 @@
       const allRegioni = new Set(pool.map(o => o.regione).filter(Boolean));
 
       document.getElementById('stat-nostre').textContent = nostreCount;
-      document.getElementById('stat-in-vista').textContent = inVista;
+      updateMapViewportStatus();
       document.getElementById('stat-avanzate').textContent = avanzate;
       document.getElementById('stat-elenchi').textContent = elenchi;
       document.getElementById('stat-investimento').textContent = totEurMln.toLocaleString('it-IT');
@@ -3000,7 +2960,6 @@
       const modal = document.getElementById("modal-stima");
       if (modal) {
         modal.style.display = "flex";
-        eseguiCalcoloDelta();
       }
     }
 
@@ -3010,12 +2969,17 @@
     }
 
     async function eseguiCalcoloDelta() {
-      const sup = parseFloat(document.getElementById("inp-superficie")?.value) || 3500;
+      const required = ['inp-superficie', 'inp-offerta-ente', 'inp-valore-mercato',
+        'inp-deprezzamento-ass', 'inp-danno-relitto', 'inp-soprassuoli', 'inp-frutti', 'inp-vam', 'inp-anni'];
+      if (required.some(id => document.getElementById(id).value.trim() === '')) {
+        alert('Compila i valori documentati. Indica zero esplicitamente per le voci assenti; nessun dato viene presunto.'); return;
+      }
+      const sup = parseFloat(document.getElementById("inp-superficie")?.value);
       const dest = document.getElementById("inp-destinazione")?.value || "agricola";
       const inter = document.getElementById("inp-intervento")?.value || "asservimento";
-      const offUnitaria = parseFloat(document.getElementById("inp-offerta-ente")?.value) || 4.5;
-      const valMercato = parseFloat(document.getElementById("inp-valore-mercato")?.value) || 18.0;
-      const deprAss = (parseFloat(document.getElementById("inp-deprezzamento-ass")?.value) || 50) / 100;
+      const offUnitaria = parseFloat(document.getElementById("inp-offerta-ente")?.value);
+      const valMercato = parseFloat(document.getElementById("inp-valore-mercato")?.value);
+      const deprAss = (parseFloat(document.getElementById("inp-deprezzamento-ass")?.value)) / 100;
       const dannoRel = parseFloat(document.getElementById("inp-danno-relitto")?.value) || 0;
       const sopras = parseFloat(document.getElementById("inp-soprassuoli")?.value) || 0;
       const frutti = parseFloat(document.getElementById("inp-frutti")?.value) || 0;
@@ -3036,7 +3000,7 @@
         is_coltivatore_diretto_o_iap: isCD,
         vam_tabellare_mq: vam,
         adesione_cessione_volontaria: isCess,
-        anni_occupazione: 1.0
+        anni_occupazione: Number(document.getElementById('inp-anni').value)
       };
 
       try {
@@ -3050,8 +3014,8 @@
         const data = await response.json();
         renderStimaRisultati(data);
       } catch (err) {
-        // Fallback deterministico locale conforme
-        calcolaStimaFallbackLocale(payload);
+        document.querySelectorAll('[id^="res-"]').forEach(el => el.textContent = 'Non disponibile');
+        alert('Calcolo non disponibile: controlla i dati e riprova. Nessun risultato sostitutivo generato.');
       }
     }
 
@@ -3080,42 +3044,6 @@
       if (elCompenso) elCompenso.innerText = formatEuro(data.base_onorario_tecnico_consigliato || 0);
     }
 
-    function calcolaStimaFallbackLocale(p) {
-      const offEnte = p.superficie_mq * p.offerta_unitaria_ente;
-      let suoloReale = p.superficie_mq * p.valore_venale_mercato_mq;
-      if (p.intervento === "asservimento") {
-        suoloReale *= p.saggio_deprezzamento_asservimento;
-      }
-      const relitto = (p.intervento === "esproprio_parziale" || p.intervento === "asservimento") ? p.deprezzamento_relitto_euro : 0;
-      const soprassuoli = p.valore_soprassuoli_euro + p.frutti_pendenti_euro;
-      let cdVal = 0;
-      if (p.is_coltivatore_diretto_o_iap && p.destinazione === "agricola") {
-        cdVal = p.vam_tabellare_mq > 0 ? (p.vam_tabellare_mq * p.superficie_mq) : (suoloReale * 0.5);
-      }
-      let cessione = 0;
-      if (p.adesione_cessione_volontaria) {
-        cessione = p.destinazione === "agricola" ? (p.is_coltivatore_diretto_o_iap ? suoloReale * 2 : suoloReale * 0.5) : (suoloReale * 0.1);
-      }
-      const totPerizia = suoloReale + relitto + soprassuoli + cdVal + cessione;
-      const delta = Math.max(0, totPerizia - offEnte);
-      const perc = offEnte > 0 ? (delta / offEnte * 100) : 100;
-
-      renderStimaRisultati({
-        totale_offerta_ente: offEnte,
-        totale_stima_peritale: totPerizia,
-        delta_recuperabile: delta,
-        percentuale_recupero: perc,
-        dettaglio_calcolo: {
-          indennita_suolo_reale: suoloReale,
-          deprezzamento_relitto_art33: relitto,
-          soprassuoli_e_frutti: soprassuoli,
-          indennita_aggiuntiva_cd_iap_art40: cdVal,
-          maggiorazione_cessione_art45: cessione
-        },
-        base_onorario_tecnico_consigliato: Math.round(delta * 0.10)
-      });
-    }
-
     // Bridge: precarica particella catastale nel calcolatore e apre il modale
     window.innescaCalcoloDaParticella = function(p, contestoOpera = {}) {
       const modal = document.getElementById('modal-stima');
@@ -3123,7 +3051,7 @@
 
       const supEsproprio = parseFloat(p.superficie_occupata || p.superfici_mq?.esproprio || p.sup_mq || 0);
       const supAsservimento = parseFloat(p.superfici_mq?.asservimento || 0);
-      const supTotaleMq = supEsproprio > 0 ? supEsproprio : (supAsservimento > 0 ? supAsservimento : 1000);
+      const supTotaleMq = supEsproprio > 0 ? supEsproprio : (supAsservimento > 0 ? supAsservimento : '');
 
       const inpIntervento = document.getElementById('inp-intervento');
       if (inpIntervento) {
@@ -3151,7 +3079,7 @@
       setVal('inp-superficie', supTotaleMq);
       
       // Calcolo offerta ente unitaria dedotta da indennità e superficie
-      let offertaEnte = 4.50;
+      let offertaEnte = '';
       if (p.indennita && supTotaleMq > 0) {
         offertaEnte = Math.round((p.indennita / supTotaleMq) * 100) / 100;
       } else if (p.offerta_proposta_mq) {
@@ -3159,10 +3087,9 @@
       }
       setVal('inp-offerta-ente', offertaEnte);
 
-      // Valore venale peritale di mercato realistico
-      const stimaMercatoZona = p.valore_mercato_stimato_mq || (isEdificabile ? Math.max(offertaEnte * 2.5, 45.0) : Math.max(offertaEnte * 3.5, 18.0));
-      setVal('inp-valore-mercato', Math.round(stimaMercatoZona * 10) / 10);
-      setVal('inp-soprassuoli', p.indennita_soprassuoli || 0);
+      // Nessun valore di mercato dedotto da moltiplicatori o prezzi di esempio.
+      setVal('inp-valore-mercato', p.valore_mercato_documentato_mq ?? '');
+      setVal('inp-soprassuoli', p.indennita_soprassuoli ?? '');
 
       const chkCd = document.getElementById('chk-coltivatore-diretto');
       if (chkCd) {
@@ -3215,21 +3142,22 @@
       const op = state.opere.find(o => o.slug === slug);
       if (!op) return;
       state.selectedOpera = op;
+      renderOperaDocuments(op);
 
       // Chiudi eventuale popup mappa per non affollare la visuale
       document.querySelectorAll('.maplibregl-popup').forEach(p => p.remove());
 
       document.getElementById('modal-ditte-title').textContent = `📋 Piano Particellare: ${op.titolo}`;
-      document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune} (${op.provincia || 'ND'})`;
+      document.getElementById('modal-ditte-subtitle').textContent = `Ente: ${op.ente} — CUP: ${op.cup || 'N.D.'} — Località: ${op.comune} (${op.provincia || 'ND'}) — Copertura documentale parziale: controllare documenti, pagine e stato di estrazione.`;
 
       const ditte = op.ditte || [];
-      document.getElementById('mod-tot-ditte').textContent = ditte.length;
+      document.getElementById('mod-tot-ditte').textContent = `${countMapIntestatari(ditte)} (${ditte.length} righe)`;
 
       const totMq = ditte.reduce((acc, d) => acc + (d.sup_mq || 0), 0);
       const totEur = ditte.reduce((acc, d) => acc + (d.indennita || 0), 0);
 
-      document.getElementById('mod-tot-mq').textContent = `${totMq.toLocaleString('it-IT')} mq`;
-      document.getElementById('mod-tot-indennita').textContent = `€ ${totEur.toLocaleString('it-IT')}`;
+      document.getElementById('mod-tot-mq').textContent = ditte.some(d => d.sup_mq != null) ? `${totMq.toLocaleString('it-IT')} mq` : 'Non verificata';
+      document.getElementById('mod-tot-indennita').textContent = (op.documenti || []).length;
 
       renderDitteTableRows(ditte);
       document.getElementById('modal-ditte').classList.remove('hidden');
@@ -3237,51 +3165,29 @@
 
     function renderDitteTableRows(ditte) {
       const tbody = document.getElementById('ditte-table-body');
-      if (ditte.length === 0) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="8" class="p-8 text-center text-slate-500 font-mono">
-              ⚠️ Nessun piano particellare caricato o estratto digitalmente.<br>
-              <span class="text-amber-400 text-[11px]">Procedura in attesa di consultazione atti presso la sede dell'Ente.</span>
-            </td>
-          </tr>
-        `;
+      if (!ditte.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="p-5 text-slate-400">Nessuna riga catastale estratta. Consulta i documenti collegati: elenco non ancora acquisito o lettura da completare.</td></tr>';
         return;
       }
-
-      tbody.innerHTML = ditte.map((d, idx) => {
-        const originalIndex = (state.selectedOpera && state.selectedOpera.ditte) 
-          ? state.selectedOpera.ditte.indexOf(d) 
-          : idx;
-        return `
-        <tr class="hover:bg-slate-800/40 text-slate-300">
-          <td class="p-2 font-medium text-slate-100">${d.intestatario}</td>
-          <td class="p-2 text-slate-400">${d.comune}</td>
-          <td class="p-2 font-bold text-sky-400">Fg. ${d.foglio}</td>
-          <td class="p-2 text-slate-300">Mapp. ${d.mappali}</td>
-          <td class="p-2 text-right font-semibold">${d.sup_mq ? d.sup_mq.toLocaleString('it-IT') : '--'}</td>
-          <td class="p-2 text-right font-bold text-emerald-400">${d.indennita ? '€ ' + d.indennita.toLocaleString('it-IT') : 'Da Stimare'}</td>
-          <td class="p-2 text-center">
-            ${d.delta ? '<span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] font-bold">ACCERTARE</span>' : '<span class="text-slate-600">-</span>'}
-          </td>
-          <td class="p-2 text-center">
-            <button onclick="window.innescaCalcoloParticellaByIndex(${originalIndex})" class="px-2 py-0.5 rounded bg-sky-950 hover:bg-sky-900 text-sky-400 text-[10px] font-bold border border-sky-500/40 transition-colors" title="Calcola Delta Indennità D.P.R. 327/2001">
-              ⚖ Stima Delta
-            </button>
-          </td>
-        </tr>
-      `;
-      }).join('');
+      tbody.innerHTML = ditte.map(d => `<tr class="text-slate-300 border-b border-slate-800">
+        <td class="p-2">${escapeMapHtml(d.intestatario || 'Intestazione non leggibile')}<small class="block text-amber-300">${d.stato_estrazione === 'ocr_da_verificare' ? 'OCR: da verificare sull’originale' : 'Estratto dal documento'}</small></td>
+        <td class="p-2">${escapeMapHtml(d.comune || '')}</td>
+        <td class="p-2">${escapeMapHtml(d.foglio)}</td><td class="p-2">${escapeMapHtml(d.mappali || d.mappale)}</td>
+        <td class="p-2">${d.sup_mq == null ? 'Non verificata' : Number(d.sup_mq).toLocaleString('it-IT')}</td>
+        <td class="p-2">${d.geometry ? 'Geometria catastale' : 'Da localizzare'}</td>
+        <td class="p-2">${d.documento_url ? `<a class="text-sky-300 underline" href="${safeArchiveLink(d.documento_url)}" target="_blank" rel="noopener">Originale · pag. ${Number(d.fonte_pagina)}</a>` : 'Fonte mancante'}</td>
+        <td class="p-2">${d.geometry ? `<a class="text-sky-300 underline" href="/quadro-interferenze?opera=${encodeURIComponent(state.selectedOpera.slug)}">Mappa</a>` : 'Nessuna posizione attribuita'}</td>
+      </tr>`).join('');
     }
 
     function filterDitteTable() {
       if (!state.selectedOpera || !state.selectedOpera.ditte) return;
       const term = document.getElementById('filter-ditte-table').value.toLowerCase().trim();
       const filtered = state.selectedOpera.ditte.filter(d => 
-        d.intestatario.toLowerCase().includes(term) ||
-        d.mappali.toLowerCase().includes(term) ||
-        d.foglio.toLowerCase().includes(term) ||
-        d.comune.toLowerCase().includes(term)
+        String(d.intestatario || '').toLowerCase().includes(term) ||
+        String(d.mappali || '').toLowerCase().includes(term) ||
+        String(d.foglio || '').toLowerCase().includes(term) ||
+        String(d.comune || '').toLowerCase().includes(term)
       );
       renderDitteTableRows(filtered);
     }
@@ -3303,81 +3209,11 @@
 
     async function handleFormSubmit(e) {
       e.preventDefault();
-      const titolo = document.getElementById('add-titolo').value;
-      const cup = document.getElementById('add-cup').value.toUpperCase().trim();
-      const ente = document.getElementById('add-ente').value;
-      const regione = document.getElementById('add-regione').value;
-      const comune = document.getElementById('add-comune').value || 'Comune Capofila';
-      const importo = parseFloat(document.getElementById('add-importo').value) || 0;
-      const stato = document.getElementById('add-stato').value;
-      const scadenza = parseInt(document.getElementById('add-scadenza').value) || null;
-
-      const regGeo = {
-        'Lombardia': { lat: 45.4642, lng: 9.1900 },
-        'Veneto': { lat: 45.4384, lng: 12.3160 },
-        'Piemonte': { lat: 45.0703, lng: 7.6869 },
-        'Emilia-Romagna': { lat: 44.4949, lng: 11.3426 },
-        'Liguria': { lat: 44.4056, lng: 8.9463 },
-        'Toscana': { lat: 43.7696, lng: 11.2558 },
-        'Lazio': { lat: 41.9028, lng: 12.4964 },
-        'Campania': { lat: 40.8518, lng: 14.2681 },
-        'Puglia': { lat: 41.1171, lng: 16.8719 },
-        'Sicilia': { lat: 37.5079, lng: 15.0830 }
-      };
-
-      const newOp = {
-        slug: cup || `MANUAL-${Date.now()}`,
-        cup: cup || null,
-        titolo: titolo,
-        ente: ente,
-        regione: regione,
-        provincia: "ND",
-        comune: comune,
-        importo_eur: importo,
-        data_pubblicazione: new Date().toISOString().split('T')[0],
-        stato_opera: stato,
-        nostra_opera: true,
-        settimana_corrente: true,
-        maturity_score: stato === 'AVANZATA_SENZA_ELENCO' ? 4 : 2,
-        maturity_signals: {
-          conferenza_servizi_chiusa: true,
-          progetto_def_esec_approvato: true,
-          pubblica_utilita_emessa: stato === 'AVANZATA_SENZA_ELENCO',
-          cup_attivo_finanziamento: !!cup,
-          avviso_art11_dpr327: true,
-          vincolo_preordinato_pgt: false,
-          bando_aggiudicazione_anac: false
-        },
-        azione: {
-          verbo: stato === 'AVANZATA_SENZA_ELENCO' ? "Contatto prioritario proprietari pre-notifica" : "Monitoraggio iter",
-          priorita: "alta",
-          giorni_residui: scadenza,
-          elenco_non_pubblico: true,
-          deposito_presso: "Albo Pretorio"
-        },
-        geo: regGeo[regione] || { lat: 42.50, lng: 12.50 },
-        fonte_url: "",
-        ditte: []
-      };
-
-      try {
-        await fetch('http://127.0.0.1:8000/api/opere', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newOp)
-        });
-      } catch (err) {
-        console.warn("API locale non raggiungibile per salvataggio:", err);
-      }
-
-      state.opere.unshift(newOp);
-      closeQuickAddModal();
-      applyFilters();
-      selectAndOpenPin(newOp.slug);
+      alert('Le opere di produzione vengono acquisite dai documenti degli enti. Usa l’archivio fonti.');
     }
 
     function exportCSV() {
-      const list = (state.filteredOpere && state.filteredOpere.length > 0) ? state.filteredOpere : state.opere;
+      const list = state.filteredOpere || state.opere;
       const headers = [
         "Slug", "CUP", "Titolo", "Ente", "Regione", "Provincia", "Comune", 
         "StatoOpera", "FaseProcedurale", "StepMaturita", "ImportoEUR", 
@@ -3393,8 +3229,8 @@
         `"${(o.comune || '').replace(/"/g, '""')}"`,
         `"${o.stato_opera || ''}"`,
         `"${o.fase_procedurale || ''}"`,
-        o.maturita_step || o.maturity_score || 3,
-        o.importo_eur || 0,
+        o.maturita_step ?? o.maturity_score ?? '',
+        o.importo_eur ?? '',
         o.ditte ? o.ditte.length : 0,
         `"${o.scadenza_osservazioni || ''}"`,
         `"${o.data_pubblicazione || ''}"`,
@@ -3529,45 +3365,24 @@
     }
 
     async function loadOpereDataset() {
-      let dirPath = window.location.pathname;
-      if (dirPath.includes('.')) {
-        dirPath = dirPath.substring(0, dirPath.lastIndexOf('/') + 1);
-      } else if (!dirPath.endsWith('/')) {
-        dirPath += '/';
-      }
-
-      const ts = Date.now();
-      const candidateUrls = [
-        dirPath + 'data/opere.json?t=' + ts,
-        dirPath + 'opere.json?t=' + ts,
-        './data/opere.json?t=' + ts,
-        './opere.json?t=' + ts,
-        'data/opere.json?t=' + ts,
-        'opere.json?t=' + ts,
-        '/opere?t=' + ts,
-        '/data/opere.json?t=' + ts,
-        '/api/opere?t=' + ts,
-        'https://raw.githubusercontent.com/nicolavaligi/motore-espropri-italia/main/data/opere.json?t=' + ts
-      ];
-
-      for (const url of candidateUrls) {
-        try {
-          const res = await fetch(url);
-          if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-              return data;
-            }
-          }
-        } catch (err) {
-          // Continua al prossimo candidato
+      try {
+        const response = await fetch('/api/opere', {signal: AbortSignal.timeout(15000), cache: 'no-store'});
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.detail || `Archivio non disponibile (${response.status})`);
         }
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error('Risposta archivio non valida');
+        return data.filter(op => op.tipo_dati === 'documentale');
+      } catch (error) {
+        state.datasetError = error.message;
+        console.error('Caricamento archivio:', error);
+        return [];
       }
-      return [];
     }
 
     window.addEventListener('DOMContentLoaded', async () => {
-      lucide.createIcons();
+      window.lucide?.createIcons?.();
       startClock();
       initStimaModalBindings();
 
@@ -3576,8 +3391,8 @@
         state.sidebarOpen = false;
         const el = document.getElementById('floating-sidebar');
         const btn = document.getElementById('btn-toggle-sidebar');
-        if (el) el.classList.add('-translate-x-[115%]', 'opacity-0', 'pointer-events-none');
-        if (btn) btn.classList.remove('text-amber-400');
+        if (el) { el.classList.add('-translate-x-[115%]', 'opacity-0', 'pointer-events-none'); el.inert = true; el.setAttribute('aria-hidden', 'true'); }
+        if (btn) { btn.classList.remove('text-amber-400'); btn.setAttribute('aria-expanded', 'false'); }
       }
 
       initMap();
@@ -3586,17 +3401,13 @@
       state.opere = data;
       applyFilters();
 
-      if (state.map) {
-        if (state.map.loaded()) {
-          updateMapMarkers(state.opere);
-          caricaConfiniRegionaliIstat(state.map);
-        } else {
-          state.map.on('load', () => {
-            updateMapMarkers(state.opere);
-            caricaConfiniRegionaliIstat(state.map);
-          });
-        }
+      const notice = document.getElementById('map-notice');
+      if (notice) {
+        notice.hidden = data.length > 0 && !state.mapError;
+        if (state.mapError) notice.textContent = 'Cartografia non disponibile. Fascicoli e documenti restano consultabili.';
+        if (!data.length) notice.innerHTML = `${escapeMapHtml(state.datasetError || 'Nessuna opera documentata caricata.')} <button onclick="location.reload()">Riprova</button>`;
       }
+
     });
   </script>
 </body>

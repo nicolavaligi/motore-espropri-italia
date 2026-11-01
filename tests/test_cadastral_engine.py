@@ -65,18 +65,10 @@ def test_analizza_interferenze_e_interclusione_topologica():
     assert bool(res.iloc[0]["has_progetto"]) is True
 
 def test_api_catasto_interferenze():
-    payload = {
-        "tracciato_geojson": {
-            "type": "LineString",
-            "coordinates": [[11.530, 45.542], [11.540, 45.548]]
-        },
-        "buffer_meters": 25.0
-    }
-    resp = client.post("/api/catasto/interferenze", json=payload)
-    assert resp.status_code == 200
-    data = resp.json()
-    assert data["type"] == "FeatureCollection"
-    assert len(data["features"]) > 0
+    resp = client.post('/api/catasto/interferenze', json={'tracciato_geojson': {'type':'LineString','coordinates':[[11,45],[11.01,45.01]]}})
+    assert resp.status_code == 409
+    assert 'Nessuna fascia' in resp.json()['detail']
+
 
 def test_serve_tracciato_suite_js():
     resp = client.get("/tracciato_suite.js")

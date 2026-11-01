@@ -18,6 +18,7 @@ import os
 import smtplib
 import time
 import zipfile
+from production_store import DEFAULT_ROOT
 from datetime import date, datetime
 from email.header import Header
 from email.mime.application import MIMEApplication
@@ -27,8 +28,8 @@ from pathlib import Path
 
 DESTINATARIO = "n.valig@gmail.com"
 BASE_DIR = Path(__file__).resolve().parent
-DATA_OPERE = BASE_DIR / "data" / "opere.json" if (BASE_DIR / "data" / "opere.json").exists() else BASE_DIR / "opere.json"
-PDF_DIR = BASE_DIR / "data" / "pdf_archivio"
+DATA_OPERE = DEFAULT_ROOT / "opere.json"
+PDF_DIR = DEFAULT_ROOT / "documenti"
 
 # Soglia massima complessiva allegati per policy SMTP (20 MB)
 MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024

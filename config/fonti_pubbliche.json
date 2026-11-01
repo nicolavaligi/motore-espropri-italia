@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "nota": "Fonti riscontrate. Nessuna fonte garantisce da sola copertura catastale completa. Nessuna associazione tra lotti differenti.",
+  "sources": [
+    {
+      "opera": {
+        "slug": "RFI-RHO-GALLARATE-PROGETTO-DEFINITIVO-2013",
+        "titolo": "Potenziamento linea Rho–Arona, tratta Rho–Gallarate: progetto definitivo 2013",
+        "ente_promotore": "RFI / Italferr",
+        "regione": "Lombardia",
+        "comune": "Rho, Pregnana Milanese, Vanzago, Pogliano Milanese, Nerviano, Parabiago, Canegrate, Legnano, Castellanza, Busto Arsizio",
+        "cup": null,
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://va.mite.gov.it/it-IT/Oggetti/Documentazione/1368/1849"
+      ],
+      "allowed_hosts": [
+        "va.mite.gov.it",
+        "va.mase.gov.it"
+      ],
+      "all_pdf_links": true,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      }
+    },
+    {
+      "opera": {
+        "slug": "RFI-TAV-VR-PD-SUB-TRATTA-VICENZA",
+        "titolo": "Linea AV/AC Verona–Padova: secondo lotto funzionale, attraversamento di Vicenza",
+        "ente_promotore": "RFI",
+        "regione": "Veneto",
+        "comune": "Vicenza",
+        "cup": null,
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://www.rfi.it/it/rete/i-nostri-progetti/principali-interventi-lavori-programmati/linea-milano---venezia.html",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://www.rfi.it/it/rete/i-nostri-progetti/principali-interventi-lavori-programmati/linea-milano---venezia.html",
+        "https://servizi2.comune.vicenza.it/uffici/cms/rfi-italferr/index.php"
+      ],
+      "allowed_hosts": [
+        "servizi2.comune.vicenza.it",
+        "www.rfi.it"
+      ],
+      "all_pdf_links": false,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      },
+      "discovery_only": true
+    },
+    {
+      "opera": {
+        "slug": "EMILIA-CISPADANA-AUTOSTRADA-REGIONALE",
+        "titolo": "Autostrada regionale Cispadana: Reggiolo–Rolo–Ferrara Sud",
+        "ente_promotore": "Autostrada Regionale Cispadana / Regione Emilia-Romagna",
+        "regione": "Emilia-Romagna",
+        "comune": "Reggiolo, Rolo, Novi, Concordia, San Possidonio, Mirandola, Medolla, San Felice sul Panaro, Finale Emilia, Cento, Poggio Renatico, Ferrara",
+        "cup": null,
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://mobilita.regione.emilia-romagna.it/strade/progetti/autostrada-regionale-cispadana",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://www.autostradaregionalecispadana.it/it/progetto/elaborati---progetto-definitivo-2019/",
+        "https://www.autostradaregionalecispadana.it/it/progetto/elaborati---progetto-definitivo-2012-via/"
+      ],
+      "allowed_hosts": [
+        "mobilita.regione.emilia-romagna.it",
+        "www.autostradaregionalecispadana.it",
+        "va.mite.gov.it",
+        "va.mase.gov.it"
+      ],
+      "all_pdf_links": true,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      },
+      "follow_pages": [
+        "/it/progetto/elaborati",
+        "/it-IT/Oggetti/Documentazione/\\d+/\\d+"
+      ]
+    },
+    {
+      "opera": {
+        "slug": "LOMBARDIA-RFI-QUADRUPICAMENTO-MILANO-PAVIA",
+        "titolo": "Potenziamento linea Milano–Genova, quadruplicamento Milano Rogoredo–Pavia",
+        "ente_promotore": "RFI",
+        "regione": "Lombardia",
+        "comune": "Milano, Pieve Emanuele, Pavia",
+        "cup": null,
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://www.fsitaliane.it/it/opere-strategiche/linea-milano---genova--quadruplicamento-tratta-milano-rogoredo--.html",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://www.fsitaliane.it/it/opere-strategiche/linea-milano---genova--quadruplicamento-tratta-milano-rogoredo--.html",
+        "https://va.mite.gov.it/it-IT/Oggetti/MetadatoDocumento/1204230",
+        "https://va.mite.gov.it/File/Documento/1204230"
+      ],
+      "allowed_hosts": [
+        "va.mite.gov.it",
+        "www.fsitaliane.it"
+      ],
+      "all_pdf_links": true,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      }
+    },
+    {
+      "opera": {
+        "slug": "TRENTINO-RFI-CIRCONVALLAZIONE-TRENTO",
+        "titolo": "Quadruplicamento Fortezza–Verona: lotto 3A, circonvallazione di Trento",
+        "ente_promotore": "RFI",
+        "regione": "Trentino-Alto Adige",
+        "comune": "Trento",
+        "cup": null,
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://accountability-backend.mit.gov.it/storage/documents/236/UroHR7XmpJdYmzWDjUYrW7RTUc9Izxx7hYHT8NgY.pdf",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://accountability-backend.mit.gov.it/storage/documents/236/UroHR7XmpJdYmzWDjUYrW7RTUc9Izxx7hYHT8NgY.pdf"
+      ],
+      "allowed_hosts": [
+        "accountability-backend.mit.gov.it"
+      ],
+      "all_pdf_links": true,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      }
+    },
+    {
+      "opera": {
+        "slug": "RFI-VERONA-BIVIO-VICENZA-LOTTO1-VARIANTE-SNAM-2026",
+        "titolo": "Linea AV/AC Verona–Bivio Vicenza: variante SNAM del primo lotto funzionale",
+        "ente_promotore": "RFI / FS Engineering",
+        "regione": "Veneto",
+        "comune": "San Martino Buon Albergo, San Bonifacio, Caldiero, Belfiore, Lonigo, Brendola, Montebello Vicentino, Montecchio Maggiore, Altavilla Vicentina",
+        "cup": "J41E91000000009",
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/16/linea-av-ac-milano---venezia--tratta-verona---padova-primo-lotto.html",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/16/linea-av-ac-milano---venezia--tratta-verona---padova-primo-lotto.html",
+        "https://www.gruppofsengineering.it/content/dam/italferr_nd/italiano/documenti/gare-ed-espropri/2026/avviso%20VR-Bivio%20Vicenza_SNAM.pdf"
+      ],
+      "allowed_hosts": [
+        "www.gruppofsengineering.it"
+      ],
+      "all_pdf_links": true,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      }
+    },
+    {
+      "opera": {
+        "slug": "RFI-PALERMO-CATANIA-LOTTO4A-XIRBI-ENNA-VARIANTE2026",
+        "titolo": "Palermo–Catania, lotto 4A Caltanissetta Xirbi–Enna Nuova: modifiche del progetto esecutivo",
+        "ente_promotore": "RFI / FS Engineering",
+        "regione": "Sicilia",
+        "comune": "Caltanissetta, Enna",
+        "cup": "J11H03000180001",
+        "tipo_dati": "documentale",
+        "fonte_atto_url": "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/13/nuovo-collegamento-palermo---catania-lotto-4a--tratta-caltanisse.html",
+        "stato_verifica": "opera_riscontrata_fonte_ufficiale",
+        "coordinate": null
+      },
+      "pages": [
+        "https://www.gruppofsengineering.it/it/espropri/Attivita/2026/10/13/nuovo-collegamento-palermo---catania-lotto-4a--tratta-caltanisse.html",
+        "https://www.gruppofsengineering.it/content/dam/italferr_nd/italiano/documenti/gare-ed-espropri/2026/Realizzazione%20asse%20ferroviario%20Palermo-Catania-Messina.pdf"
+      ],
+      "allowed_hosts": [
+        "www.gruppofsengineering.it"
+      ],
+      "all_pdf_links": true,
+      "limits": {
+        "pages": 80,
+        "documents": 300,
+        "depth": 2
+      }
+    }
+  ]
+}

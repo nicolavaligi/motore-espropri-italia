@@ -17,6 +17,7 @@ Include:
 
 from __future__ import annotations
 
+import math
 import argparse
 import os
 import re
@@ -27,6 +28,7 @@ from typing import Any, Dict, List, Optional
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import MultiPolygon, Polygon, shape
+from pyproj import CRS
 
 
 # ==============================================================================
@@ -55,6 +57,30 @@ class ParametriEspropri:
     costo_fabbricato_rurale_mq: float = 650.00   # Fabbricato rurale/deposito abbattuto (valore di ricostruzione)
 
 
+    def __post_init__(self):
+        for nome, valore in vars(self).items():
+            if not math.isfinite(valore) or valore < 0:
+                raise ValueError(f"{nome}: richiesto un numero finito non negativo")
+        if self.saggio_asservimento > 1:
+            raise ValueError("saggio_asservimento deve essere compreso tra 0 e 1")
+        if self.buffer_asservimento_m < self.buffer_esproprio_m:
+            raise ValueError("La fascia di asservimento deve includere quella di esproprio")
+
+
+def soggetto_coltivatore(qualifica: str) -> bool:
+    """Evita di riconoscere NON_COLTIVATORE come coltivatore."""
+    tokens = set(re.split(r"[^A-Z0-9]+", str(qualifica).upper()))
+    return "NON" not in tokens and bool(tokens & {"IAP", "CD", "COLTIVATORE"})
+
+
+def valore_booleano(valore: Any) -> bool:
+    if pd.isna(valore):
+        return False
+    if isinstance(valore, str):
+        return valore.strip().casefold() in {"true", "1", "si", "sì", "yes"}
+    return bool(valore)
+
+
 # Alias per retrocompatibilità estimativa
 ParametriEconomici = ParametriEspropri
 
@@ -76,7 +102,11 @@ def normalizza_stringa_catasto(valore: Any) -> str:
     if pd.isna(valore):
         return ""
     val_str = str(valore).strip().upper()
-    val_str = re.sub(r"^0+", "", val_str)
+    # I fogli numerici letti da Excel possono diventare float (12.0).
+    if re.fullmatch(r"\d+\.0+", val_str):
+        val_str = val_str.split(".")[0]
+    val_str = re.sub(r"[^A-Z0-9]", "", val_str)
+    val_str = val_str.lstrip("0") or ("0" if val_str else "")
     return val_str
 
 
@@ -95,18 +125,24 @@ def arricchisci_catasto_con_visure(
 
     if not visure_path or not Path(visure_path).is_file():
         gdf["INTESTATI_COMPLETI"] = "Ditta da visura non disponibile"
-        gdf["NUM_INTESTATI"] = 1
+        gdf["NUM_INTESTATI"] = 0
         gdf["QUALIFICA_SOGGETTO"] = "PROPRIETARIO_NON_COLTIVATORE"
         gdf["DESTINAZIONE_URB"] = gdf.get("DESTINAZIONE_URB", "Agricola")
-        gdf["ALBERI_PREGIO_QTA"] = 0
-        gdf["RECINZIONE_ML"] = 0.0
-        gdf["IMPIANTO_IRRIGUO"] = False
+        for campo, default in {"ALBERI_PREGIO_QTA": 0, "RECINZIONE_ML": 0.0, "IMPIANTO_IRRIGUO": False}.items():
+            if campo not in gdf:
+                gdf[campo] = default
         return gdf
 
-    if visure_path.endswith((".xlsx", ".xls")):
-        df_visure = pd.read_excel(visure_path)
+    if Path(visure_path).suffix.lower() in {".xlsx", ".xls"}:
+        df_visure = pd.read_excel(visure_path, dtype=str)
     else:
-        df_visure = pd.read_csv(visure_path, sep=None, engine="python")
+        df_visure = pd.read_csv(visure_path, sep=None, engine="python", dtype=str)
+
+    richiesti = {"COMUNE", "FOGLIO", "MAPPALE"}
+    if not richiesti.issubset(df_visure.columns):
+        raise ValueError(f"Colonne visura mancanti: {sorted(richiesti - set(df_visure.columns))}")
+    if df_visure.empty:
+        return arricchisci_catasto_con_visure(gdf_catasto)
 
     # Creazione chiave univoca di join
     gdf["_key_join"] = (
@@ -121,8 +157,12 @@ def arricchisci_catasto_con_visure(
         df_visure["MAPPALE"].apply(normalizza_stringa_catasto)
     )
 
+    if (df_visure[["COMUNE", "FOGLIO", "MAPPALE"]].map(normalizza_stringa_catasto) == "").any(axis=None):
+        raise ValueError("Ogni visura deve identificare comune, foglio e mappale")
+
     # Aggregazione comproprietari
-    def _aggrega_ditta(sub_df):
+    aggregati = []
+    for chiave, sub_df in df_visure.groupby("_key_join", sort=False):
         ditte = []
         for _, r in sub_df.iterrows():
             q = f" ({r.get('QUOTA', '1/1')})" if pd.notna(r.get("QUOTA")) else ""
@@ -130,12 +170,10 @@ def arricchisci_catasto_con_visure(
             ditte.append(f"{r.get('INTESTATO', 'N.D.')}{q}{cf}")
 
         primo = sub_df.iloc[0].to_dict()
-        prima_serie = pd.Series(primo)
-        prima_serie["INTESTATI_COMPLETI"] = " | ".join(ditte)
-        prima_serie["NUM_INTESTATI"] = len(ditte)
-        return prima_serie
+        primo.update(INTESTATI_COMPLETI=" | ".join(ditte), NUM_INTESTATI=len(ditte), _key_join=chiave)
+        aggregati.append(primo)
 
-    df_agg = df_visure.groupby("_key_join", group_keys=False).apply(_aggrega_ditta)
+    df_agg = pd.DataFrame(aggregati)
 
     campi_join = [
         "_key_join", "INTESTATI_COMPLETI", "NUM_INTESTATI", "QUALITA",
@@ -144,14 +182,24 @@ def arricchisci_catasto_con_visure(
     ]
     campi_presenti = [c for c in campi_join if c in df_agg.columns]
 
-    gdf_out = gdf.merge(df_agg[campi_presenti], on="_key_join", how="left")
+    # I valori catastali rimangono disponibili quando la visura non li specifica.
+    campi_esistenti = [c for c in campi_presenti if c != "_key_join" and c in gdf.columns]
+    gdf_out = gdf.merge(df_agg[campi_presenti], on="_key_join", how="left", suffixes=("_catasto", ""), validate="many_to_one")
+    for campo in campi_esistenti:
+        gdf_out[campo] = gdf_out[campo].combine_first(gdf_out.pop(campo + "_catasto"))
+    defaults = {"QUALIFICA_SOGGETTO": "PROPRIETARIO_NON_COLTIVATORE", "DESTINAZIONE_URB": "Agricola",
+                "ALBERI_PREGIO_QTA": 0, "RECINZIONE_ML": 0.0, "IMPIANTO_IRRIGUO": False, "NUM_INTESTATI": 0}
+    for campo, default in defaults.items():
+        if campo not in gdf_out:
+            gdf_out[campo] = default
     gdf_out["INTESTATI_COMPLETI"] = gdf_out["INTESTATI_COMPLETI"].fillna("Dati non censiti")
     gdf_out["QUALIFICA_SOGGETTO"] = gdf_out["QUALIFICA_SOGGETTO"].fillna("PROPRIETARIO_NON_COLTIVATORE")
     gdf_out["DESTINAZIONE_URB"] = gdf_out["DESTINAZIONE_URB"].fillna("Agricola")
-    gdf_out["ALBERI_PREGIO_QTA"] = gdf_out.get("ALBERI_PREGIO_QTA", 0).fillna(0).astype(int)
-    gdf_out["RECINZIONE_ML"] = gdf_out.get("RECINZIONE_ML", 0.0).fillna(0.0).astype(float)
-    gdf_out["IMPIANTO_IRRIGUO"] = gdf_out.get("IMPIANTO_IRRIGUO", False).fillna(False).astype(bool)
-    gdf_out.drop(columns=["_key_join"], inplace=True)
+    gdf_out["ALBERI_PREGIO_QTA"] = pd.to_numeric(gdf_out["ALBERI_PREGIO_QTA"], errors="raise").fillna(0).astype(int)
+    gdf_out["RECINZIONE_ML"] = pd.to_numeric(gdf_out["RECINZIONE_ML"], errors="raise").fillna(0.0)
+    gdf_out["IMPIANTO_IRRIGUO"] = gdf_out.get("IMPIANTO_IRRIGUO", False).map(valore_booleano)
+    gdf_out = gdf_out.drop(columns=["_key_join"])
+    gdf_out["NUM_INTESTATI"] = gdf_out["NUM_INTESTATI"].fillna(0).astype(int)
 
     return gdf_out
 
@@ -168,14 +216,33 @@ def elabora_interferenze_spaziali(
     gdf_strade: Optional[gpd.GeoDataFrame] = None,
     gdf_fabbricati: Optional[gpd.GeoDataFrame] = None,
     params: Optional[ParametriEspropri] = None,
-    target_crs: str = "EPSG:32632"
+    target_crs: Optional[str] = None
 ) -> gpd.GeoDataFrame:
     """Interseca le fasce di progetto con il particellare e analizza l'accessibilità viaria."""
     if params is None:
         params = ParametriEspropri()
 
-    catasto_m = gdf_catasto.to_crs(target_crs)
+    if target_crs is None:
+        if gdf_catasto.crs is None:
+            raise ValueError("CRS mancante per catasto")
+        origin = CRS.from_user_input(gdf_catasto.crs)
+        if origin.is_projected and origin.to_epsg() not in {3857, 3395} and all(a.unit_conversion_factor == 1 for a in origin.axis_info):
+            target_crs = origin
+        else:
+            target_crs = gdf_tracciato.estimate_utm_crs()
+    crs = CRS.from_user_input(target_crs)
+    if not crs.is_projected or crs.to_epsg() in {3857, 3395} or any(a.unit_conversion_factor != 1 for a in crs.axis_info):
+        raise ValueError("target_crs deve essere un sistema proiettato in metri adatto alle misure (es. UTM, escluso Mercator)")
+    for nome, frame in (("catasto", gdf_catasto), ("tracciato", gdf_tracciato)):
+        if frame.crs is None:
+            raise ValueError(f"CRS mancante per {nome}")
+    catasto_m = gdf_catasto.to_crs(target_crs).copy()
+    catasto_m.geometry = catasto_m.geometry.make_valid()
+    if not catasto_m.geometry.dropna().geom_type.isin(["Polygon", "MultiPolygon"]).all():
+        raise ValueError("Il catasto deve contenere geometrie poligonali")
     tracciato_m = gdf_tracciato.to_crs(target_crs)
+    if tracciato_m.empty or tracciato_m.geometry.is_empty.all() or tracciato_m.geometry.isna().all():
+        raise ValueError("Tracciato privo di geometrie utilizzabili")
 
     strade_geom = None
     if gdf_strade is not None and not gdf_strade.empty:
@@ -187,7 +254,8 @@ def elabora_interferenze_spaziali(
 
     fabbricati_m = None
     if gdf_fabbricati is not None and not gdf_fabbricati.empty:
-        fabbricati_m = gdf_fabbricati.to_crs(target_crs)
+        fabbricati_m = gdf_fabbricati.to_crs(target_crs).copy()
+        fabbricati_m.geometry = fabbricati_m.geometry.make_valid()
 
     # Geometrie fasce di progetto
     try:
@@ -203,8 +271,9 @@ def elabora_interferenze_spaziali(
 
     risultati = []
 
-    for _, row in catasto_m.iterrows():
-        geom_part = row.geometry
+    candidati = sorted(catasto_m.sindex.query(geom_cant_tot, predicate="intersects"))
+    for _, row in catasto_m.iloc[candidati].iterrows():
+        geom_part = row[catasto_m.geometry.name]
         if not geom_part.intersects(geom_cant_tot):
             continue
 
@@ -224,11 +293,13 @@ def elabora_interferenze_spaziali(
         pct_esp = (area_esp / sup_tot) * 100.0 if sup_tot > 0 else 0.0
 
         # Riconoscimento relitto critico dimensionale
-        relitto_critico = (0 < area_res < 450.0) or (0 < area_res and pct_esp > 75.0)
+        relitto_critico = area_esp > 0 and ((0 < area_res < 450.0) or (0 < area_res and pct_esp > 75.0))
 
         # Analisi interclusione e spezzoni
         is_intercluso = False
-        num_spezzoni = 1
+        num_spezzoni = len(geom_part.geoms) if isinstance(geom_part, MultiPolygon) else 1
+        area_interclusa = 0.0
+        accesso_precedente = strade_geom is not None and geom_part.intersects(strade_geom)
 
         if area_esp > 0:
             residuo_geom = geom_part.difference(geom_esp)
@@ -240,39 +311,41 @@ def elabora_interferenze_spaziali(
                 frammenti = [p for p in residuo_geom.geoms if not p.is_empty and p.area > 1.0]
 
             num_spezzoni = len(frammenti)
-            if strade_geom is not None and frammenti:
-                for f in frammenti:
-                    if not f.intersects(strade_geom):
-                        is_intercluso = True
-                        break
+            if accesso_precedente and frammenti:
+                # Verifica l'accesso dopo la sottrazione della sede dell'opera.
+                strade_residue = strade_geom.difference(geom_esp)
+                area_interclusa = sum(f.area for f in frammenti if not f.intersects(strade_residue))
+                is_intercluso = area_interclusa > 0
 
         # Verifica collisione fabbricati censiti
         sup_fabbricati_abbattuti = 0.0
         if fabbricati_m is not None:
-            fabb_intersecati = fabbricati_m[fabbricati_m.intersects(int_esp)]
+            fabb_intersecati = fabbricati_m.iloc[fabbricati_m.sindex.query(int_esp, predicate="intersects")]
             if not fabb_intersecati.empty:
-                sup_fabbricati_abbattuti = float(fabb_intersecati.intersection(int_esp).area.sum())
+                sup_fabbricati_abbattuti = float(fabb_intersecati.geometry.union_all().intersection(int_esp).area)
 
         dati = row.to_dict()
         dati.update({
-            "sup_totale_mq": round(sup_tot, 1),
-            "sup_esproprio_mq": round(area_esp, 1),
-            "pct_esproprio": round(pct_esp, 1),
-            "sup_asservimento_mq": round(area_ass, 1),
-            "sup_cantiere_mq": round(area_cant, 1),
-            "sup_residua_mq": round(area_res, 1),
+            "sup_totale_mq": sup_tot,
+            "sup_esproprio_mq": area_esp,
+            "pct_esproprio": pct_esp,
+            "sup_asservimento_mq": area_ass,
+            "sup_cantiere_mq": area_cant,
+            "sup_residua_mq": area_res,
+            "sup_residua_interclusa_mq": area_interclusa,
             "relitto_critico": relitto_critico,
             "relitto_intercluso_art33": is_intercluso,
             "num_spezzoni_residui": num_spezzoni,
-            "sup_fabbricati_abbattuti_mq": round(sup_fabbricati_abbattuti, 1),
+            "sup_fabbricati_abbattuti_mq": sup_fabbricati_abbattuti,
+            "accessibilita_verificata": strade_geom is not None,
             "has_progetto": True
         })
         risultati.append(dati)
 
     if not risultati:
-        return gpd.GeoDataFrame(columns=catasto_m.columns, crs=target_crs)
+        return gpd.GeoDataFrame(columns=catasto_m.columns, geometry=catasto_m.geometry.name, crs=target_crs)
 
-    return gpd.GeoDataFrame(risultati, crs=target_crs)
+    return gpd.GeoDataFrame(risultati, geometry=catasto_m.geometry.name, crs=target_crs)
 
 
 analizza_interferenze_e_interclusione = elabora_interferenze_spaziali
@@ -301,8 +374,11 @@ def calcola_stime_espropriative(
         sup_ass = float(r.get("sup_asservimento_mq", 0.0))
         sup_cant = float(r.get("sup_cantiere_mq", 0.0))
         sup_res = float(r.get("sup_residua_mq", 0.0))
-        is_intercluso = bool(r.get("relitto_intercluso_art33", False))
-        is_relitto = bool(r.get("relitto_critico", False))
+        is_intercluso = valore_booleano(r.get("relitto_intercluso_art33", False))
+        is_relitto = valore_booleano(r.get("relitto_critico", False))
+
+        if any(not math.isfinite(v) or v < 0 for v in (sup_esp, sup_ass, sup_cant, sup_res)):
+            raise ValueError("Le superfici devono essere finite e non negative")
 
         # 1. Indennità Base Esproprio
         if dest == "Edificabile":
@@ -316,7 +392,7 @@ def calcola_stime_espropriative(
 
         # 2. Maggiorazione Coltivatore Diretto / IAP
         ind_cd_iap = 0.0
-        if any(k in qual for k in ["IAP", "COLTIVATORE"]):
+        if soggetto_coltivatore(qual):
             if cessione_volontaria and dest != "Edificabile":
                 # Triplo del valore agricolo effettivo ex art. 45 c. 2 lett. d
                 ind_cd_iap = (sup_esp * v_unit) * 2.0
@@ -333,11 +409,14 @@ def calcola_stime_espropriative(
         ind_cant = (sup_cant * v_unit) * (1.0 / 12.0) * params.durata_anni_cantiere
 
         # 5. Soprassuoli, Manufatti e Fabbricati Rurali
-        qta_alberi = int(r.get("ALBERI_PREGIO_QTA", 0))
+        qta_alberi = float(r.get("ALBERI_PREGIO_QTA", 0))
         ml_recinto = float(r.get("RECINZIONE_ML", 0.0))
-        has_irriguo = bool(r.get("IMPIANTO_IRRIGUO", False))
+        has_irriguo = valore_booleano(r.get("IMPIANTO_IRRIGUO", False))
         sup_fabb = float(r.get("sup_fabbricati_abbattuti_mq", 0.0))
 
+        if any(not math.isfinite(v) or v < 0 for v in (qta_alberi, ml_recinto, sup_fabb)) or not qta_alberi.is_integer():
+            raise ValueError("Soprassuoli non validi: quantità intere di alberi e misure finite non negative")
+        qta_alberi = int(qta_alberi)
         ind_soprassuoli = (
             (qta_alberi * params.costo_albero_olivo_vite) +
             (ml_recinto * params.costo_recinzione_ml) +
@@ -348,9 +427,12 @@ def calcola_stime_espropriative(
         # 6. Danno Relitto / Interclusione (Art. 33)
         ind_relitto = 0.0
         if is_intercluso:
-            ind_relitto = sup_res * v_unit
-            motivo_azione = "Interclusione assoluta della porzione residua priva di viabilità (art. 33 c. 2)."
-            azione = "Istanza di esproprio totale con liquidazione integrale del relitto."
+            sup_interclusa = float(r.get("sup_residua_interclusa_mq", sup_res))
+            if not math.isfinite(sup_interclusa) or not 0 <= sup_interclusa <= sup_res + 1e-7:
+                raise ValueError("Superficie interclusa incompatibile con il residuo")
+            ind_relitto = min(sup_interclusa, sup_res) * v_unit
+            motivo_azione = "Porzione residua senza contatto con la viabilità censita dopo il taglio: verificare accessi e servitù (art. 33)."
+            azione = "Verifica dei presupposti per acquisizione della porzione residua o deprezzamento documentato."
         elif is_relitto:
             ind_relitto = sup_res * (v_unit * 0.50)
             motivo_azione = "Relitto di consistenza antieconomica inferiore al minimo colturale o con taglio > 75%."
@@ -359,6 +441,9 @@ def calcola_stime_espropriative(
             motivo_azione = "Opera regolare senza relitti critici individuati."
             azione = "Accettazione con riserva o cessione volontaria con indennità concordata."
 
+        ind_base, ind_cd_iap, ind_ass, ind_cant, ind_soprassuoli, ind_relitto = (
+            round(v, 2) for v in (ind_base, ind_cd_iap, ind_ass, ind_cant, ind_soprassuoli, ind_relitto)
+        )
         totale = ind_base + ind_cd_iap + ind_ass + ind_cant + ind_soprassuoli + ind_relitto
 
         dossier.append({
@@ -376,6 +461,7 @@ def calcola_stime_espropriative(
             "SUP_RES_MQ": sup_res,
             "INTERCLUSO_ART33": is_intercluso,
             "RELITTO_CRITICO": is_relitto,
+            "ACCESSIBILITA_VERIFICATA": valore_booleano(r.get("accessibilita_verificata", False)),
             "IND_ESPROPRIO_BASE": round(ind_base, 2),
             "IND_AGGIUNTIVA_CD_IAP": round(ind_cd_iap, 2),
             "IND_ASSERVIMENTO": round(ind_ass, 2),
@@ -406,47 +492,18 @@ def calcola_quadro_indennitario_analitico(
     sup_ass = float(row.get("sup_asservimento_mq", 0.0))
     sup_cant = float(row.get("sup_cantiere_mq", 0.0))
     sup_res = float(row.get("sup_residua_mq", 0.0))
-    is_intercluso = bool(row.get("relitto_intercluso_art33", False))
+    is_intercluso = valore_booleano(row.get("relitto_intercluso_art33", False))
 
-    indennita_base_esproprio = 0.0
-    indennita_aggiuntiva_iap_cd = 0.0
-
-    if destinazione == "Edificabile":
-        valore_unitario = getattr(parametri, "valore_venale_edificabile_mq", 95.0)
-        indennita_base_esproprio = sup_esp * valore_unitario
-        if opzione_cessione_volontaria:
-            indennita_base_esproprio *= 1.10
-    else:
-        valore_unitario = getattr(parametri, "valore_venale_agricolo_mq", 5.0)
-        indennita_base_esproprio = sup_esp * valore_unitario
-        vam = getattr(parametri, "valore_agricolo_medio_mq", 3.20)
-        if "IAP" in qualifica or "COLTIVATORE" in qualifica:
-            if opzione_cessione_volontaria:
-                indennita_aggiuntiva_iap_cd = (sup_esp * valore_unitario) * 2.0
-            else:
-                indennita_aggiuntiva_iap_cd = sup_esp * vam
-        elif "FITTA" in qualifica:
-            indennita_aggiuntiva_iap_cd = sup_esp * vam
-
-    saggio = getattr(parametri, "saggio_asservimento", 0.35)
-    indennita_asservimento = sup_ass * (valore_unitario * saggio)
-
-    durata = getattr(parametri, "durata_anni_cantiere", 2.0)
-    indennita_cantiere = (sup_cant * valore_unitario) * (1.0 / 12.0) * durata
-
-    indennita_deprezzamento_relitto = 0.0
-    if is_intercluso:
-        indennita_deprezzamento_relitto = sup_res * valore_unitario
-    elif row.get("relitto_critico", False):
-        indennita_deprezzamento_relitto = sup_res * (valore_unitario * 0.50)
-
-    totale_complessivo = (
-        indennita_base_esproprio +
-        indennita_aggiuntiva_iap_cd +
-        indennita_asservimento +
-        indennita_cantiere +
-        indennita_deprezzamento_relitto
-    )
+    campi_parametri = ParametriEspropri.__dataclass_fields__
+    params = ParametriEspropri(**{nome: getattr(parametri, nome) for nome in campi_parametri if hasattr(parametri, nome)})
+    dato = dict(row, DESTINAZIONE_URB=destinazione)
+    stima = calcola_stime_espropriative(pd.DataFrame([dato]), params, opzione_cessione_volontaria).iloc[0]
+    indennita_base_esproprio = stima["IND_ESPROPRIO_BASE"]
+    indennita_aggiuntiva_iap_cd = stima["IND_AGGIUNTIVA_CD_IAP"]
+    indennita_asservimento = stima["IND_ASSERVIMENTO"]
+    indennita_cantiere = stima["IND_CANTIERE_ART50"]
+    indennita_deprezzamento_relitto = stima["DANNO_RELITTO_ART33"]
+    totale_complessivo = stima["TOTALE_INDENNITA_STIMATA"]
 
     return {
         "comune": row.get("comune", row.get("COMUNE", "N.D.")),
@@ -464,7 +521,7 @@ def calcola_quadro_indennitario_analitico(
         },
         "criticita": {
             "interclusione": is_intercluso,
-            "relitto_critico": row.get("relitto_critico", False),
+            "relitto_critico": valore_booleano(row.get("relitto_critico", False)),
             "azione_consigliata": "Opposizione per relitto" if row.get("relitto_critico") else "Liquidazione standard"
         },
         "indennita": {
@@ -473,6 +530,7 @@ def calcola_quadro_indennitario_analitico(
             "asservimento_eur": round(indennita_asservimento, 2),
             "cantiere_art50_eur": round(indennita_cantiere, 2),
             "danno_relitto_art33_eur": round(indennita_deprezzamento_relitto, 2),
+            "soprassuoli_manufatti_eur": stima["IND_SOPRASSUOLI_MANUFATTI"],
             "totale_liquidabile_eur": round(totale_complessivo, 2)
         }
     }
@@ -487,7 +545,7 @@ def elabora_piano_particellare_espropri(
     buffer_cantiere_m: float = 8.0,
     valore_agricolo_medio_mq: float = 4.50,
     valore_edificabile_mq: float = 85.00,
-    target_crs: str = "EPSG:32632"
+    target_crs: Optional[str] = None
 ) -> gpd.GeoDataFrame:
     """Wrapper di alto livello per elaborazione del piano particellare con fabbricati."""
     params = ParametriEspropri(
@@ -543,7 +601,7 @@ def genera_memorie_tecniche(df_stime: pd.DataFrame, out_dir: Path):
 ---
 
 ### 3. CRITICITÀ TOPOLOGICHE E FONDIARE (ART. 33 D.P.R. 327/2001)
-- **Stato Interclusione Stradale:** {'ATTENZIONE: PARTICELLA INTERCLUSA (Priva di sbocco su viabilità pubblica)' if r['INTERCLUSO_ART33'] else 'Accesso stradale verificato'}
+- **Stato Interclusione Stradale:** {'ATTENZIONE: PARTICELLA INTERCLUSA (Priva di sbocco su viabilità pubblica)' if r['INTERCLUSO_ART33'] else ('Accesso stradale verificato' if r.get('ACCESSIBILITA_VERIFICATA', False) else 'Accessibilità non verificata: viabilità non disponibile')}
 - **Frazionamento Antieconomico (Relitto):** {'SÌ (Area residua inferiore a 450 mq o > 75% espropriato)' if r['RELITTO_CRITICO'] else 'No'}
 - **Diagnosi Peritale:** {r['MOTIVAZIONE_TECNICA']}
 - **Richiesta Formale:** {r['AZIONE_CONSIGLIATA']}

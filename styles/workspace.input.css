@@ -1,0 +1,4 @@
+/* Build: npx tailwindcss@3.4.17 -i styles/workspace.input.css --content index.html,map_workspace.js -o static/workspace.css --minify */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

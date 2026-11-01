@@ -1,776 +1,102 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>Motore Espropri — Quadro Territoriale delle Interferenze DPR 327/2001</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-  <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
-  <script src="tracciato_suite.js"></script>
-  
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0f172a; color: #f8fafc; overflow: hidden; }
-    
-    #app { display: flex; height: 100vh; width: 100vw; }
-    #map { flex: 1; height: 100%; position: relative; }
-
-    /* Top bar rapida di navigazione */
-    .top-nav {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 20;
-      background: rgba(15, 23, 42, 0.95);
-      border: 1px solid #334155;
-      padding: 6px 12px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    }
-    .top-nav a {
-      color: #38bdf8;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .top-nav a:hover {
-      text-decoration: underline;
-    }
-
-    /* Sidebar di ispezione particellare */
-    #sidebar {
-      width: 420px;
-      background: #1e293b;
-      border-left: 1px solid #334155;
-      display: flex;
-      flex-direction: column;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.4);
-      z-index: 10;
-    }
-
-    .sidebar-header {
-      padding: 20px;
-      background: #0f172a;
-      border-bottom: 1px solid #334155;
-    }
-    .sidebar-header h1 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #38bdf8; }
-    .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
-
-    .sidebar-content { padding: 20px; overflow-y: auto; flex: 1; }
-
-    /* Componenti Card e Metriche */
-    .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-    .metric-card { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 12px; }
-    .metric-card span { font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 600; }
-    .metric-card strong { display: block; font-size: 17px; margin-top: 4px; color: #f8fafc; font-family: monospace; }
-
-    .status-badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .badge-danger { background: rgba(230, 57, 70, 0.2); color: #ff6b6b; border: 1px solid #e63946; }
-    .badge-warning { background: rgba(244, 162, 97, 0.2); color: #f4a261; border: 1px solid #f4a261; }
-
-    .alert-box {
-      background: rgba(220, 38, 38, 0.15);
-      border-left: 4px solid #ef4444;
-      padding: 12px;
-      border-radius: 0 4px 4px 0;
-      margin-bottom: 16px;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-
-    .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; }
-    .breakdown-table td { padding: 8px 4px; border-bottom: 1px solid #334155; }
-    .breakdown-table td:last-child { text-align: right; font-family: monospace; font-weight: 600; }
-
-    /* Legenda flottante sulla mappa */
-    .legend-control {
-      position: absolute;
-      bottom: 24px;
-      left: 24px;
-      background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(8px);
-      padding: 14px 18px;
-      border-radius: 8px;
-      border: 1px solid #334155;
-      font-size: 12px;
-      z-index: 5;
-    }
-    .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-    .legend-item:last-child { margin-bottom: 0; }
-    .legend-color { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,0.2); }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quadro Territoriale delle Interferenze — Archivio documentale</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<script src="tracciato_suite.js"></script>
+<script src="map_workspace.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0d1727;color:#e2e8f0;font:13px system-ui,sans-serif;height:100dvh;display:flex;flex-direction:column}button,input,select{font:inherit}a{color:#7dd3fc}button,select,input{background:#1b2b41;border:1px solid #42546d;color:#e2e8f0;border-radius:7px;padding:9px}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}:focus-visible{outline:2px solid #7dd3fc;outline-offset:3px}header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:1px solid #334155;padding:14px 20px}header h1{font-size:15px;margin:0}header select{flex:1;min-width:220px;max-width:600px}#workspace{display:grid;grid-template-columns:minmax(320px,40%) 1fr;flex:1;min-height:0}aside{overflow:auto;border-right:1px solid #334155;padding:20px}#map{position:relative;min-height:200px}#map-canvas{position:absolute;inset:0}#basemap-toggle{position:absolute;z-index:3;top:96px;right:16px;background:#0d1727ed;border-color:#64748b;box-shadow:0 2px 10px #0008}h2{font-size:14px;margin:22px 0 10px}p{line-height:1.6}.muted{color:#9dafc6}.document{padding:13px;border:1px solid #334155;border-radius:9px;margin-bottom:8px;background:#142238}.document small{display:block;color:#9dafc6;margin-top:6px;overflow-wrap:anywhere}.quality{padding:12px;border-left:3px solid #38bdf8;background:#112d40;line-height:1.6}.tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}#search{width:100%}.row{padding:14px 0;border-bottom:1px solid #334155;line-height:1.7;overflow-wrap:anywhere}.row strong{display:block}.row small{color:#fbbf24}.row a{margin-right:12px}#map-status{position:absolute;z-index:2;left:16px;top:64px;right:16px;padding:12px 15px;background:#0d1727ed;border:1px solid #42546d;border-radius:9px;line-height:1.6}#pagination{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:16px}#notice{padding:12px;background:#33271a;color:#fde68a;border-radius:8px;margin:10px 0}.maplibregl-popup-content{color:#0f172a;line-height:1.6;font-size:12px}#collection{font-size:11px;color:#9dafc6;line-height:1.6;margin-top:18px}@media(max-width:800px){header{padding:12px;gap:9px}header h1{font-size:13px}#workspace{display:flex;flex-direction:column-reverse}#map{height:36dvh;flex-shrink:0}aside{border:0;border-top:1px solid #334155;padding:16px;flex:1;min-height:0}header select{width:100%;max-width:none;flex-basis:100%}#map-status{top:60px}#basemap-toggle{top:12px;right:12px}}
+</style>
 </head>
 <body>
-
-<div id="app">
-  <div id="map">
-    <!-- Top nav -->
-    <div class="top-nav">
-      <a href="./">← Dashboard Principale</a>
-      <span style="color:#64748b;">|</span>
-      <span>Opera:</span>
-      <select id="select-opera-tracciato" onchange="cambiaOperaTracciato(this.value)" style="background:#1e293b; color:#38bdf8; border:1px solid #475569; border-radius:4px; font-size:11px; padding:2px 6px; font-weight:bold;">
-        <option value="RFI-TAV-VR-PD-SUB-TRATTA-VICENZA">TAV Vicenza (AV/AC Verona-Padova)</option>
-        <option value="SIMICO-MICO-2026-VALTELLINA-SS38">SS38 Variante di Tirano</option>
-        <option value="AUTOVIE-A4-TERZA-CORSIA-SAN-DONA-PORTOGRUARO">A4 Terza Corsia Portogruaro</option>
-        <option value="REGIONE-LOMBARDIA-DERVIO-IDRAULICA-LC">Mitigazione Dervio (Varrone)</option>
-        <option value="ANAS-LOMBARDIA-VARIANTE-PALADINA-SEDRINA-SS470">SS470 Variante di Paladina</option>
-      </select>
-      <span style="color:#64748b;">|</span>
-      <button onclick="document.getElementById('input-kml-quadro').click()" style="background:#064e3b; color:#6ee7b7; border:1px solid #059669; border-radius:4px; font-size:11px; padding:3px 8px; cursor:pointer; font-weight:bold;">
-        📂 Carica KML/GeoJSON
-      </button>
-      <input type="file" id="input-kml-quadro" accept=".kml,.geojson,.json" onchange="caricaFileInQuadro(this)" style="display:none;" />
-      <button onclick="esportaTracciatoQuadro()" style="background:#0c4a6e; color:#7dd3fc; border:1px solid #0284c7; border-radius:4px; font-size:11px; padding:3px 8px; cursor:pointer; font-weight:bold;">
-        💾 Esporta GeoJSON
-      </button>
-      <button id="btn-toggle-wms-ade" onclick="toggleWmsAde()" style="background:#1e293b; color:#94a3b8; border:1px solid #475569; border-radius:4px; font-size:11px; padding:3px 8px; cursor:pointer; font-weight:bold;">
-        🗺️ Catasto WMS AdE
-      </button>
-      <span style="color:#64748b;">|</span>
-      <span style="color:#10b981;">D.P.R. 327/2001</span>
-    </div>
-
-    <!-- Legenda tematismi -->
-    <div class="legend-control">
-      <div style="font-weight: bold; font-size: 11px; color: #94a3b8; margin-bottom: 6px; text-transform: uppercase;">
-        📐 Fasce & Tracciato di Progetto
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background: #e63946;"></div>
-        <span>Fascia Esproprio Sede (±12m)</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background: #f4a261;"></div>
-        <span>Fascia Asservimento / Rispetto (±25m)</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="background: rgba(234, 179, 8, 0.4); border-color: #ca8a04;"></div>
-        <span>Fascia Cantiere Temporaneo (±35m)</span>
-      </div>
-      <div class="legend-item">
-        <div style="width: 14px; height: 8px; border-radius: 2px; background: #1e293b; border: 1px solid #475569;"></div>
-        <span>Sede Opera da Progetto (Piattaforma)</span>
-      </div>
-      <div class="legend-item">
-        <div style="width: 14px; height: 8px; border-radius: 2px; background: #64748b; border: 1px solid #334155;"></div>
-        <span>Impalcati Viadotti & Gallerie</span>
-      </div>
-      <div class="legend-item">
-        <div style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; border: 1px solid #fff;"></div>
-        <span>Picchetti PK (0+000)</span>
-      </div>
-      <div class="legend-item">
-        <div style="width: 10px; height: 10px; border-radius: 50%; background: #d97706; border: 1px solid #fff;"></div>
-        <span>Opere d'Arte (Viadotto, Galleria)</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-color" style="border: 2px solid #ef4444; background: transparent;"></div>
-        <span>Relitto Critico (Art. 33)</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Pannello di ispezione particellare -->
-  <aside id="sidebar">
-    <div class="sidebar-header">
-      <h1>Piano Particellare Grafico</h1>
-      <p>D.P.R. 327/2001 - Analisi Interferenze Dirette</p>
-    </div>
-    
-    <div class="sidebar-content" id="sidebar-detail">
-      <p style="color: #64748b; font-size: 13px; margin-top: 40px; text-align: center;">
-        Seleziona un mappale catastale sulla mappa per esaminare i parametri di occupazione e le indennità stimate.
-      </p>
-    </div>
-  </aside>
+<header><a href="/">← Mappa opere</a><h1>Quadro Territoriale delle Interferenze</h1><select id="opera-select" aria-label="Opera"><option>Caricamento archivio…</option></select></header>
+<div id="workspace">
+<aside>
+  <h2 id="opera-title">Documenti pubblicati dagli enti</h2>
+  <p id="opera-source"></p>
+  <div id="quality" class="quality" role="status">Caricamento…</div>
+  <div id="notice" hidden></div>
+  <h2>Originali archiviati</h2><div id="documents"></div>
+  <h2>Ditte e riferimenti catastali estratti</h2>
+  <input id="search" aria-label="Cerca intestatario, comune, foglio o particella" placeholder="Cerca nominativo, comune, foglio, mappale…">
+  <div class="tools"><button id="export-csv">Esporta righe con fonti</button><button id="export-geo">Esporta geometrie effettive</button></div>
+  <div id="rows"></div>
+  <div id="pagination"><button id="previous">Precedenti</button><span id="page-count" role="status"></span><button id="next">Successive</button></div>
+  <div id="collection"></div>
+</aside>
+<div id="map"><div id="map-canvas"></div><button id="basemap-toggle" type="button" aria-pressed="false">Mostra satellite</button><div id="map-status" role="status">Le particelle saranno visualizzate solo con geometrie effettive.</div></div>
 </div>
-
 <script>
-  // Inizializzazione MapLibre GL
-  const map = new maplibregl.Map({
-    container: 'map',
-    style: {
-      version: 8,
-      glyphs: 'https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf',
-      sources: {
-        'osm-tiles': {
-          type: 'raster',
-          tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-          tileSize: 256,
-          attribution: '&copy; OpenStreetMap contributors'
-        }
-      },
-      layers: [
-        {
-          id: 'base-osm',
-          type: 'raster',
-          source: 'osm-tiles',
-          paint: { 'raster-saturation': -0.7, 'raster-brightness-max': 0.8 }
-        }
-      ]
-    },
-    center: [11.535, 45.545], // Coordinate Vicenza / TAV
-    zoom: 15
+'use strict';
+let catalogue=[], currentRows=[], filteredRows=[], features=[], pageIndex=0, selectedSlug='', selectionVersion=0, parcelMap=null;
+const pageSize=75, element=id=>document.getElementById(id), html=escapeMapHtml;
+try {
+ parcelMap=new maplibregl.Map({container:'map-canvas',style:{version:8,sources:{street:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Tiles © Esri — Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, METI, and the GIS User Community'},satellite:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Imagery © Esri, Vantor, Earthstar Geographics, and the GIS User Community'},satelliteLabels:{type:'raster',tiles:['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}'],tileSize:256,attribution:'Reference labels © Esri'}},layers:[{id:'street-base',type:'raster',source:'street'},{id:'satellite-base',type:'raster',source:'satellite',layout:{visibility:'none'}},{id:'satellite-labels',type:'raster',source:'satelliteLabels',layout:{visibility:'none'}}]},center:[12.5,42.5],zoom:5,pitch:0,renderWorldCopies:false});
+ parcelMap.addControl(new maplibregl.NavigationControl(),'top-right');
+ parcelMap.addControl(new maplibregl.ScaleControl({unit:'metric'}),'bottom-left');
+ parcelMap.on('load',()=>{
+  parcelMap.addSource('parcels',{type:'geojson',data:{type:'FeatureCollection',features}});
+  parcelMap.addLayer({id:'parcel-fill',type:'fill',source:'parcels',paint:{'fill-color':'#0284c7','fill-opacity':.28}});
+  parcelMap.addLayer({id:'parcel-line',type:'line',source:'parcels',paint:{'line-color':'#0369a1','line-width':2}});
+  parcelMap.on('click','parcel-fill',event=>{
+   const p=event.features[0].properties;
+   new maplibregl.Popup().setLngLat(event.lngLat).setHTML(`<strong>${html(p.riferimento_catastale || 'Particella catastale')}</strong><br>${html(p.comune)} · Fg. ${html(p.foglio)} · Mapp. ${html(p.mappale)}${p.sezione_catastale_geometria ? ` · Sez. ${html(p.sezione_catastale_geometria)}` : ''}<br>${Number(p.righe_collegate)} righe/subalterni collegati · identificativi confrontati con l’atto<br>Geometria del catasto corrente; intestazioni OCR ancora da verificare<br><a href="${safeArchiveLink(p.documento_url)}" target="_blank" rel="noopener">Documento originale · pag. ${Number(p.fonte_pagina)}</a>${p.fonte_geometria ? `<br><a href="${safeSourceLink(p.fonte_geometria)}" target="_blank" rel="noopener">Risposta catastale WFS · SHA256 ${html(p.fonte_geometria_sha256)}</a>` : ''}`).addTo(parcelMap);
   });
-
-  window.map = map;
-
-  map.addControl(new maplibregl.NavigationControl(), 'top-right');
-
-  // Generatore di FeatureCollection particelle se endpoint locale o statico
-  function generateSampleParticellare() {
-    const centerLng = 11.535;
-    const centerLat = 45.545;
-    const features = [];
-    
-    const sampleDitte = [
-      { f: "34", m: "128", int: "Zanella S.r.l. Costruzioni", esp: 4850, ass: 0, cant: 500, des: "Edificabile", relitto: true, mot: "Superficie residua < 450 mq" },
-      { f: "34", m: "129", int: "Rossi Mario & C. S.a.s.", esp: 2400, ass: 600, cant: 400, des: "Agricola", relitto: false, mot: "" },
-      { f: "34", m: "130", int: "Società Agricola Berica", esp: 0, ass: 3100, cant: 800, des: "Agricola", relitto: false, mot: "" },
-      { f: "34", m: "131", int: "Immobiliare Veneta S.p.A.", esp: 5200, ass: 1200, cant: 600, des: "Edificabile", relitto: true, mot: "Esproprio > 75% della superficie catastale", fabb: true, num_fabb: 1 },
-      { f: "34", m: "132", int: "Bortolamei Giancarlo", esp: 1800, ass: 0, cant: 300, des: "Agricola", relitto: false, mot: "" },
-      { f: "34", m: "133", int: "Consorzio Bonifica Alta Pianura", esp: 0, ass: 2400, cant: 400, des: "Agricola", relitto: false, mot: "" }
-    ];
-
-    sampleDitte.forEach((d, idx) => {
-      const col = idx % 3;
-      const row = Math.floor(idx / 3);
-      const pLng = centerLng + (col - 1) * 0.0022;
-      const pLat = centerLat + (row - 0.5) * 0.0016;
-      const w = 0.0019;
-      const h = 0.0013;
-
-      const v_unit = d.des === "Edificabile" ? 90.0 : 5.0;
-      const ind_esp = d.esp * v_unit;
-      const ind_ass = d.ass * (v_unit * 0.35);
-      const ind_cant = d.cant * (v_unit * (1/12) * 2);
-      const tot_ind = ind_esp + ind_ass + ind_cant;
-
-      features.push({
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [[
-            [pLng, pLat],
-            [pLng + w, pLat],
-            [pLng + w, pLat + h],
-            [pLng, pLat + h],
-            [pLng, pLat]
-          ]]
-        },
-        properties: {
-          comune: "Vicenza",
-          foglio: d.f,
-          mappale: d.m,
-          intestatario: d.int,
-          destinazione: d.des,
-          sup_totale_mq: d.esp + d.ass + d.cant + 1500,
-          sup_esproprio_mq: d.esp,
-          sup_asservimento_mq: d.ass,
-          sup_cantiere_mq: d.cant,
-          pct_esproprio: Math.round((d.esp / (d.esp + d.ass + d.cant + 1500)) * 100),
-          relitto_critico: d.relitto,
-          motivo_relitto: d.mot,
-          has_fabbricato: Boolean(d.fabb),
-          num_fabbricati: d.num_fabb || 0,
-          indennita_esp_eur: ind_esp,
-          indennita_ass_eur: ind_ass,
-          indennita_cant_eur: ind_cant,
-          totale_indennita_eur: tot_ind
-        }
-      });
-    });
-
-    return { type: "FeatureCollection", features: features };
-  }
-
-  map.on('load', () => {
-    // 1. Layer WMS Ufficiale Catasto Agenzia delle Entrate (Sfondo particellare integrativo con proxy CORS)
-    const wmsTileEndpoint = (!window.location.hostname.includes('github.io'))
-      ? '/api/catasto/wms?bbox={bbox-epsg-3857}'
-      : 'https://wms.cartografia.agenziaentrate.gov.it/inspire/wms/ows01.php?service=WMS&request=GetMap&version=1.3.0&layers=CP.CadastralParcel,BU.Building&styles=&format=image/png&transparent=true&crs=EPSG:3857&width=256&height=256&bbox={bbox-epsg-3857}';
-
-    map.addSource('wms-ade-source', {
-      type: 'raster',
-      tiles: [wmsTileEndpoint],
-      tileSize: 256
-    });
-
-    map.addLayer({
-      id: 'wms-ade-layer',
-      type: 'raster',
-      source: 'wms-ade-source',
-      minzoom: 14,
-      layout: { visibility: 'none' },
-      paint: { 'raster-opacity': 0.6 }
-    });
-
-    // 2. Sorgente GeoJSON: Particelle interferite
-    map.addSource('particelle-progetto-source', {
-      type: 'geojson',
-      data: generateSampleParticellare()
-    });
-
-    // Fill tematico in base al grado di interferenza
-    map.addLayer({
-      id: 'particelle-fill',
-      type: 'fill',
-      source: 'particelle-progetto-source',
-      paint: {
-        'fill-color': [
-          'case',
-          ['>', ['get', 'sup_esproprio_mq'], 0], '#e63946',
-          ['>', ['get', 'sup_asservimento_mq'], 0], '#f4a261',
-          '#457b9d'
-        ],
-        'fill-opacity': 0.45
-      }
-    });
-
-    // Contorno particellare con alert rosso per relitti critici (Art. 33)
-    map.addLayer({
-      id: 'particelle-line',
-      type: 'line',
-      source: 'particelle-progetto-source',
-      paint: {
-        'line-color': [
-          'case',
-          ['get', 'relitto_critico'], '#ff0033',
-          '#1e293b'
-        ],
-        'line-width': [
-          'case',
-          ['get', 'relitto_critico'], 3.0,
-          1.0
-        ]
-      }
-    });
-
-    // 3. Suite Tracciato Ingegneristico: Asse + Buffer Fasce + PK
-    let currentOperaSlug = 'RFI-TAV-VR-PD-SUB-TRATTA-VICENZA';
-    let currentSuite = TracciatoSuite ? TracciatoSuite.generaSuiteGeoJsonPerOpera({
-      slug: currentOperaSlug,
-      titolo: 'Linea AV/AC Verona-Padova: Tratta Vicenza',
-      geo: { lat: 45.5455, lng: 11.5354 }
-    }) : null;
-
-    // Buffer Fasce (Cantiere 35m, Asservimento 25m, Esproprio 12m)
-    map.addSource('buffer-fasce-source', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: currentSuite ? [currentSuite.buffer_cantiere, currentSuite.buffer_asservimento, currentSuite.buffer_esproprio] : []
-      }
-    });
-
-    map.addLayer({
-      id: 'buffer-cantiere-fill',
-      type: 'fill',
-      source: 'buffer-fasce-source',
-      filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
-      paint: { 'fill-color': '#eab308', 'fill-opacity': 0.18 }
-    });
-    map.addLayer({
-      id: 'buffer-cantiere-line',
-      type: 'line',
-      source: 'buffer-fasce-source',
-      filter: ['==', ['get', 'tipo_fascia'], 'CANTIERE'],
-      paint: { 'line-color': '#ca8a04', 'line-width': 1.4 }
-    });
-
-    map.addLayer({
-      id: 'buffer-asservimento-fill',
-      type: 'fill',
-      source: 'buffer-fasce-source',
-      filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
-      paint: { 'fill-color': '#f4a261', 'fill-opacity': 0.28 }
-    });
-    map.addLayer({
-      id: 'buffer-asservimento-line',
-      type: 'line',
-      source: 'buffer-fasce-source',
-      filter: ['==', ['get', 'tipo_fascia'], 'ASSERVIMENTO'],
-      paint: { 'line-color': '#e76f51', 'line-width': 1.8 }
-    });
-
-    map.addLayer({
-      id: 'buffer-esproprio-fill',
-      type: 'fill',
-      source: 'buffer-fasce-source',
-      filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
-      paint: { 'fill-color': '#e63946', 'fill-opacity': 0.38 }
-    });
-    map.addLayer({
-      id: 'buffer-esproprio-line',
-      type: 'line',
-      source: 'buffer-fasce-source',
-      filter: ['==', ['get', 'tipo_fascia'], 'ESPROPRIO'],
-      paint: { 'line-color': '#d90429', 'line-width': 2.2 }
-    });
-
-    // Piattaforma Fisica di Progetto (Sedime Sede d'Opera Poligonale Reale, no linee o tratteggi)
-    map.addSource('piattaforma-progetto-source', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: currentSuite && currentSuite.piattaforma ? [currentSuite.piattaforma, ...(currentSuite.manufatti || [])] : []
-      }
-    });
-
-    map.addLayer({
-      id: 'piattaforma-fill',
-      type: 'fill',
-      source: 'piattaforma-progetto-source',
-      filter: ['==', ['get', 'tipo_feature'], 'PIATTAFORMA_PROGETTO'],
-      paint: {
-        'fill-color': '#1e293b',
-        'fill-opacity': 0.92
-      }
-    });
-
-    map.addLayer({
-      id: 'piattaforma-ciglio',
-      type: 'line',
-      source: 'piattaforma-progetto-source',
-      filter: ['==', ['get', 'tipo_feature'], 'PIATTAFORMA_PROGETTO'],
-      paint: {
-        'line-color': '#0f172a',
-        'line-width': 2.0
-      }
-    });
-
-    map.addLayer({
-      id: 'manufatti-viadotto-fill',
-      type: 'fill',
-      source: 'piattaforma-progetto-source',
-      filter: ['==', ['get', 'tipo_feature'], 'MANUFATTO_VIADOTTO'],
-      paint: {
-        'fill-color': '#64748b',
-        'fill-opacity': 0.96
-      }
-    });
-
-    map.addLayer({
-      id: 'manufatti-viadotto-ciglio',
-      type: 'line',
-      source: 'piattaforma-progetto-source',
-      filter: ['==', ['get', 'tipo_feature'], 'MANUFATTO_VIADOTTO'],
-      paint: {
-        'line-color': '#0f172a',
-        'line-width': 2.5
-      }
-    });
-
-    // Asse Tracciato Mezzeria di Progetto (continuo solido)
-    map.addSource('tracciato-line-source', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: currentSuite ? [currentSuite.asse] : []
-      }
-    });
-
-    map.addLayer({
-      id: 'tracciato-asse-line',
-      type: 'line',
-      source: 'tracciato-line-source',
-      paint: {
-        'line-color': '#f8fafc',
-        'line-width': 1.6
-      }
-    });
-
-    // Picchetti PK e Opere d'Arte
-    map.addSource('picchetti-pk-source', {
-      type: 'geojson',
-      data: {
-        type: 'FeatureCollection',
-        features: currentSuite && currentSuite.picchetti ? currentSuite.picchetti : []
-      }
-    });
-
-    map.addLayer({
-      id: 'tracciato-pk-circle',
-      type: 'circle',
-      source: 'picchetti-pk-source',
-      filter: ['==', ['get', 'tipo'], 'PICCHETTO_PK'],
-      paint: {
-        'circle-radius': 4.0,
-        'circle-color': '#0284c7',
-        'circle-stroke-width': 1.5,
-        'circle-stroke-color': '#ffffff'
-      }
-    });
-
-    map.addLayer({
-      id: 'tracciato-pk-label',
-      type: 'symbol',
-      source: 'picchetti-pk-source',
-      filter: ['==', ['get', 'tipo'], 'PICCHETTO_PK'],
-      minzoom: 12.5,
-      layout: {
-        'text-field': ['get', 'pk_label'],
-        'text-size': 10,
-        'text-offset': [0, 1.2],
-        'text-anchor': 'top'
-      },
-      paint: {
-        'text-color': '#0369a1',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 1.5
-      }
-    });
-
-    map.addLayer({
-      id: 'tracciato-opere-arte-circle',
-      type: 'circle',
-      source: 'picchetti-pk-source',
-      filter: ['==', ['get', 'tipo'], 'OPERA_ARTE'],
-      paint: {
-        'circle-radius': 6.5,
-        'circle-color': '#d97706',
-        'circle-stroke-width': 2.0,
-        'circle-stroke-color': '#ffffff'
-      }
-    });
-
-    map.addLayer({
-      id: 'tracciato-opere-arte-label',
-      type: 'symbol',
-      source: 'picchetti-pk-source',
-      filter: ['==', ['get', 'tipo'], 'OPERA_ARTE'],
-      minzoom: 11.5,
-      layout: {
-        'text-field': ['get', 'nome_opera_arte'],
-        'text-size': 11,
-        'text-offset': [0, -1.4],
-        'text-anchor': 'bottom'
-      },
-      paint: {
-        'text-color': '#92400e',
-        'text-halo-color': '#ffffff',
-        'text-halo-width': 2.0
-      }
-    });
-
-    // Eventi di selezione e popolamento sidebar
-    map.on('click', 'particelle-fill', (e) => {
-      const prop = e.features[0].properties;
-      renderSidebarDetail(prop);
-    });
-
-    map.on('mouseenter', 'particelle-fill', () => { map.getCanvas().style.cursor = 'pointer'; });
-    map.on('mouseleave', 'particelle-fill', () => { map.getCanvas().style.cursor = ''; });
-
-    // Render automatico primo dettaglio di esempio
-    const firstProps = generateSampleParticellare().features[0].properties;
-    renderSidebarDetail(firstProps);
-  });
-
-  function renderSidebarDetail(p) {
-    const formatMq = (val) => Number(val).toLocaleString('it-IT') + ' mq';
-    const formatEur = (val) => '€ ' + Number(val).toLocaleString('it-IT', { minimumFractionDigits: 2 });
-
-    const relittoHtml = p.relitto_critico 
-      ? `<div class="alert-box">
-           <strong>ATTENZIONE: Relitto Critico (Art. 33 D.P.R. 327/2001)</strong><br>
-           ${p.motivo_relitto || "Frazionamento antieconomico"}. L'area residua perde la capacità ordinaria di utilizzo; richiedere indennità per deprezzamento totale o esproprio integrale.
-         </div>` 
-      : '';
-
-    const fabbricatiHtml = p.has_fabbricato
-      ? `<span class="status-badge badge-danger">Interferenza con Fabbricati (${p.num_fabbricati})</span>`
-      : `<span class="status-badge badge-warning">Terreno ${p.destinazione}</span>`;
-
-    const container = document.getElementById('sidebar-detail');
-    container.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
-        <h2 style="font-size: 20px; font-weight: 700;">Foglio ${p.foglio} - Mapp.${p.mappale}</h2>
-        <span style="font-size: 13px; color: #94a3b8;">${p.comune}</span>
-      </div>
-
-      <div style="margin-bottom: 12px; font-size: 12px; color: #cbd5e1;">
-        <span style="color: #64748b;">Intestatario:</span> <b>${p.intestatario || 'Proprietario privato'}</b>
-      </div>
-
-      ${fabbricatiHtml}${relittoHtml}
-
-      <div class="metric-grid">
-        <div class="metric-card">
-          <span>Superficie Totale</span>
-          <strong>${formatMq(p.sup_totale_mq)}</strong>
-        </div>
-        <div class="metric-card">
-          <span>Incidenza Esproprio</span>
-          <strong style="color: ${p.pct_esproprio > 50 ? '#ff6b6b' : '#f8fafc'};">${p.pct_esproprio}%</strong>
-        </div>
-      </div>
-
-      <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; color: #94a3b8;">
-        Quadro Estimativo Indennità (DPR 327/2001)
-      </h3>
-      <table class="breakdown-table">
-        <tr>
-          <td>Esproprio Permanente (${formatMq(p.sup_esproprio_mq)})</td>
-          <td>${formatEur(p.indennita_esp_eur)}</td>
-        </tr>
-        <tr>
-          <td>Asservimento Fascia Rispetto (${formatMq(p.sup_asservimento_mq)})</td>
-          <td>${formatEur(p.indennita_ass_eur)}</td>
-        </tr>
-        <tr>
-          <td>Occupazione Cantiere Art. 50 (${formatMq(p.sup_cantiere_mq)})</td>
-          <td>${formatEur(p.indennita_cant_eur)}</td>
-        </tr>
-        <tr style="border-top: 2px solid #475569; font-weight: 700; color: #38bdf8;">
-          <td>TOTALE LIQUIDABILE ESTIMATO</td>
-          <td>${formatEur(p.totale_indennita_eur)}</td>
-        </tr>
-      </table>
-    `;
-  }
-
-  function cambiaOperaTracciato(slug) {
-    if (!TracciatoSuite) return;
-    currentOperaSlug = slug;
-    const known = TracciatoSuite.KNOWN_TRACCIATI[slug];
-    if (!known) return;
-
-    currentSuite = TracciatoSuite.generaSuiteGeoJsonPerOpera({
-      slug: slug,
-      titolo: known.nome,
-      geo: { lat: known.coordinates[0][1], lng: known.coordinates[0][0] }
-    });
-
-    if (currentSuite) {
-      if (map.getSource('piattaforma-progetto-source')) {
-        map.getSource('piattaforma-progetto-source').setData({
-          type: 'FeatureCollection',
-          features: currentSuite.piattaforma ? [currentSuite.piattaforma, ...(currentSuite.manufatti || [])] : []
-        });
-      }
-      map.getSource('buffer-fasce-source').setData({
-        type: 'FeatureCollection',
-        features: [currentSuite.buffer_cantiere, currentSuite.buffer_asservimento, currentSuite.buffer_esproprio]
-      });
-      map.getSource('tracciato-line-source').setData({
-        type: 'FeatureCollection',
-        features: [currentSuite.asse]
-      });
-      map.getSource('picchetti-pk-source').setData({
-        type: 'FeatureCollection',
-        features: currentSuite.picchetti || []
-      });
-
-      // Calcola BBOX e centra
-      const coords = currentSuite.asse.geometry.coordinates;
-      let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-      coords.forEach(c => {
-        if (c[0] < minLng) minLng = c[0];
-        if (c[0] > maxLng) maxLng = c[0];
-        if (c[1] < minLat) minLat = c[1];
-        if (c[1] > maxLat) maxLat = c[1];
-      });
-      map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 80, duration: 1500 });
-    }
-  }
-
-  function caricaFileInQuadro(input) {
-    if (!input.files || !input.files[0]) return;
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        if (!TracciatoSuite) throw new Error('TracciatoSuite non disponibile.');
-        const feat = TracciatoSuite.parseTracciatoFile(e.target.result, file.name);
-        const coords = feat.geometry.coordinates;
-
-        const gEsp = TracciatoSuite.calcolaBufferPoligono(coords, 12);
-        const gAss = TracciatoSuite.calcolaBufferPoligono(coords, 25);
-        const gCant = TracciatoSuite.calcolaBufferPoligono(coords, 35);
-        const gPiattaforma = TracciatoSuite.calcolaBufferPoligono(coords, 6.0);
-
-        if (map.getSource('piattaforma-progetto-source')) {
-          map.getSource('piattaforma-progetto-source').setData({
-            type: 'FeatureCollection',
-            features: [{ type: 'Feature', geometry: gPiattaforma, properties: { tipo_feature: 'PIATTAFORMA_PROGETTO' } }]
-          });
-        }
-
-        map.getSource('buffer-fasce-source').setData({
-          type: 'FeatureCollection',
-          features: [
-            { type: 'Feature', geometry: gCant, properties: { tipo_fascia: 'CANTIERE' } },
-            { type: 'Feature', geometry: gAss, properties: { tipo_fascia: 'ASSERVIMENTO' } },
-            { type: 'Feature', geometry: gEsp, properties: { tipo_fascia: 'ESPROPRIO' } }
-          ]
-        });
-
-        map.getSource('tracciato-line-source').setData({
-          type: 'FeatureCollection',
-          features: [feat]
-        });
-
-        // PK
-        const pks = [
-          { type: 'Feature', geometry: { type: 'Point', coordinates: coords[0] }, properties: { tipo: 'PICCHETTO_PK', pk_label: 'PK 0+000' } },
-          { type: 'Feature', geometry: { type: 'Point', coordinates: coords[coords.length - 1] }, properties: { tipo: 'PICCHETTO_PK', pk_label: 'PK Fine' } }
-        ];
-        map.getSource('picchetti-pk-source').setData({ type: 'FeatureCollection', features: pks });
-
-        let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
-        coords.forEach(c => {
-          if (c[0] < minLng) minLng = c[0];
-          if (c[0] > maxLng) maxLng = c[0];
-          if (c[1] < minLat) minLat = c[1];
-          if (c[1] > maxLat) maxLat = c[1];
-        });
-        map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 60, duration: 1500 });
-        alert(`Tracciato "${file.name}" caricato con successo con buffer 12m, 25m e 35m!`);
-      } catch (err) {
-        alert('Errore caricamento tracciato: ' + err.message);
-      }
-    };
-    reader.readAsText(file);
-  }
-
-  function esportaTracciatoQuadro() {
-    if (!TracciatoSuite) return;
-    const op = { slug: currentOperaSlug, titolo: 'Tracciato Progetto' };
-    TracciatoSuite.esportaGeoJsonTracciato(op);
-  }
-
-  function toggleWmsAde() {
-    if (!map || !map.getLayer('wms-ade-layer')) return;
-    const current = map.getLayoutProperty('wms-ade-layer', 'visibility');
-    const next = current === 'visible' ? 'none' : 'visible';
-    map.setLayoutProperty('wms-ade-layer', 'visibility', next);
-    const btn = document.getElementById('btn-toggle-wms-ade');
-    if (btn) {
-      if (next === 'visible') {
-        btn.style.background = '#0284c7';
-        btn.style.color = '#ffffff';
-        btn.style.borderColor = '#38bdf8';
-      } else {
-        btn.style.background = '#1e293b';
-        btn.style.color = '#94a3b8';
-        btn.style.borderColor = '#475569';
-      }
-    }
-  }
+  element('basemap-toggle').addEventListener('click',()=>{const satellite=parcelMap.getLayoutProperty('satellite-base','visibility')!=='visible';parcelMap.setLayoutProperty('street-base','visibility',satellite?'none':'visible');for(const layer of ['satellite-base','satellite-labels'])parcelMap.setLayoutProperty(layer,'visibility',satellite?'visible':'none');element('basemap-toggle').setAttribute('aria-pressed',String(satellite));element('basemap-toggle').textContent=satellite?'Mostra mappa stradale':'Mostra satellite';});
+  drawGeometry();
+ });
+} catch(error) {element('map-status').textContent='Cartografia non disponibile. Documenti e righe restano consultabili.';}
+async function request(url){const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error(`Archivio non disponibile (${response.status})`);return response.json();}
+function documentMarkup(doc){return `<div class="document"><a href="/api/documenti/${html(doc.id)}/file" target="_blank" rel="noopener">${html(doc.titolo)}</a><small>${doc.totale_pagine ?? '?'} pagine · ${doc.righe_estratte} righe estratte · ${html(doc.modalita)}</small><small><a href="${safeSourceLink(doc.fonte_url)}" target="_blank" rel="noopener">Fonte dell’ente</a> · SHA256 ${html(doc.sha256)}</small></div>`;}
+async function selectOpera(slug){
+ const version=++selectionVersion;selectedSlug=slug;pageIndex=0;currentRows=[];features=[];renderRows();drawGeometry();
+ const opera=catalogue.find(o=>o.slug===slug);if(!opera)return;
+ history.replaceState(null,'',`?opera=${encodeURIComponent(slug)}`);
+ element('opera-title').textContent=opera.titolo;
+ element('opera-source').innerHTML=`${html(opera.ente_promotore || '')}<br><a href="${safeSourceLink(opera.fonte_atto_url)}" target="_blank" rel="noopener">Pagina ufficiale dell’opera</a>`;
+ element('documents').innerHTML=(opera.documenti || []).map(documentMarkup).join('') || '<p class="muted">Nessun originale ancora acquisito. La pagina ufficiale è collegata; il download non è completato.</p>';
+ element('notice').hidden=true;
+ try{
+  const rows=await request(`/api/opere/${encodeURIComponent(slug)}/particelle`);if(version!==selectionVersion)return;
+  currentRows=rows;const localized=rows.filter(r=>r.geometry);const parcels=new Map();
+  for(const r of localized){const key=r.riferimento_catastale || r.id;const existing=parcels.get(key);if(existing){existing.properties.righe_collegate++;continue;}parcels.set(key,{type:'Feature',id:key,geometry:r.geometry,properties:{id:r.id,comune:r.comune,foglio:r.foglio,mappale:r.mappale,sezione_catastale_geometria:r.sezione_catastale_geometria,riferimento_catastale:r.riferimento_catastale,righe_collegate:1,documento_url:r.documento_url,fonte_pagina:r.fonte_pagina,fonte_geometria:r.fonte_geometria,fonte_geometria_sha256:r.fonte_geometria_sha256}});}
+  features=Array.from(parcels.values());
+  const review=rows.filter(r=>r.stato_estrazione==='ocr_da_verificare').length;
+  element('quality').textContent=`${rows.length} righe estratte · ${review} trascrizioni OCR da verificare · ${localized.length} righe con geometria. Copertura dell’opera non certificata.`;
+  renderRows();drawGeometry();
+ }catch(error){element('notice').hidden=false;element('notice').textContent=error.message;}
+}
+function renderRows(){
+ const q=normalizeMapSearch(element('search').value);
+ filteredRows=currentRows.filter(r=>normalizeMapSearch(`${r.intestatario || ''} ${r.comune || ''} ${r.foglio} ${r.mappale}`).includes(q));
+ const pages=Math.max(1,Math.ceil(filteredRows.length/pageSize));pageIndex=Math.min(pageIndex,pages-1);
+ element('rows').innerHTML=filteredRows.slice(pageIndex*pageSize,(pageIndex+1)*pageSize).map(r=>`<div class="row"><strong>${html(r.intestatario || 'Intestazione non leggibile')}</strong>${html(r.comune || '')} · Foglio ${html(r.foglio)} · Particella ${html(r.mappale)}${r.sub ? ' · Sub '+html(r.sub):''}<br><small>${r.stato_identificativi==='verificati_su_documento'?'Identificativi catastali verificati sull’atto · nominativi OCR da verificare':r.stato_estrazione==='ocr_da_verificare'?'Trascrizione OCR da verificare sull’originale':'Estratto da documento testuale'}</small><br><a href="${safeArchiveLink(r.documento_url)}" target="_blank" rel="noopener">Originale · pagina ${r.fonte_pagina}</a><a href="${safeSourceLink(r.fonte_url)}" target="_blank" rel="noopener">Fonte ente</a><br><span class="muted">${r.geometry?`Geometria catastale ${html(r.riferimento_catastale || '')} · riscontro attuale`:'Geometria non acquisita: nessuna posizione attribuita'}</span></div>`).join('') || '<p class="muted">Nessuna riga disponibile per questa ricerca.</p>';
+ element('page-count').textContent=`Pagina ${pageIndex+1}/${pages} · ${filteredRows.length} righe`;
+ element('previous').disabled=pageIndex===0;element('next').disabled=pageIndex>=pages-1;
+ element('export-csv').disabled=filteredRows.length===0;element('export-geo').disabled=features.length===0;
+}
+function drawGeometry(){
+ if(!parcelMap)return;
+ const source=parcelMap.getSource('parcels');if(!source)return;
+ source.setData({type:'FeatureCollection',features});
+ element('map-status').textContent=features.length ? `${features.length} particelle uniche localizzate (${features.reduce((n,f)=>n+Number(f.properties.righe_collegate || 1),0)} righe/subalterni collegati). Identificativi confrontati con gli atti; intestazioni OCR da verificare.` : 'Geometrie catastali non ancora acquisite. I nominativi non vengono posizionati sul centro del comune o su un tracciato indicativo.';
+ if(features.length){const bounds=new maplibregl.LngLatBounds();function add(coords){if(typeof coords[0]==='number')bounds.extend(coords);else coords.forEach(add);}features.forEach(f=>add(f.geometry.coordinates));parcelMap.fitBounds(bounds,{padding:70,maxZoom:17,duration:0});}
+}
+function download(content,mime,name){const url=URL.createObjectURL(new Blob([content],{type:mime}));const anchor=document.createElement('a');anchor.href=url;anchor.download=name;anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+element('opera-select').addEventListener('change',e=>selectOpera(e.target.value));element('search').addEventListener('input',()=>{pageIndex=0;renderRows();});
+element('previous').onclick=()=>{pageIndex--;renderRows();};element('next').onclick=()=>{pageIndex++;renderRows();};
+element('export-geo').onclick=()=>download(JSON.stringify({type:'FeatureCollection',features},null,2),'application/geo+json',`${selectedSlug}.geojson`);
+element('export-csv').onclick=()=>{
+ const fields=['comune','foglio','mappale','sub','intestatario','stato_identificativi','stato_estrazione','stato_geometria','riferimento_catastale','fonte_url','fonte_pagina','fonte_sha256','fonte_geometria','fonte_geometria_sha256'];
+ const cell=value=>'"'+String(value ?? '').replace(/^[=+@-]/,"'$&").replace(/"/g,'""')+'"';
+ download('\ufeff'+[fields,...filteredRows.map(r=>fields.map(k=>r[k]))].map(row=>row.map(cell).join(';')).join('\r\n'),'text/csv;charset=utf-8',`${selectedSlug}.csv`);
+};
+(async()=>{try{catalogue=await request('/api/opere');element('opera-select').innerHTML=catalogue.map(o=>`<option value="${html(o.slug)}">${html(o.titolo)}</option>`).join('');const chosen=new URLSearchParams(location.search).get('opera');const slug=catalogue.some(o=>o.slug===chosen)?chosen:catalogue.find(o=>o.righe_catastali>0)?.slug || catalogue[0]?.slug;if(slug){element('opera-select').value=slug;await selectOpera(slug);}else{element('quality').textContent='Archivio vuoto: nessun documento di produzione acquisito.';}
+ const status=await request('/api/archivio/stato');const errors=status.ultime_acquisizioni.filter(a=>a.stato==='errore_download'||a.stato==='errore_localizzazione').length;element('collection').textContent=`Archivio: ${status.documenti} originali, ${status.righe} righe. Ultimi tentativi di acquisizione con errore: ${errors}. Gli errori di rete non equivalgono ad assenza di documenti pubblicati.`;
+}catch(error){element('quality').textContent=error.message;}})();
 </script>
 </body>
 </html>

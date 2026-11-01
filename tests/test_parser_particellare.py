@@ -32,7 +32,7 @@ def test_extract_cf_e_piva():
 
 def test_parse_raw_table_rows_funzionamento():
     tabella_finta = [
-        ["Comune", "Foglio", "Mappale", "Sub", "Intestatario / Ditta", "Sup. Totale", "Sup. Esproprio", "Sup. Asserv."],
+        ["Comune", "Foglio", "Mappale", "Sub", "Intestatario / Ditta", "Sup. Totale mq", "Sup. Esproprio mq", "Sup. Asserv. mq"],
         ["Dervio", "12", "101", "", "ROSSI MARIO RSSMRA80A01H501Z", "5.000 mq", "1.200,50 mq", "350 mq"],
         ["Dervio", "12", "102", "1", "SOCIETA AGRICOLA SRL 01234567890", "12.500 mq", "0", "4.200 mq"],
         ["", "TOTALE", "", "", "", "", "1.200,50 mq", "4.550 mq"] # Riga totale da ignorare
